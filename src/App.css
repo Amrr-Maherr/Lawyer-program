@@ -1,38 +1,349 @@
-.App {
+.sidebar {
+  height: 100vh;
+  top: 0;
+  right: 0;
+  width: 250px;
+  background-color: #f8f9fa;
+  padding-top: 20px;
+}
+
+.sidebar .nav-item {
+  margin-bottom: 10px;
+}
+
+.main-content {
+  margin-right: 250px;
+  padding: 20px;
+}
+
+.sidebar {
+  background-color: #f8f9fa;
+  /* لون خلفية فاتح */
+  border-right: 1px solid #ddd;
+}
+
+.nav-link {
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-link:hover {
+  background-color: black;
+  /* لون أزرق عند التمرير */
+  color: #fff !important;
+  /* لون النص أبيض */
+}
+
+.dropdown-menu {
+  background-color: #fff;
+  /* لون خلفية القائمة المنسدلة */
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+  padding: 10px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+
+
+.logo-img {
+  height: 50px;
+  width: auto;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand span {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-left: 10px;
+}
+.hover {
+  -o-transition: 0.3s;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  -ms-transition: 0.3s;
+  transition: 0.3s;
+} 
+.hover:hover {
+  -o-transform: scale(1.1);
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+  -ms-transform: scale(1.1);
+  transform: scale(1.1);
+  
+}
+.link-shadow {
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.link-shadow:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+/* إزالة الخط تحت الرابط */
+select,
+select option {
+  text-decoration: none;
+  width: 100%;
+  /* لتأخذ نفس عرض الـ canvas */
+  background-color: transparent;
+  /* إذا كنت تريد أن يكون خلفية القوائم شفافة */
+  border: none;
+  /* إذا كنت ترغب في إزالة حدود الـ select */
+}
+
+/* إذا كنت بحاجة لضبط خصائص إضافية للرابط داخل القوائم */
+select option {
+  text-decoration: none;
+  color: #000;
+  /* تخصيص اللون كما تفضل */
+}
+.link-title {
+  font-family: "Amiri";
+}
+.attachment-item {
+  background-color: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.attachment-item p {
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+.attachment-item strong {
+  color: #333;
+}
+
+.file-link {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+.attachment-actions {
+  margin-top: 10px;
+}
+
+.action-link {
+  display: inline-block;
+  padding: 5px 10px;
+  margin-right: 10px;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.edit-link {
+  background-color: #ffc107;
+  color: #fff;
+}
+
+.edit-link:hover {
+  background-color: #e0a800;
+}
+
+
+.delete-link {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.delete-link:hover {
+  background-color: #c82333;
+}
+
+.details-link {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.details-link:hover {
+  background-color: #218838;
+}
+/* إعدادات عامة */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* تنسيق العنوان */
+.custom-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* تصميم الكارد */
+.card {
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.card-header {
+  background-color: #007bff;
+  color: #fff;
+  padding: 15px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.custom-card .nav-tabs {
+  border-bottom: none;
+}
+
+.custom-tab {
+  color: #fff;
+  font-weight: 600;
+}
+
+.custom-tab.active {
+  background-color: #0056b3;
+}
+
+/* تنسيق الجسم */
+.card-body {
+  padding: 20px;
+  text-align: right;
+}
+
+.card-body h5 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.card-body p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.card-body strong {
+  font-weight: 700;
+}
+
+.custom-button {
+  font-size: 1rem;
+  padding: 10px 15px;
+  border-radius: 5px;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #fff;
+  border: none;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  color: #fff;
+  border: none;
+}
+
+.btn-info:hover {
+  background-color: #138496;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+/* التنسيق للمحتوى */
+.tab-content {
+  padding-top: 20px;
+}
+
+.tab-pane {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.text-center {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.text-danger {
+  color: #dc3545;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* المؤشر */
+.fa-spinner {
+  font-size: 2rem;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.custom-title,
+.custom-tab {
+  direction: rtl;
 }
 
-.App-link {
-  color: #61dafb;
+.custom-button,
+.delete-btn {
+  direction: ltr;
+}
+.bg-primary {
+  background-color: #007bff !important;
+  /* اللون الأزرق */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.text-white {
+  color: white !important;
+  /* النص باللون الأبيض */
+}
+.card-info {
+  position: relative;
+}
+.card-info::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height:0%;
+  background-color: rgba(0, 0, 0, 0.228);
+  -o-transition: 0.3s;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  -ms-transition: 0.3s;
+  transition: 0.3s;
+}
+.card-info:hover::before {
+  height: 100%;
 }
