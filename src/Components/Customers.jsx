@@ -6,9 +6,9 @@ import Swal from "sweetalert2";
 const Customers = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(""); // حالة البحث
-  const [showModal, setShowModal] = useState(false); // حالة المودال
-  const [selectedClient, setSelectedClient] = useState(null); // العميل الذي سيتم عرضه في المودال
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
   const API_URL = "https://law-office.al-mosa.com/api/customers";
   const navigate = useNavigate();
 
@@ -22,6 +22,15 @@ const Customers = () => {
     }
 
     const fetchClients = async () => {
+      Swal.fire({
+        title: "جاري تحميل بيانات العملاء",
+        text: "الرجاء الانتظار...",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       try {
         setLoading(true);
         const response = await axios.get(API_URL, {
@@ -30,6 +39,7 @@ const Customers = () => {
           },
         });
         setClients(response.data);
+        Swal.close();
       } catch (error) {
         Swal.fire(
           "خطأ",
@@ -44,13 +54,25 @@ const Customers = () => {
     fetchClients();
   }, [navigate]);
 
-  const handleViewDetails = (client) => {
-    setSelectedClient(client);
-    setShowModal(true);
+  const handleViewDetails = async (client) => {
+    Swal.fire({
+      title: "جاري تحميل بيانات العميل",
+      text: "الرجاء الانتظار...",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    setTimeout(() => {
+      setSelectedClient(client);
+      setShowModal(true);
+      Swal.close();
+    }, 500);
   };
 
   const handleCloseModal = () => {
-    setShowModal(false); 
+    setShowModal(false);
   };
 
   const handleEdit = (client) => {
@@ -137,7 +159,6 @@ const Customers = () => {
     });
   };
 
-  // فلترة العملاء بناءً على كلمة البحث
   const filteredClients = clients.filter((client) =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -154,84 +175,91 @@ const Customers = () => {
       ) : (
         <>
           <div className="container">
-            <div className="row">
-              <div className="col-xl-6 d-flex align-items-center justify-content-center">
+            <div className="row p-0">
+              <div className="col-md-6 col-12 my-3 d-flex align-items-center justify-content-center">
                 <input
                   type="text"
-                  className="form-control w-25 d-inline-block ms-3 w-50"
+                  className="form-control ms-3 w-50"
                   placeholder="ابحث عن عميل بالاسم"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <div className="col-xl-6">
+              <div className="col-md-6 col-12 my-3">
                 <h1 className="py-4 fs-2 fw-bold">قائمة العملاء</h1>
               </div>
             </div>
           </div>
-          <table
-            className="table table-striped table-bordered table-hover"
-            style={{ width: "100%" }}
-            dir="rtl"
-          >
-            <thead className="table-dark">
-              <tr>
-                <th>#</th>
-                <th>اسم العميل</th>
-                <th>رقم الهاتف</th>
-                <th>الجنسية</th>
-                <th>العنوان</th>
-                <th>الاجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredClients.length > 0 ? (
-                filteredClients.map((client, index) => (
-                  <tr key={client.id || index}>
-                    <td>{index + 1}</td>
-                    <td>{client.name}</td>
-                    <td>{client.phone}</td>
-                    <td>{client.nationality}</td>
-                    <td>{client.address}</td>
-                    <td>
-                      <button
-                        className="btn btn-info"
-                        onClick={() => handleViewDetails(client)}
-                      >
-                        <i className="fa fa-eye"></i>
-                      </button>
-                      <button
-                        className="btn btn-primary mx-2"
-                        onClick={() => handleEdit(client)}
-                      >
-                        <i className="fa fa-edit"></i>
-                      </button>
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => handleDelete(client.id)}
-                      >
-                        <i className="fa fa-trash"></i>
-                      </button>
+          <div className="table-responsive">
+            <table
+              className="table table-striped table-bordered table-hover w-100"
+              dir="rtl"
+              style={{ tableLayout: "fixed", maxWidth: "100%" }}
+            >
+              <thead className="table-dark">
+                <tr>
+                  <th>#</th>
+                  <th>اسم العميل</th>
+                  <th>رقم الهاتف</th>
+                  <th>الجنسية</th>
+                  <th style={{ maxWidth: "200px", wordBreak: "break-all" }}>
+                    العنوان
+                  </th>
+                  <th className="text-center">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredClients.length > 0 ? (
+                  filteredClients.map((client, index) => (
+                    <tr key={client.id || index}>
+                      <td>{index + 1}</td>
+                      <td>{client.name}</td>
+                      <td>{client.phone}</td>
+                      <td>{client.nationality}</td>
+                      <td style={{ maxWidth: "200px", wordBreak: "break-all" }}>
+                        {client.address}
+                      </td>
+                      <td className="d-flex flex-wrap justify-content-center gap-2">
+                        <button
+                          className="btn btn-info btn-sm"
+                          onClick={() => handleViewDetails(client)}
+                        >
+                          <i className="fa fa-eye"></i>
+                        </button>
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => handleEdit(client)}
+                        >
+                          <i className="fa fa-edit"></i>
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleDelete(client.id)}
+                        >
+                          <i className="fa fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="text-center text-danger fs-4">
+                      لا توجد عملاء.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center text-danger fs-2">
-                    لا توجد عملاء.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
+
           <div
             className={`modal fade ${showModal ? "show" : ""}`}
             tabIndex="-1"
             aria-labelledby="clientDetailsModal"
             aria-hidden={!showModal}
-            style={{ display: showModal ? "block" : "none" }} // التأكد من ظهور المودال
+            style={{ display: showModal ? "block" : "none" }}
           >
-            <div className="modal-dialog">
+            <div className="modal-dialog modal-lg">
               <div className="modal-content">
                 <div className="modal-header bg-dark text-white">
                   <h5 className="modal-title w-100 text-end">تفاصيل العميل</h5>
@@ -276,7 +304,15 @@ const Customers = () => {
                         </tr>
                         <tr>
                           <th className="text-end">الملاحظات:</th>
-                          <td className="text-end">{selectedClient.notes}</td>
+                          <td
+                            className="text-end"
+                            style={{
+                              wordWrap: "break-word",
+                              whiteSpace: "normal",
+                            }}
+                          >
+                            {selectedClient.notes}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -294,9 +330,24 @@ const Customers = () => {
               </div>
             </div>
           </div>
+
           {showModal && <div className="modal-backdrop fade show"></div>}
         </>
       )}
+      <div className="container my-4">
+        <div className="row text-center">
+          <div className="col-md-6 col-12 my-3">
+            <Link to="/AddCustomer" className="btn btn-dark px-5 py-2">
+              <i className="fa fa-plus me-2"></i> إضافة عميل جديد
+            </Link>
+          </div>
+          <div className="col-md-6 col-12 my-3">
+            <Link to="/customer-categories" className="btn btn-dark px-5 py-2">
+              <i className="fa fa-list me-2"></i> إضافة نوع عميل جديد
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

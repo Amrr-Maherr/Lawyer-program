@@ -117,10 +117,11 @@ function NavBar() {
 
       {/* Offcanvas Sidebar */}
       <div
-        className="offcanvas offcanvas-end"
+        className="offcanvas offcanvas-end "
         tabIndex="-1"
         id="offcanvasSidebar"
         aria-labelledby="offcanvasSidebarLabel"
+        style={{ width: "300px" }}
       >
         <div className="offcanvas-body">
           <ul className="nav flex-column text-end">

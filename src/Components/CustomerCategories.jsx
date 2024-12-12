@@ -52,13 +52,24 @@ const CustomerCategories = () => {
     }
   };
 
-  const handleDelete = async (categoryId) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning");
-      return;
-    }
+const handleDelete = async (categoryId) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning");
+    return;
+  }
 
+  // تأكيد الحذف
+  const confirmDelete = await Swal.fire({
+    title: "هل أنت متأكد؟",
+    text: "لن تتمكن من استرجاع البيانات بعد الحذف.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "نعم، حذف!",
+    cancelButtonText: "إلغاء",
+  });
+
+  if (confirmDelete.isConfirmed) {
     try {
       await axios.delete(
         `https://law-office.al-mosa.com/api/category/${categoryId}`,
@@ -73,7 +84,11 @@ const CustomerCategories = () => {
     } catch (err) {
       Swal.fire("حدث خطأ", "فشل في حذف نوع العميل.", "error");
     }
-  };
+  } else {
+    Swal.fire("تم الإلغاء", "لم يتم حذف نوع العميل.", "info");
+  }
+};
+
 
   useEffect(() => {
     fetchCategories();
