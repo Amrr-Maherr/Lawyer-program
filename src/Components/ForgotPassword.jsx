@@ -3,15 +3,20 @@ import Swal from "sweetalert2";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     // التحقق من أن الحقل غير فارغ
-    if (!email) {
-      setError("البريد الإلكتروني مطلوب");
+    if (!email.trim()) {
+      Swal.fire({
+        title: "تنبيه!",
+        text: "الرجاء إدخال البريد الإلكتروني.",
+        icon: "warning",
+        confirmButtonText: "موافق",
+      });
+      setLoading(false);
       return;
     }
 
@@ -36,23 +41,33 @@ const ForgotPassword = () => {
 
       if (!response.ok) {
         const data = await response.json();
-        setError(data.message || "حدث خطأ أثناء إرسال البريد الإلكتروني");
-        setSuccessMessage("");
+        Swal.fire({
+          title: "حدث خطأ!",
+          text:
+            data.message ||
+            "حدث خطأ أثناء إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى.",
+          icon: "error",
+          confirmButtonText: "موافق",
+        });
+        setLoading(false);
       } else {
-        setSuccessMessage(
-          "تم إرسال رابط إعادة تعيين كلمة السر إلى بريدك الإلكتروني"
-        );
-        setError("");
-        // يمكن إضافة نافذة منبثقة تنبه المستخدم بنجاح العملية
-        Swal.fire(
-          "تم إرسال البريد الإلكتروني",
-          "تفاصيل إعادة تعيين كلمة السر أُرسلت إلى بريدك الإلكتروني.",
-          "success"
-        );
+        Swal.fire({
+          title: "تم إرسال البريد الإلكتروني!",
+          text: "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني. يرجى التحقق من البريد الوارد.",
+          icon: "success",
+          confirmButtonText: "موافق",
+        });
+        setLoading(false);
       }
     } catch (error) {
-      setError("حدث خطأ في الاتصال بالـ API");
-      setSuccessMessage("");
+      console.error("Network error:", error);
+      Swal.fire({
+        title: "خطأ في الاتصال!",
+        text: "حدث خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
+        icon: "error",
+        confirmButtonText: "موافق",
+      });
+      setLoading(false);
     }
 
     // تنظيف الحقل بعد العملية
@@ -60,7 +75,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container" style={{ direction: "rtl" }}>
       <div className="row justify-content-center vh-100 d-flex align-items-center justify-content-center">
         <div className="col-md-6">
           <div className="card hover shadow-lg p-4 mt-5">
@@ -77,17 +92,17 @@ const ForgotPassword = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="أدخل بريدك الإلكتروني"
-                  required
                 />
               </div>
 
-              {error && <div className="alert alert-danger">{error}</div>}
-              {successMessage && (
-                <div className="alert alert-success">{successMessage}</div>
-              )}
-
-              <button type="submit" className="btn btn-dark w-100">
-                إرسال رابط إعادة تعيين كلمة السر
+              <button
+                type="submit"
+                className="btn btn-dark w-100"
+                disabled={loading}
+              >
+                {loading
+                  ? "جاري إرسال الرابط..."
+                  : "إرسال رابط إعادة تعيين كلمة السر"}
               </button>
             </form>
           </div>

@@ -48,7 +48,13 @@ function SignUp() {
     setErrors(formErrors);
 
     if (Object.keys(formErrors).length > 0) {
-      console.log("Form has errors");
+      let errorMessages = Object.values(formErrors).join("<br>");
+      Swal.fire({
+        title: "خطأ في التحقق",
+        html: errorMessages,
+        icon: "error",
+        confirmButtonText: "موافق",
+      });
       return;
     }
 
@@ -65,25 +71,31 @@ function SignUp() {
         dataToSend
       );
       console.log("Registration successful:", response.data);
-      Swal.fire("Success", "تم التسجيل بنجاح!", "success");
-      navigate("/login");
+      Swal.fire("تم التسجيل بنجاح!", "تم التسجيل بنجاح!", "success").then(
+        () => {
+          navigate("/login");
+        }
+      );
     } catch (error) {
       if (error.response) {
         console.error("Error during registration:", error.response.data);
         Swal.fire(
-          "Error",
+          "خطأ",
           error.response.data.message || "حدث خطأ أثناء التسجيل",
           "error"
         );
       } else {
         console.error("Request failed", error.message);
-        Swal.fire("Error", "حدث خطأ أثناء التسجيل", "error");
+        Swal.fire("خطأ", "حدث خطأ أثناء التسجيل", "error");
       }
     }
   };
 
   return (
-    <div className="container form" style={{ height: "auto" }}>
+    <div
+      className="container form"
+      style={{ height: "auto", direction: "rtl" }}
+    >
       <div className="row">
         <div className="col-12 d-flex align-items-center justify-content-center vh-100">
           <div
@@ -105,9 +117,6 @@ function SignUp() {
                   onChange={handleInputChange}
                   style={{ padding: "0.375rem 0.75rem" }}
                 />
-                {errors.name && (
-                  <small className="text-danger">{errors.name}</small>
-                )}
               </div>
               <div className="mb-1">
                 <label htmlFor="email" className="form-label">
@@ -122,9 +131,6 @@ function SignUp() {
                   onChange={handleInputChange}
                   style={{ padding: "0.375rem 0.75rem" }}
                 />
-                {errors.email && (
-                  <small className="text-danger">{errors.email}</small>
-                )}
               </div>
               <div className="mb-1">
                 <label htmlFor="password" className="form-label">
@@ -139,9 +145,6 @@ function SignUp() {
                   onChange={handleInputChange}
                   style={{ padding: "0.375rem 0.75rem" }}
                 />
-                {errors.password && (
-                  <small className="text-danger">{errors.password}</small>
-                )}
               </div>
               <div className="mb-1">
                 <label htmlFor="confirmPassword" className="form-label">
@@ -156,11 +159,6 @@ function SignUp() {
                   onChange={handleInputChange}
                   style={{ padding: "0.375rem 0.75rem" }}
                 />
-                {errors.confirmPassword && (
-                  <small className="text-danger">
-                    {errors.confirmPassword}
-                  </small>
-                )}
               </div>
               <button type="submit" className="btn btn-dark w-100">
                 إنشاء حساب

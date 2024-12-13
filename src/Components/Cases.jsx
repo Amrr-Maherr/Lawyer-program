@@ -49,6 +49,14 @@ const Cases = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      Swal.fire({
+        title: "جاري تحميل بيانات القضايا",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+      });
       const token = localStorage.getItem("token");
 
       try {
@@ -62,9 +70,15 @@ const Cases = () => {
         );
         setData(response.data.cases);
         setLoading(false);
+        Swal.close();
       } catch (err) {
         setError("فشل في استرجاع البيانات");
         setLoading(false);
+        Swal.fire({
+          icon: "error",
+          title: "فشل في تحميل بيانات القضايا",
+          text: "حدث خطأ أثناء جلب البيانات، يرجى المحاولة مرة أخرى.",
+        });
       }
     };
 
@@ -72,6 +86,14 @@ const Cases = () => {
   }, []);
 
   const handleDetails = async (customerId, caseId) => {
+    Swal.fire({
+      title: "جاري تحميل تفاصيل القضية",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      },
+    });
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
@@ -84,8 +106,14 @@ const Cases = () => {
       );
       setSelectedCase(response.data);
       setShowModal(true);
+      Swal.close();
     } catch (error) {
       console.error("Error fetching case details:", error);
+      Swal.fire({
+        icon: "error",
+        title: "فشل في تحميل تفاصيل القضية",
+        text: "حدث خطأ أثناء جلب تفاصيل القضية، يرجى المحاولة مرة أخرى.",
+      });
     }
   };
 
@@ -96,13 +124,14 @@ const Cases = () => {
 
   const handleDelete = (customerId, caseId) => {
     Swal.fire({
-      title: "هل أنت متأكد؟",
-      text: "لن تتمكن من استرجاع هذه القضية!",
+      title: "هل أنت متأكد من حذف القضية؟",
+      text: "لن يمكنك استرجاع هذه القضية بعد الحذف!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "نعم، احذفها!",
+      confirmButtonText: "نعم، احذف القضية!",
+      cancelButtonText: "إلغاء",
     }).then((result) => {
       if (result.isConfirmed) {
         const token = localStorage.getItem("token");
@@ -118,11 +147,15 @@ const Cases = () => {
           )
           .then(() => {
             setData(data.filter((item) => item.case_id !== caseId));
-            Swal.fire("تم الحذف!", "تم حذف القضية بنجاح.", "success");
+            Swal.fire("تم حذف القضية بنجاح!", "", "success");
           })
           .catch((error) => {
             console.error("Error deleting case:", error);
-            Swal.fire("خطأ!", "حدث خطأ أثناء الحذف.", "error");
+            Swal.fire(
+              "حدث خطأ!",
+              "لم يتم حذف القضية بنجاح، يرجى المحاولة مرة أخرى.",
+              "error"
+            );
           });
       }
     });
@@ -131,7 +164,6 @@ const Cases = () => {
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
-
   const filteredData = data.filter((item) =>
     item.case_number.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -189,7 +221,7 @@ const Cases = () => {
       console.log("Response Data:", response.data);
 
       if (response.status >= 200 && response.status < 300) {
-        Swal.fire("تم الدفع!", "تمت عملية الدفع بنجاح.", "success");
+        Swal.fire("تمت عملية الدفع بنجاح!", "", "success");
 
         setData((prevData) => {
           return prevData.map((item) => {
@@ -207,7 +239,7 @@ const Cases = () => {
       } else {
         Swal.fire(
           "خطأ!",
-          "حدث خطأ أثناء عملية الدفع. رمز الحالة: " + response.status,
+          "لم تتم عملية الدفع بنجاح، يرجى المحاولة مرة أخرى.",
           "error"
         );
       }
@@ -216,7 +248,7 @@ const Cases = () => {
       console.error("Error submitting payment:", error);
       Swal.fire(
         "خطأ!",
-        "حدث خطأ أثناء عملية الدفع. التفاصيل: " + error.message,
+        "لم تتم عملية الدفع بنجاح، يرجى المحاولة مرة أخرى.",
         "error"
       );
     }
@@ -316,12 +348,15 @@ const Cases = () => {
         }
       );
 
+      console.log("Response Status:", response.status);
+      console.log("Response Data:", response.data); // **اضف هذا السطر**
+
       if (response.status >= 200 && response.status < 300) {
-        Swal.fire("تمت إضافة الجلسة!", "تمت إضافة الجلسة بنجاح.", "success");
+        Swal.fire("تمت إضافة الجلسة بنجاح!", "", "success");
       } else {
         Swal.fire(
           "خطأ!",
-          "حدث خطأ أثناء إضافة الجلسة. رمز الحالة: " + response.status,
+          "لم يتم إضافة الجلسة بنجاح، يرجى المحاولة مرة أخرى.",
           "error"
         );
       }
@@ -330,7 +365,7 @@ const Cases = () => {
       console.error("Error submitting session:", error);
       Swal.fire(
         "خطأ!",
-        "حدث خطأ أثناء إضافة الجلسة. التفاصيل: " + error.message,
+        "لم يتم إضافة الجلسة بنجاح، يرجى المحاولة مرة أخرى.",
         "error"
       );
     }
@@ -389,7 +424,7 @@ const Cases = () => {
       );
 
       if (response.status >= 200 && response.status < 300) {
-        Swal.fire("تم تعديل القضية!", "تم تعديل القضية بنجاح.", "success");
+        Swal.fire("تم تعديل بيانات القضية بنجاح!", "", "success");
         setData((prevData) => {
           return prevData.map((item) => {
             if (item.customer_id === customerId && item.case_id === caseId) {
@@ -416,7 +451,7 @@ const Cases = () => {
       } else {
         Swal.fire(
           "خطأ!",
-          "حدث خطأ أثناء تعديل القضية. رمز الحالة: " + response.status,
+          "لم يتم تعديل بيانات القضية بنجاح، يرجى المحاولة مرة أخرى.",
           "error"
         );
       }
@@ -425,30 +460,30 @@ const Cases = () => {
       console.error("Error submitting edit:", error);
       Swal.fire(
         "خطأ!",
-        "حدث خطأ أثناء تعديل القضية. التفاصيل: " + error.message,
+        "لم يتم تعديل بيانات القضية بنجاح، يرجى المحاولة مرة أخرى.",
         "error"
       );
     }
   };
 
-  if (loading) return <p>جاري التحميل...</p>;
+  if (loading) return null;
   if (error) return <p>{error}</p>;
 
   return (
     <div className="container-fluid my-5">
       <div className="container my-4">
-        <div className="row">
-          <div className="col-xl-6 col-12">
+        <div className="row align-items-center">
+          <div className="col-md-6 col-12 my-3">
             <input
               type="text"
-              className="form-control w-50"
+              className="form-control w-100 w-md-50"
               placeholder="ابحث عن القضية"
               value={searchTerm}
               onChange={handleSearch}
             />
           </div>
-          <div className="col-xl-6 col-12">
-            <h2 className="text-end">بيانات القضايا</h2>
+          <div className="col-md-6 col-12 my-3 text-md-end text-center">
+            <h2>بيانات القضايا</h2>
           </div>
         </div>
       </div>
@@ -556,7 +591,7 @@ const Cases = () => {
         aria-hidden={!showModal}
         style={{ display: showModal ? "block" : "none" }}
       >
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header bg-dark text-white">
               <h5 className="modal-title text-end w-100">تفاصيل القضية</h5>
@@ -845,7 +880,7 @@ const Cases = () => {
         aria-hidden={!showEditModal}
         style={{ display: showEditModal ? "block" : "none" }}
       >
-        <div className="modal-dialog modal-lg">
+        <div className="modal-dialog modal-lg modal-dialog-scrollable">
           <div className="modal-content">
             <div className="modal-header bg-dark text-white">
               <h5 className="modal-title text-end w-100">تعديل القضية</h5>
@@ -1027,14 +1062,14 @@ const Cases = () => {
       </div>
       <div className="container my-4">
         <div className="row text-center">
-          <div className="col-xl-6 col-12">
+          <div className="col-md-6 col-12 my-3">
             <Link to="/add-case" className="btn btn-dark px-5 py-2">
-              اضافه قضيه جديده
+              <i className="fas fa-plus-circle me-2"></i> اضافه قضيه جديده
             </Link>
           </div>
-          <div className="col-xl-6 col-12">
+          <div className="col-md-6 col-12 my-3">
             <Link to="/CaseTypes" className="btn btn-dark px-5 py-2">
-              اضافه نوع قضيه جديده
+              <i className="fas fa-folder-plus me-2"></i> اضافه نوع قضيه جديده
             </Link>
           </div>
         </div>

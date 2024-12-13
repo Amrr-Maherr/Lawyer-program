@@ -67,12 +67,23 @@ function Login() {
           console.error("Error during login:", error);
         });
     } else {
+      // عرض أخطاء التحقق باستخدام SweetAlert
+      let errorMessages = Object.values(validationErrors).join("<br>");
+      Swal.fire({
+        title: "خطأ في التحقق",
+        html: errorMessages,
+        icon: "error",
+        confirmButtonText: "موافق",
+      });
       setErrors(validationErrors);
     }
   };
 
   return (
-    <div className="container form" style={{ height: "auto" }}>
+    <div
+      className="container form"
+      style={{ height: "auto", direction: "rtl" }}
+    >
       <div className="row justify-content-center align-items-center vh-100">
         <div className="col-12 col-md-6">
           <div className="card p-4 shadow-sm">
@@ -90,9 +101,6 @@ function Login() {
                   value={formData.email}
                   onChange={handleInputChange}
                 />
-                {errors.email && (
-                  <small className="text-danger">{errors.email}</small>
-                )}
               </div>
               <div className="mb-3">
                 <label htmlFor="password" className="form-label">
@@ -106,9 +114,6 @@ function Login() {
                   value={formData.password}
                   onChange={handleInputChange}
                 />
-                {errors.password && (
-                  <small className="text-danger">{errors.password}</small>
-                )}
               </div>
               <button
                 type="submit"

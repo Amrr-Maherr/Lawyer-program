@@ -1,66 +1,95 @@
 import React, { useState } from "react";
+import Swal from "sweetalert2";
 
 const ResetPassword = () => {
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState(""); // كود التأكيد
-  const [newPassword, setNewPassword] = useState(""); // كلمة المرور الجديدة
-  const [confirmPassword, setConfirmPassword] = useState(""); // تأكيد كلمة المرور الجديدة
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [code, setCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     // التحقق من أن الحقول ليست فارغة
-    if (!email || !code || !newPassword || !confirmPassword) {
-      setError("جميع الحقول مطلوبة");
+    if (
+      !email.trim() ||
+      !code.trim() ||
+      !newPassword.trim() ||
+      !confirmPassword.trim()
+    ) {
+      Swal.fire({
+        title: "تنبيه!",
+        text: "الرجاء ملء جميع الحقول المطلوبة.",
+        icon: "warning",
+        confirmButtonText: "موافق",
+      });
+      setLoading(false);
       return;
     }
 
-    // التحقق من أن كلمة المرور الجديدة تطابق تأكيد كلمة المرور
     if (newPassword !== confirmPassword) {
-      setError("كلمة المرور الجديدة لا تطابق تأكيد كلمة المرور");
+      Swal.fire({
+        title: "خطأ!",
+        text: "كلمة المرور الجديدة وتأكيدها غير متطابقتين.",
+        icon: "error",
+        confirmButtonText: "موافق",
+      });
+      setLoading(false);
       return;
     }
 
     try {
-      // استرجاع التوكين من localStorage
       const token = localStorage.getItem("token");
 
-      // إرسال الطلب إلى الـ API
       const response = await fetch(
         "https://law-office.al-mosa.com/api/reset-password",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // إضافة التوكين هنا
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             email,
-            code, // إرسال كود التأكيد
-            password: newPassword, // إرسال كلمة المرور الجديدة
-            password_confirmation: confirmPassword, // إرسال تأكيد كلمة المرور
+            code,
+            password: newPassword,
+            password_confirmation: confirmPassword,
           }),
         }
       );
 
       if (!response.ok) {
         const data = await response.json();
-        setError(data.message || "حدث خطأ أثناء إعادة تعيين كلمة السر");
-        setSuccessMessage("");
+        Swal.fire({
+          title: "حدث خطأ!",
+          text:
+            data.message ||
+            "حدث خطأ أثناء محاولة إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى.",
+          icon: "error",
+          confirmButtonText: "موافق",
+        });
+        setLoading(false);
       } else {
-        const data = await response.json();
-        setSuccessMessage("تم إعادة تعيين كلمة السر بنجاح");
-        setError("");
+        Swal.fire({
+          title: "تمت العملية بنجاح!",
+          text: "تم إعادة تعيين كلمة المرور بنجاح.",
+          icon: "success",
+          confirmButtonText: "موافق",
+        });
+        setLoading(false);
       }
     } catch (error) {
       console.error("Network error:", error);
-      setError("حدث خطأ في الاتصال بالـ API");
-      setSuccessMessage("");
+      Swal.fire({
+        title: "خطأ في الاتصال!",
+        text: "حدث خطأ أثناء الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
+        icon: "error",
+        confirmButtonText: "موافق",
+      });
+      setLoading(false);
     }
 
-    // تنظيف الحقول بعد العملية
     setEmail("");
     setCode("");
     setNewPassword("");
@@ -68,15 +97,10 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="container">
-      <div className="row justify-content-center vh-100 d-flex align-items-center justify-content-center">
-        <div className="col-md-4">
-          {" "}
-          {/* الحجم لا يزال صغيرًا */}
-          <div
-            className="card hover shadow-lg p-3 mt-5"
-            style={{ maxHeight: "450px", overflowY: "auto" }}
-          >
+    <div className="container vh-100" style={{ direction: "rtl" }}>
+      <div className="row justify-content-center">
+        <div className="col-xl-6 col-12">
+          <div className="card hover shadow-lg p-3 mt-5">
             <h2 className="text-center">إعادة تعيين كلمة السر</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
@@ -90,7 +114,6 @@ const ResetPassword = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="أدخل بريدك الإلكتروني"
-                  required
                 />
               </div>
 
@@ -105,7 +128,6 @@ const ResetPassword = () => {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="أدخل كود التأكيد"
-                  required
                 />
               </div>
 
@@ -120,7 +142,6 @@ const ResetPassword = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="أدخل كلمة المرور الجديدة"
-                  required
                 />
               </div>
 
@@ -135,17 +156,17 @@ const ResetPassword = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="أعد إدخال كلمة المرور الجديدة"
-                  required
                 />
               </div>
 
-              {error && <div className="alert alert-danger">{error}</div>}
-              {successMessage && (
-                <div className="alert alert-success">{successMessage}</div>
-              )}
-
-              <button type="submit" className="btn btn-dark w-100">
-                إعادة تعيين كلمة المرور
+              <button
+                type="submit"
+                className="btn btn-dark w-100"
+                disabled={loading}
+              >
+                {loading
+                  ? "جاري إعادة تعيين كلمة المرور..."
+                  : "إعادة تعيين كلمة المرور"}
               </button>
             </form>
           </div>

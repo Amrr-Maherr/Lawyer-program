@@ -8,7 +8,9 @@ const Customers = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [editedClient, setEditedClient] = useState(null);
   const API_URL = "https://law-office.al-mosa.com/api/customers";
   const navigate = useNavigate();
 
@@ -73,6 +75,119 @@ const Customers = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
+    setShowEditModal(false);
+  };
+
+  const handleOpenEditModal = (client) => {
+    setSelectedClient(client);
+    setEditedClient({ ...client });
+    setShowEditModal(true);
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedClient((prevClient) => ({
+      ...prevClient,
+      [name]: value,
+    }));
+  };
+
+  const handleUpdateClient = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire("خطأ", "يجب تسجيل الدخول أولاً", "error");
+      navigate("/login");
+      return;
+    }
+    Swal.fire({
+      title: "جاري تعديل بيانات العميل",
+      text: "الرجاء الانتظار...",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const updatedClientData = {};
+
+      if (editedClient.name !== selectedClient.name) {
+        updatedClientData.name = String(editedClient.name);
+      }
+      if (editedClient.email !== selectedClient.email) {
+        updatedClientData.email = String(editedClient.email);
+      }
+      if (editedClient.ID_number !== selectedClient.ID_number) {
+        updatedClientData.ID_number = String(editedClient.ID_number);
+      }
+      if (editedClient.phone !== selectedClient.phone) {
+        updatedClientData.phone = String(editedClient.phone);
+      }
+      if (editedClient.address !== selectedClient.address) {
+        updatedClientData.address = String(editedClient.address);
+      }
+      if (editedClient.nationality !== selectedClient.nationality) {
+        updatedClientData.nationality = String(editedClient.nationality);
+      }
+      if (editedClient.company_name !== selectedClient.company_name) {
+        updatedClientData.company_name = String(editedClient.company_name);
+      }
+      if (editedClient.notes !== selectedClient.notes) {
+        updatedClientData.notes = String(editedClient.notes);
+      }
+
+      console.log("Data being sent:", updatedClientData);
+
+      const response = await axios.post(
+        `https://law-office.al-mosa.com/api/update-customer/${editedClient.id}`,
+        updatedClientData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        Swal.fire({
+          title: "تم التعديل!",
+          text: "تم تعديل بيانات العميل بنجاح.",
+          icon: "success",
+          confirmButtonText: "حسناً",
+        }).then(() => {
+          setTimeout(() => {
+            setClients((prevClients) =>
+              prevClients.map((item) =>
+                item.id === editedClient.id ? { ...editedClient } : item
+              )
+            );
+            setShowEditModal(false);
+          }, 500);
+        });
+      } else {
+        console.error("Error response:", response);
+        Swal.fire({
+          title: "خطأ!",
+          text: response.data?.message || "حدث خطأ أثناء تعديل بيانات العميل",
+          icon: "error",
+          confirmButtonText: "حسناً",
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      console.error("Error response data:", error.response?.data);
+      Swal.fire({
+        title: "خطأ!",
+        text:
+          error.response?.data?.message || "حدث خطأ أثناء تعديل بيانات العميل",
+        icon: "error",
+        confirmButtonText: "حسناً",
+      });
+    } finally {
+      Swal.close();
+    }
   };
 
   const handleEdit = (client) => {
@@ -228,7 +343,7 @@ const Customers = () => {
                         </button>
                         <button
                           className="btn btn-primary btn-sm"
-                          onClick={() => handleEdit(client)}
+                          onClick={() => handleOpenEditModal(client)}
                         >
                           <i className="fa fa-edit"></i>
                         </button>
@@ -330,7 +445,141 @@ const Customers = () => {
               </div>
             </div>
           </div>
-
+          <div
+            className={`modal fade ${showEditModal ? "show" : ""}`}
+            tabIndex="-1"
+            aria-labelledby="editClientModal"
+            aria-hidden={!showEditModal}
+            style={{ display: showEditModal ? "block" : "none" }}
+          >
+            <div className="modal-dialog modal-lg">
+              <div className="modal-content">
+                <div className="modal-header bg-dark text-white">
+                  <h5 className="modal-title w-100 text-end">
+                    تعديل بيانات العميل
+                  </h5>
+                </div>
+                <div className="modal-body" dir="rtl">
+                  {editedClient && (
+                    <form>
+                      <div className="mb-3">
+                        <label className="form-label text-end w-100">
+                          الاسم:
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-end"
+                          name="name"
+                          value={editedClient.name || ""}
+                          onChange={handleEditInputChange}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label text-end w-100">
+                          البريد الإلكتروني:
+                        </label>
+                        <input
+                          type="email"
+                          className="form-control text-end"
+                          name="email"
+                          value={editedClient.email || ""}
+                          onChange={handleEditInputChange}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label text-end w-100">
+                          رقم الهوية:
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-end"
+                          name="ID_number"
+                          value={editedClient.ID_number || ""}
+                          onChange={handleEditInputChange}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label text-end w-100">
+                          رقم الهاتف:
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-end"
+                          name="phone"
+                          value={editedClient.phone || ""}
+                          onChange={handleEditInputChange}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label text-end w-100">
+                          العنوان:
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-end"
+                          name="address"
+                          value={editedClient.address || ""}
+                          onChange={handleEditInputChange}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label text-end w-100">
+                          الجنسية:
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-end"
+                          name="nationality"
+                          value={editedClient.nationality || ""}
+                          onChange={handleEditInputChange}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label text-end w-100">
+                          اسم الشركة:
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-end"
+                          name="company_name"
+                          value={editedClient.company_name || ""}
+                          onChange={handleEditInputChange}
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label text-end w-100">
+                          الملاحظات:
+                        </label>
+                        <textarea
+                          className="form-control text-end"
+                          name="notes"
+                          value={editedClient.notes || ""}
+                          onChange={handleEditInputChange}
+                        ></textarea>
+                      </div>
+                    </form>
+                  )}
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handleUpdateClient}
+                  >
+                    حفظ التعديلات
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleCloseModal}
+                  >
+                    إغلاق
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {showEditModal && <div className="modal-backdrop fade show"></div>}
           {showModal && <div className="modal-backdrop fade show"></div>}
         </>
       )}

@@ -1,262 +1,335 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 const Attachments = () => {
-  const [cases, setCases] = useState([]);
-  const [selectedCase, setSelectedCase] = useState(null);
   const [attachments, setAttachments] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedAttachment, setSelectedAttachment] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
-    const fetchCases = async () => {
+    const fetchAttachments = async () => {
+      setLoading(true);
+      setError(null);
       const token = localStorage.getItem("token");
-
-      if (!token) {
-        setError("Token not found");
-        setLoading(false);
-        return;
-      }
-
       try {
-        setLoading(true);
-        Swal.fire({
-          title: "جاري تحميل البيانات...",
-          text: "يرجى الانتظار قليلاً.",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-
         const response = await axios.get(
-          "https://law-office.al-mosa.com/api/cases",
+          "https://law-office.al-mosa.com/api/attachments",
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-
-        setCases(response.data.cases);
+        setAttachments(response.data.attachments);
+        console.log("بيانات المرفقات:", response.data.attachments);
+        Swal.close(); // إغلاق تنبيه التحميل بعد النجاح
       } catch (err) {
-        setError(err.response?.data?.message || "Failed to fetch cases");
+        setError(err.message || "فشل في تحميل المرفقات.");
+        Swal.fire({
+          icon: "error",
+          title: "خطأ!",
+          text: err.message || "فشل في تحميل المرفقات.",
+          confirmButtonText: "موافق",
+          confirmButtonColor: "#dc3545",
+        });
+        console.error("خطأ في تحميل المرفقات:", err);
       } finally {
         setLoading(false);
-        Swal.close();
       }
     };
-
-    fetchCases();
+    fetchAttachments();
   }, []);
 
-  const fetchAttachments = async (customerId, caseId) => {
-    const token = localStorage.getItem("token");
+  if (loading) {
+    Swal.fire({
+      title: "جاري التحميل...",
+      text: "الرجاء الانتظار حتى يتم تحميل المرفقات.",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    return null;
+  }
 
-    if (!token) {
-      setError("Token not found");
-      return;
-    }
+  if (error) {
+    return null; // لا يتم عرض شيء آخر إذا كان هناك خطأ, تم عرض الalert بالفعل
+  }
 
-    setLoading(true);
-
-    try {
-      const response = await axios.get(
-        `https://law-office.al-mosa.com/api/customer/${customerId}/case/${caseId}/attachments`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+  const handleAction = async (attachment, action) => {
+    setSelectedAttachment(attachment);
+    switch (action) {
+      case "delete":
+        Swal.fire({
+          title: "تأكيد الحذف",
+          text: `هل أنت متأكد أنك تريد حذف المرفق "${attachment.title}"؟`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "نعم، احذف!",
+          cancelButtonText: "إلغاء",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              console.log("حذف المرفق", attachment);
+              Swal.fire({
+                icon: "success",
+                title: "تم الحذف!",
+                text: "تم حذف المرفق بنجاح.",
+                confirmButtonText: "موافق",
+              });
+            } catch (error) {
+              Swal.fire({
+                icon: "error",
+                title: "فشل الحذف!",
+                text: "حدث خطأ أثناء حذف المرفق.",
+                confirmButtonText: "موافق",
+              });
+              console.error("خطأ في الحذف", error);
+            }
+          }
+        });
+        break;
+      case "edit":
+        setShowEditModal(true);
+        break;
+      case "details":
+        Swal.fire({
+          title: "جاري تحميل التفاصيل...",
+          text: "الرجاء الانتظار.",
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
           },
-        }
-      );
-      setAttachments(response.data);
-      setSelectedCase({ customer_id: customerId, case_id: caseId });
-      setShowModal(true);
-    } catch (err) {
-      setError(err.response?.data?.message || "فشل في جلب المرفقات");
-    } finally {
-      setLoading(false);
+        });
+        setTimeout(() => {
+          Swal.close();
+          setShowDetailsModal(true);
+        }, 500);
+        break;
+      default:
+        console.log(`Action "${action}" غير مدعوم`);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      console.log("تم حفظ التعديلات", selectedAttachment);
+
+      Swal.fire({
+        icon: "success",
+        title: "تم التعديل!",
+        text: "تم تعديل بيانات المرفق بنجاح.",
+        confirmButtonText: "موافق",
+      });
+      handleCloseModal();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "فشل التعديل!",
+        text: "حدث خطأ أثناء تعديل بيانات المرفق.",
+        confirmButtonText: "موافق",
+      });
+      console.error("خطأ في التعديل", error);
     }
   };
 
   const handleCloseModal = () => {
-    setShowModal(false);
-    setAttachments([]);
-    setSelectedCase(null);
-  };
-  const handleOpenEditModal = (attachment) => {
-    setSelectedAttachment(attachment);
-    setShowEditModal(true);
-  };
-  const handleCloseEditModal = () => {
     setShowEditModal(false);
-    setSelectedAttachment(null);
-  };
-  const handleOpenDeleteModal = (attachment) => {
-    setSelectedAttachment(attachment);
-    setShowDeleteModal(true);
-  };
-  const handleCloseDeleteModal = () => {
-    setShowDeleteModal(false);
-    setSelectedAttachment(null);
-  };
-  const handleOpenDetailsModal = (attachment) => {
-    setSelectedAttachment(attachment);
-    setShowDetailsModal(true);
-  };
-  const handleCloseDetailsModal = () => {
     setShowDetailsModal(false);
     setSelectedAttachment(null);
   };
 
-  const handleAttachmentUpdate = () => {
-    if (selectedCase) {
-      fetchAttachments(selectedCase.customer_id, selectedCase.case_id);
-    }
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
   };
 
-  const filteredCases = cases.filter(
-    (caseItem) =>
-      caseItem.case_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      caseItem.customer_name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredAttachments = attachments.filter((attachment) =>
+    attachment.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-
   return (
-    <div className="container mt-5">
-      <h1 className="text-center mb-4">مرفقات القضايا</h1>
-
-      <div className="mb-4">
+    <div className="container mt-5 text-end" dir="rtl">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="fw-bold text-secondary">قائمة المرفقات</h1>
         <input
           type="text"
-          className="form-control"
-          placeholder="ابحث عن قضية..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="ابحث عن مرفق"
+          className="form-control w-25"
+          value={searchTerm}
+          onChange={handleSearch}
         />
       </div>
-
-      <div className="row">
-        {filteredCases.length > 0 ? (
-          filteredCases.map((caseItem) => (
-            <div className="col-md-6  col-lg-4 mb-4" key={caseItem.case_id}>
-              <div className="card shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title">
-                    قضية رقم: {caseItem.case_number}
-                  </h5>
-                  <p className="card-text">
-                    اسم العميل: {caseItem.customer_name}
-                  </p>
-                  <button
-                    className="btn btn-dark w-100"
-                    onClick={() =>
-                      fetchAttachments(caseItem.customer_id, caseItem.case_id)
-                    }
+      {filteredAttachments.length > 0 ? (
+        <div className="row row-cols-1 row-cols-md-3 g-4">
+          {filteredAttachments.map((attachment) => (
+            <div className="col" key={attachment.attachment_id}>
+              <div className="card h-100 shadow-lg border-0 rounded-3">
+                <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                  <h5 className="m-0 ">{attachment.title}</h5>
+                  <span
+                    className={`badge ${
+                      attachment["file type"] === "pdf"
+                        ? "bg-danger"
+                        : attachment["file type"] === "docx"
+                        ? "bg-info"
+                        : "bg-secondary"
+                    }`}
                   >
-                    <i className="fas fa-paperclip"></i> عرض المرفقات
-                  </button>
+                    {attachment["file type"]}
+                  </span>
                 </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p>لا توجد قضايا مطابقة لنتائج البحث.</p>
-        )}
-      </div>
-      <div
-        className={`modal fade ${showModal ? "show" : ""}`}
-        tabIndex="-1"
-        aria-labelledby="attachmentsModal"
-        aria-hidden={!showModal}
-        style={{ display: showModal ? "block" : "none" }}
-      >
-        <div className="modal-dialog modal-lg">
-          <div className="modal-content">
-            <div className="modal-header bg-dark text-white">
-              <h5 className="modal-title text-end w-100">مرفقات القضية</h5>
-            </div>
-            <div className="modal-body" dir="rtl">
-              {attachments.length > 0 ? (
-                attachments.map((attachment) => (
-                  <div
-                    className="attachment-item"
-                    style={{
-                      marginBottom: "20px",
-                      padding: "15px",
-                      border: "1px solid #ddd",
-                      borderRadius: "8px",
-                      backgroundColor: "#f9f9f9",
-                    }}
-                    key={attachment.id}
-                  >
-                    <p style={{ margin: "10px 0" }}>
-                      <strong>
-                        <i className="fas fa-file-alt"></i> العنوان:
-                      </strong>{" "}
-                      {attachment.title || "بدون عنوان"}
-                    </p>
-                    <p style={{ margin: "10px 0" }}>
-                      <strong>
-                        <i className="fas fa-file-type"></i> نوع الملف:
-                      </strong>{" "}
-                      {attachment.file_type}
-                    </p>
-                    <p style={{ margin: "10px 0" }}>
-                      <strong>
-                        <i className="fas fa-calendar-alt"></i> تاريخ الإنشاء:
-                      </strong>{" "}
-                      {new Date(attachment.created_at).toLocaleString()}
-                    </p>
-                    <p style={{ margin: "10px 0" }}>
-                      <strong>
-                        <i className="fas fa-download"></i> رابط الملف:
-                      </strong>{" "}
-                      <a
-                        href={attachment.file_path}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="file-link"
-                      >
-                        تحميل الملف
-                      </a>
-                    </p>
-                    <div
-                      className="attachment-actions"
-                      style={{ marginTop: "15px" }}
+                <div className="card-body p-4 d-flex flex-column">
+                  <div className="mt-auto d-flex justify-content-between">
+                    <a
+                      href={attachment["file path"]}
+                      className="btn btn-outline-primary btn-sm"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
+                      <i className="fas fa-download me-1"></i> تحميل
+                    </a>
+                    <div className="d-flex">
                       <button
-                        onClick={() => handleOpenEditModal(attachment)}
-                        className="btn btn-primary text-end ms-2"
+                        className="btn btn-outline-danger btn-sm ms-1"
+                        onClick={() => handleAction(attachment, "delete")}
                       >
-                        <i className="fas fa-edit"></i> تعديل المرفق
+                        <i className="fas fa-trash"></i>
                       </button>
                       <button
-                        onClick={() => handleOpenDeleteModal(attachment)}
-                        className="btn btn-danger text-end ms-2"
+                        className="btn btn-outline-info btn-sm ms-1"
+                        onClick={() => handleAction(attachment, "edit")}
                       >
-                        <i className="fas fa-trash-alt"></i> مسح المرفق
+                        <i className="fas fa-edit"></i>
                       </button>
                       <button
-                        onClick={() => handleOpenDetailsModal(attachment)}
-                        className="btn btn-info text-end ms-2"
+                        className="btn btn-outline-secondary btn-sm ms-1"
+                        onClick={() => handleAction(attachment, "details")}
                       >
-                        <i className="fas fa-info-circle"></i> عرض التفاصيل
+                        <i className="fas fa-eye"></i>
                       </button>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p>لا توجد مرفقات لهذه القضية.</p>
+                </div>
+                <div className="card-footer text-muted text-center bg-light border-top-0">
+                  <small>المعرف: {attachment.attachment_id}</small>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        Swal.fire({
+          icon: "info",
+          title: "تنبيه",
+          html: '<div class="text-center"><p>لا يوجد مرفقات.</p><table class="table table-bordered mt-3"><thead class="table-light"><tr><th>ID</th><th>Title</th><th>File Type</th></tr></thead><tbody></tbody></table></div>',
+          confirmButtonText: "موافق",
+          confirmButtonColor: "#17a2b8",
+        })
+      )}
+
+      {/* Modal for Editing */}
+      <div
+        className={`modal fade ${showEditModal ? "show d-block" : ""}`}
+        tabIndex="-1"
+        style={{ display: showEditModal ? "block" : "none" }}
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content" dir="rtl">
+            <div className="modal-header bg-dark text-white">
+              <h5 className="modal-title text-end">تعديل المرفق</h5>
+            </div>
+            <div className="modal-body text-end">
+              {selectedAttachment && (
+                <form>
+                  <table className="table table-bordered">
+                    <tbody>
+                      <tr>
+                        <th className="text-end">اسم المرفق</th>
+                        <td>
+                          <input
+                            type="text"
+                            className="form-control text-end"
+                            id="title"
+                            value={selectedAttachment.title}
+                          />
+                        </td>
+                      </tr>
+                      {/* Add other input fields for editing in table rows */}
+                    </tbody>
+                  </table>
+                </form>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleCloseModal}
+              >
+                إغلاق
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSaveEdit}
+              >
+                حفظ التعديلات
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal for Details */}
+      <div
+        className={`modal fade ${showDetailsModal ? "show d-block" : ""}`}
+        tabIndex="-1"
+        style={{ display: showDetailsModal ? "block" : "none" }}
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content" dir="rtl">
+            <div className="modal-header bg-dark text-white">
+              <h5 className="modal-title text-end">تفاصيل المرفق</h5>
+            </div>
+            <div className="modal-body text-end">
+              {selectedAttachment && (
+                <table className="table table-bordered">
+                  <tbody>
+                    <tr>
+                      <th className="text-end">المعرف</th>
+                      <td>{selectedAttachment.attachment_id}</td>
+                    </tr>
+                    <tr>
+                      <th className="text-end">اسم المرفق</th>
+                      <td>{selectedAttachment.title}</td>
+                    </tr>
+                    <tr>
+                      <th className="text-end">نوع الملف</th>
+                      <td>{selectedAttachment["file type"]}</td>
+                    </tr>
+                    <tr>
+                      <th className="text-end">رابط الملف</th>
+                      <td>
+                        <a
+                          href={selectedAttachment["file path"]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          فتح الرابط
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               )}
             </div>
             <div className="modal-footer">
@@ -268,262 +341,6 @@ const Attachments = () => {
                 إغلاق
               </button>
             </div>
-          </div>
-        </div>
-      </div>
-      <EditAttachmentModal
-        show={showEditModal}
-        attachment={selectedAttachment}
-        onClose={handleCloseEditModal}
-        onUpdate={handleAttachmentUpdate}
-        error={error}
-        setError={setError}
-        selectedCase={selectedCase}
-      />
-      <DeleteAttachmentModal
-        show={showDeleteModal}
-        attachment={selectedAttachment}
-        onClose={handleCloseDeleteModal}
-        onUpdate={handleAttachmentUpdate}
-        error={error}
-        setError={setError}
-        selectedCase={selectedCase}
-      />
-      <DetailsAttachmentModal
-        show={showDetailsModal}
-        attachment={selectedAttachment}
-        onClose={handleCloseDetailsModal}
-      />
-    </div>
-  );
-};
-
-const EditAttachmentModal = ({
-  show,
-  attachment,
-  onClose,
-  onUpdate,
-  error,
-  setError,
-  selectedCase,
-}) => {
-  const [newTitle, setNewTitle] = useState("");
-  useEffect(() => {
-    if (attachment) {
-      setNewTitle(attachment.title || "");
-    }
-  }, [attachment]);
-
-  const handleEditSubmit = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("Token not found");
-      return;
-    }
-    try {
-      await axios.post(
-        `https://law-office.al-mosa.com/api/customer/${selectedCase.customer_id}/case/${selectedCase.case_id}/update-attachment/${attachment.id}`,
-        { title: newTitle },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      Swal.fire("تم التعديل", "تم تعديل المرفق بنجاح", "success");
-      onUpdate();
-      onClose();
-    } catch (err) {
-      Swal.fire("خطأ", "حدث خطأ أثناء تعديل المرفق", "error");
-    }
-  };
-
-  if (!show) return null;
-
-  return (
-    <div
-      className="modal fade show"
-      tabIndex="-1"
-      aria-labelledby="editAttachmentModal"
-      aria-hidden={!show}
-      style={{ display: show ? "block" : "none" }}
-    >
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-header bg-dark text-white">
-            <h5 className="modal-title text-end w-100">تعديل المرفق</h5>
-          </div>
-          <div className="modal-body" dir="rtl">
-            <div className="mb-3">
-              <label className="form-label text-end w-100">عنوان المرفق</label>
-              <input
-                type="text"
-                className="form-control text-end"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-            >
-              إغلاق
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleEditSubmit}
-            >
-              تعديل
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const DeleteAttachmentModal = ({
-  show,
-  attachment,
-  onClose,
-  onUpdate,
-  error,
-  setError,
-  selectedCase,
-}) => {
-  const handleDeleteSubmit = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("Token not found");
-      return;
-    }
-    try {
-      await axios.delete(
-        `https://law-office.al-mosa.com/api/customer/${selectedCase.customer_id}/case/${selectedCase.case_id}/attachment/${attachment.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      Swal.fire({
-        icon: "success",
-        title: "تم مسح المرفق بنجاح",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-      onUpdate();
-      onClose();
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "حدث خطأ",
-        text: err.response?.data?.message || "فشل مسح المرفق",
-      });
-    }
-  };
-
-  if (!show) return null;
-
-  return (
-    <div
-      className="modal fade show"
-      tabIndex="-1"
-      aria-labelledby="deleteAttachmentModal"
-      aria-hidden={!show}
-      style={{ display: show ? "block" : "none" }}
-    >
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-header bg-dark text-white">
-            <h5 className="modal-title text-end w-100">مسح المرفق</h5>
-          </div>
-          <div className="modal-body" dir="rtl">
-            <p>هل أنت متأكد أنك تريد مسح المرفق؟</p>
-          </div>
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-            >
-              إغلاق
-            </button>
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={handleDeleteSubmit}
-            >
-              تأكيد المسح
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const DetailsAttachmentModal = ({ show, attachment, onClose }) => {
-  if (!show || !attachment) return null;
-
-  return (
-    <div
-      className="modal fade show"
-      tabIndex="-1"
-      aria-labelledby="detailsAttachmentModal"
-      aria-hidden={!show}
-      style={{ display: show ? "block" : "none" }}
-    >
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-header bg-dark text-white">
-            <h5 className="modal-title text-end w-100">تفاصيل المرفق</h5>
-          </div>
-          <div className="modal-body" dir="rtl">
-            <p>
-              <strong>
-                <i className="fas fa-file-alt"></i> العنوان:
-              </strong>{" "}
-              {attachment.title || "بدون عنوان"}
-            </p>
-            <p>
-              <strong>
-                <i className="fas fa-file-type"></i> نوع الملف:
-              </strong>{" "}
-              {attachment.file_type}
-            </p>
-            <p>
-              <strong>
-                <i className="fas fa-calendar-alt"></i> تاريخ الإنشاء:
-              </strong>{" "}
-              {new Date(attachment.created_at).toLocaleString()}
-            </p>
-            <p>
-              <strong>
-                <i className="fas fa-download"></i> رابط الملف:
-              </strong>{" "}
-              <a
-                href={attachment.file_path}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="file-link"
-              >
-                تحميل الملف
-              </a>
-            </p>
-          </div>
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-            >
-              إغلاق
-            </button>
           </div>
         </div>
       </div>

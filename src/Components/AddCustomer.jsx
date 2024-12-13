@@ -10,7 +10,7 @@ const AddCustomer = () => {
     address: "",
     customer_category_id: "",
     ID_number: "",
-    nationality: "egypt",
+    nationality: "", // القيمة الافتراضية تم إزالتها، الحقل فارغ الآن
     company_name: "",
     notes: "",
   });
@@ -25,6 +25,7 @@ const AddCustomer = () => {
           title: "غير مصرح",
           text: "يرجى تسجيل الدخول أولاً.",
           icon: "warning",
+          confirmButtonText: "حسنًا",
         });
         return;
       }
@@ -42,9 +43,10 @@ const AddCustomer = () => {
       } catch (error) {
         console.error("خطأ في تحميل الفئات: ", error);
         Swal.fire({
-          title: "خطأ",
-          text: "فشل في تحميل الفئات.",
+          title: "فشل في تحميل فئات العملاء",
+          text: "حدث خطأ أثناء تحميل فئات العملاء، يرجى المحاولة مرة أخرى.",
           icon: "error",
+          confirmButtonText: "حسنًا",
         });
       }
     };
@@ -60,73 +62,75 @@ const AddCustomer = () => {
     });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const token = localStorage.getItem("token");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
 
-  if (!token) {
-    Swal.fire({
-      title: "غير مصرح",
-      text: "يرجى تسجيل الدخول أولاً للوصول إلى هذه الصفحة.",
-      icon: "warning",
-    });
-    return;
-  }
+    if (!token) {
+      Swal.fire({
+        title: "غير مصرح",
+        text: "يرجى تسجيل الدخول أولاً للوصول إلى هذه الصفحة.",
+        icon: "warning",
+        confirmButtonText: "حسنًا",
+      });
+      return;
+    }
 
-  if (
-    clientData.name &&
-    clientData.email &&
-    clientData.phone &&
-    clientData.customer_category_id &&
-    clientData.ID_number
-  ) {
-    try {
-      const response = await axios.post(
-        "https://law-office.al-mosa.com/api/store-customer",
-        clientData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(response);
+    if (
+      clientData.name &&
+      clientData.email &&
+      clientData.phone &&
+      clientData.customer_category_id &&
+      clientData.ID_number
+    ) {
+      try {
+        const response = await axios.post(
+          "https://law-office.al-mosa.com/api/store-customer",
+          clientData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(response);
+        Swal.fire({
+          title: "تم إضافة العميل بنجاح",
+          text: `تم إضافة العميل ${clientData.name} بنجاح.`,
+          icon: "success",
+          confirmButtonText: "حسنًا",
+        });
+        setClientData({
+          name: "",
+          email: "",
+          phone: "",
+          address: "",
+          customer_category_id: "",
+          ID_number: "",
+          nationality: "", // تم إزالة القيمة الافتراضية من هنا أيضاً
+          company_name: "",
+          notes: "",
+        });
+      } catch (error) {
+        console.error("خطأ في إرسال البيانات: ", error);
+        Swal.fire({
+          title: "فشل في إضافة العميل",
+          text:
+            error.response?.data?.message ||
+            "حدث خطأ أثناء إضافة العميل، يرجى المحاولة مرة أخرى.",
+          icon: "error",
+          confirmButtonText: "حسنًا",
+        });
+      }
+    } else {
       Swal.fire({
-        title: "تم إضافة العميل بنجاح!",
-        text: `تم إضافة العميل ${clientData.name} بنجاح.`,
-        icon: "success",
-      });
-      setClientData({
-        name: "",
-        email: "",
-        phone: "",
-        address: "",
-        customer_category_id: "",
-        ID_number: "",
-        nationality: "egypt",
-        company_name: "",
-        notes: "",
-      });
-    } catch (error) {
-      console.error("خطأ في إرسال البيانات: ", error);
-      Swal.fire({
-        title: "لم نتمكن من إضافة العميل",
-        text:
-          error.response?.data?.message ||
-          "لم نتمكن من إضافة العميل في الوقت الحالي. حاول مرة أخرى.",
+        title: "خطأ في البيانات",
+        text: "يرجى التأكد من ملء جميع الحقول الأساسية (الاسم، البريد الإلكتروني، رقم الهاتف، وفئة العميل ورقم الهوية).",
         icon: "error",
+        confirmButtonText: "حسنًا",
       });
     }
-  } else {
-    Swal.fire({
-      title: "خطأ في البيانات",
-      text: "يرجى التأكد من ملء الحقول الأساسية مثل الاسم، البريد الإلكتروني، رقم الهاتف، وفئة العميل.",
-      icon: "error",
-    });
-  }
-};
-
-
+  };
 
   return (
     <div className="container my-4">
@@ -250,7 +254,6 @@ const handleSubmit = async (e) => {
             onChange={handleChange}
           />
         </div>
-
         <div className="mb-3">
           <label
             htmlFor="company_name"

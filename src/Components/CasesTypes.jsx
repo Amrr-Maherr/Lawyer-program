@@ -5,27 +5,98 @@ import Swal from "sweetalert2"; // استيراد sweetalert2
 const CaseTypes = () => {
   const [caseTypes, setCaseTypes] = useState([]); // لتخزين قائمة أنواع القضايا
   const [newCaseType, setNewCaseType] = useState(""); // لتخزين نوع القضية الجديد
+  const [loading, setLoading] = useState(false); // حالة التحميل
 
   // جلب أنواع القضايا من الـ API
-  const fetchCaseTypes = () => {
+  const fetchCaseTypes = async () => {
+    setLoading(true); // بدأ التحميل
     const token = localStorage.getItem("token");
 
     if (token) {
+      try {
+        const response = await axios.get(
+          "https://law-office.al-mosa.com/api/case-categories",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setCaseTypes(response.data); // تعيين البيانات في الحالة
+      } catch (err) {
+        Swal.fire({
+          icon: "error",
+          title: "حدث خطأ",
+          text: `خطأ أثناء جلب البيانات: ${err.message}`,
+          confirmButtonText: "موافق",
+          rtl: true, // دعم اللغة العربية
+        });
+      } finally {
+        setLoading(false); // انتهى التحميل
+      }
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "تحذير",
+        text: "التوكن غير موجود",
+        confirmButtonText: "موافق",
+        rtl: true, // دعم اللغة العربية
+      });
+      setLoading(false); // انتهى التحميل
+    }
+  };
+
+  useEffect(() => {
+    fetchCaseTypes(); // جلب البيانات عند تحميل الصفحة
+  }, []);
+
+  // إرسال نوع قضية جديد
+  const handleAddCaseType = (e) => {
+    e.preventDefault(); // منع إعادة تحميل الصفحة
+    const token = localStorage.getItem("token");
+
+    if (newCaseType.trim() === "") {
+      // التحقق إذا كان الحقل فارغًا
+      Swal.fire({
+        icon: "warning",
+        title: "الرجاء إدخال نوع القضية",
+        text: "لا يمكن إضافة نوع قضية فارغ.",
+        confirmButtonText: "موافق",
+        rtl: true, // دعم اللغة العربية
+      });
+      return; // إيقاف التنفيذ إذا كان الحقل فارغًا
+    }
+
+    if (token) {
+      setLoading(true); // بدأ التحميل
       axios
-        .get("https://law-office.al-mosa.com/api/case-categories", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((response) => {
-          setCaseTypes(response.data); // تعيين البيانات في الحالة
+        .post(
+          "https://law-office.al-mosa.com/api/case-category",
+          { name: newCaseType },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .then(() => {
+          fetchCaseTypes(); // تحديث الجدول بعد الإضافة
+          setNewCaseType(""); // تفريغ الحقل
+          Swal.fire({
+            icon: "success",
+            title: "تم بنجاح",
+            text: "تم إضافة نوع القضية بنجاح",
+            confirmButtonText: "موافق",
+            rtl: true, // دعم اللغة العربية
+          });
         })
         .catch((err) => {
           Swal.fire({
             icon: "error",
             title: "حدث خطأ",
-            text: `خطأ أثناء جلب البيانات: ${err.message}`,
+            text: `خطأ أثناء الإضافة: ${err.message}`,
             confirmButtonText: "موافق",
             rtl: true, // دعم اللغة العربية
           });
+        })
+        .finally(() => {
+          setLoading(false); // انتهى التحميل
         });
     } else {
       Swal.fire({
@@ -38,94 +109,30 @@ const CaseTypes = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCaseTypes(); // جلب البيانات عند تحميل الصفحة
-  }, []);
-
-  // إرسال نوع قضية جديد
-const handleAddCaseType = (e) => {
-  e.preventDefault(); // منع إعادة تحميل الصفحة
-  const token = localStorage.getItem("token");
-
-  if (newCaseType.trim() === "") {
-    // التحقق إذا كان الحقل فارغًا
-    Swal.fire({
-      icon: "warning",
-      title: "الرجاء إدخال نوع القضية",
-      text: "لا يمكن إضافة نوع قضية فارغ.",
-      confirmButtonText: "موافق",
-      rtl: true, // دعم اللغة العربية
-    });
-    return; // إيقاف التنفيذ إذا كان الحقل فارغًا
-  }
-
-  if (token) {
-    axios
-      .post(
-        "https://law-office.al-mosa.com/api/case-category",
-        { name: newCaseType },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      .then(() => {
-        fetchCaseTypes(); // تحديث الجدول بعد الإضافة
-        setNewCaseType(""); // تفريغ الحقل
-        Swal.fire({
-          icon: "success",
-          title: "تم بنجاح",
-          text: "تم إضافة نوع القضية بنجاح",
-          confirmButtonText: "موافق",
-          rtl: true, // دعم اللغة العربية
-        });
-      })
-      .catch((err) => {
-        Swal.fire({
-          icon: "error",
-          title: "حدث خطأ",
-          text: `خطأ أثناء الإضافة: ${err.message}`,
-          confirmButtonText: "موافق",
-          rtl: true, // دعم اللغة العربية
-        });
-      });
-  } else {
-    Swal.fire({
-      icon: "warning",
-      title: "تحذير",
-      text: "التوكن غير موجود",
-      confirmButtonText: "موافق",
-      rtl: true, // دعم اللغة العربية
-    });
-  }
-};
-
-
   // التحقق من وجود قضايا مرتبطة بنوع القضية
-  const checkIfCaseTypeLinked = (id) => {
+  const checkIfCaseTypeLinked = async (id) => {
     const token = localStorage.getItem("token");
 
     if (token) {
-      return axios
-        .get(
+      try {
+        const response = await axios.get(
           `https://law-office.al-mosa.com/api/cases?case_category_id=${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
-        )
-        .then((response) => {
-          // إذا كانت البيانات تحتوي على قضايا مرتبطة
-          return response.data.length > 0;
-        })
-        .catch((err) => {
-          Swal.fire({
-            icon: "error",
-            title: "حدث خطأ",
-            text: `خطأ أثناء التحقق من القضايا المرتبطة: ${err.message}`,
-            confirmButtonText: "موافق",
-            rtl: true, // دعم اللغة العربية
-          });
-          return false;
+        );
+        // إذا كانت البيانات تحتوي على قضايا مرتبطة
+        return response.data.length > 0;
+      } catch (err) {
+        Swal.fire({
+          icon: "error",
+          title: "حدث خطأ",
+          text: `خطأ أثناء التحقق من القضايا المرتبطة: ${err.message}`,
+          confirmButtonText: "موافق",
+          rtl: true, // دعم اللغة العربية
         });
+        return false;
+      }
     } else {
       Swal.fire({
         icon: "warning",
@@ -139,60 +146,60 @@ const handleAddCaseType = (e) => {
   };
 
   // حذف نوع القضية
-  const handleDeleteCaseType = (id) => {
+  const handleDeleteCaseType = async (id) => {
     const token = localStorage.getItem("token");
 
     if (token) {
-      checkIfCaseTypeLinked(id).then((isLinked) => {
-        if (isLinked) {
-          Swal.fire({
-            icon: "warning",
-            title: "غير قادر على الحذف",
-            text: "نوع القضية هذا مرتبط بقضية ولا يمكن حذفه",
-            confirmButtonText: "موافق",
-            rtl: true, // دعم اللغة العربية
-          });
-        } else {
-          Swal.fire({
-            title: "هل أنت متأكد؟",
-            text: "لن تتمكن من استعادة هذا النوع بعد الحذف!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "نعم، احذفه!",
-            cancelButtonText: "إلغاء",
-            rtl: true,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              axios
-                .delete(
-                  `https://law-office.al-mosa.com/api/case-category/${id}`,
-                  {
-                    headers: { Authorization: `Bearer ${token}` },
-                  }
-                )
-                .then(() => {
-                  fetchCaseTypes(); // تحديث الجدول بعد الحذف
-                  Swal.fire({
-                    icon: "success",
-                    title: "تم الحذف",
-                    text: "تم حذف نوع القضية بنجاح",
-                    confirmButtonText: "موافق",
-                    rtl: true, // دعم اللغة العربية
-                  });
-                })
-                .catch((err) => {
-                  Swal.fire({
-                    icon: "error",
-                    title: "حدث خطأ",
-                    text: `خطأ أثناء الحذف: ${err.message}`,
-                    confirmButtonText: "موافق",
-                    rtl: true, // دعم اللغة العربية
-                  });
-                });
+      const isLinked = await checkIfCaseTypeLinked(id);
+      if (isLinked) {
+        Swal.fire({
+          icon: "warning",
+          title: "غير قادر على الحذف",
+          text: "نوع القضية هذا مرتبط بقضية ولا يمكن حذفه",
+          confirmButtonText: "موافق",
+          rtl: true, // دعم اللغة العربية
+        });
+      } else {
+        Swal.fire({
+          title: "هل أنت متأكد؟",
+          text: "لن تتمكن من استعادة هذا النوع بعد الحذف!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "نعم، احذفه!",
+          cancelButtonText: "إلغاء",
+          rtl: true,
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            setLoading(true); // بدأ التحميل
+            try {
+              await axios.delete(
+                `https://law-office.al-mosa.com/api/case-category/${id}`,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                }
+              );
+              fetchCaseTypes(); // تحديث الجدول بعد الحذف
+              Swal.fire({
+                icon: "success",
+                title: "تم الحذف",
+                text: "تم حذف نوع القضية بنجاح",
+                confirmButtonText: "موافق",
+                rtl: true, // دعم اللغة العربية
+              });
+            } catch (err) {
+              Swal.fire({
+                icon: "error",
+                title: "حدث خطأ",
+                text: `خطأ أثناء الحذف: ${err.message}`,
+                confirmButtonText: "موافق",
+                rtl: true, // دعم اللغة العربية
+              });
+            } finally {
+              setLoading(false); // انتهى التحميل
             }
-          });
-        }
-      });
+          }
+        });
+      }
     } else {
       Swal.fire({
         icon: "warning",
@@ -203,6 +210,18 @@ const handleAddCaseType = (e) => {
       });
     }
   };
+  if (loading) {
+    Swal.fire({
+      title: "جاري تحميل بيانات أنواع القضايا...",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+  } else {
+    Swal.close(); // إغلاق sweet alert إذا لم يكن هناك تحميل
+  }
 
   return (
     <div className="container-fluid mt-5">

@@ -4,11 +4,12 @@ import Swal from "sweetalert2";
 
 const CustomerCategories = () => {
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [newCategory, setNewCategory] = useState("");
 
   const fetchCategories = async () => {
+    setLoading(true);
     const token = localStorage.getItem("token");
     if (!token) {
       setError("يرجى تسجيل الدخول أولاً.");
@@ -38,6 +39,7 @@ const CustomerCategories = () => {
       return;
     }
 
+    setLoading(true);
     try {
       await axios.post(
         "https://law-office.al-mosa.com/api/category",
@@ -49,57 +51,65 @@ const CustomerCategories = () => {
       fetchCategories();
     } catch (err) {
       Swal.fire("حدث خطأ", "فشل في إضافة نوع العميل.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-const handleDelete = async (categoryId) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning");
-    return;
-  }
-
-  // تأكيد الحذف
-  const confirmDelete = await Swal.fire({
-    title: "هل أنت متأكد؟",
-    text: "لن تتمكن من استرجاع البيانات بعد الحذف.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "نعم، حذف!",
-    cancelButtonText: "إلغاء",
-  });
-
-  if (confirmDelete.isConfirmed) {
-    try {
-      await axios.delete(
-        `https://law-office.al-mosa.com/api/category/${categoryId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      Swal.fire("تم الحذف بنجاح", "تم حذف نوع العميل.", "success");
-      fetchCategories();
-    } catch (err) {
-      Swal.fire("حدث خطأ", "فشل في حذف نوع العميل.", "error");
+  const handleDelete = async (categoryId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning");
+      return;
     }
-  } else {
-    Swal.fire("تم الإلغاء", "لم يتم حذف نوع العميل.", "info");
-  }
-};
 
+    const confirmDelete = await Swal.fire({
+      title: "هل أنت متأكد؟",
+      text: "لن تتمكن من استرجاع البيانات بعد الحذف.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "نعم، حذف!",
+      cancelButtonText: "إلغاء",
+    });
+
+    if (confirmDelete.isConfirmed) {
+      setLoading(true);
+      try {
+        await axios.delete(
+          `https://law-office.al-mosa.com/api/category/${categoryId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        Swal.fire("تم الحذف بنجاح", "تم حذف نوع العميل.", "success");
+        fetchCategories();
+      } catch (err) {
+        Swal.fire("حدث خطأ", "فشل في حذف نوع العميل.", "error");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      Swal.fire("تم الإلغاء", "لم يتم حذف نوع العميل.", "info");
+    }
+  };
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
   if (loading) {
-    return (
-      <div className="text-center my-5">
-        <div className="spinner-border" role="status"></div>جاري التحميل...
-      </div>
-    );
+    Swal.fire({
+      title: "جاري تحميل أنواع العملاء...",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+  } else {
+    Swal.close(); // إغلاق sweet alert إذا لم يكن هناك تحميل
   }
 
   if (error) {
