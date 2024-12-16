@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { Link } from "react-router-dom";
-import logo from "../Assets/Logo.jpg"; // قم بتحديث المسار بناءً على ملف الشعار الخاص بك
+import logo from "../Assets/gavel-svgrepo-com.svg";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+
 const token = localStorage.getItem("token");
 
 function NavBar() {
@@ -20,35 +21,30 @@ function NavBar() {
 
   const handleLogout = async () => {
     try {
-      // إرسال طلب POST إلى نقطة النهاية الخاصة بتسجيل الخروج
       const response = await fetch(
         "https://law-office.al-mosa.com/api/logout",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // إذا كنت تحتاج إلى إرسال token مع الطلب، يمكنك إضافته هنا.
             Authorization: `Bearer ${token}`,
           },
         }
       );
 
       if (response.ok) {
-        // مسح البيانات من localStorage
         localStorage.clear();
         setUsername(null);
 
-        // عرض رسالة SweetAlert بعد تسجيل الخروج
         Swal.fire({
           title: "تم تسجيل الخروج!",
           text: "تمت عملية تسجيل الخروج بنجاح.",
           icon: "success",
           confirmButtonText: "موافق",
         }).then(() => {
-          navigate("/SignUp"); // تحويل المستخدم إلى صفحة تسجيل الدخول
+          navigate("/SignUp");
         });
       } else {
-        // في حال حدوث خطأ في تسجيل الخروج
         Swal.fire({
           title: "حدث خطأ",
           text: "لم تتم عملية تسجيل الخروج بنجاح.",
@@ -57,7 +53,6 @@ function NavBar() {
         });
       }
     } catch (error) {
-      // التعامل مع الأخطاء في حالة فشل الاتصال
       console.error("Logout error: ", error);
       Swal.fire({
         title: "حدث خطأ",
@@ -68,7 +63,6 @@ function NavBar() {
     }
   };
 
-  // دالة لتبديل وضع الشاشة الكاملة
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
@@ -81,14 +75,11 @@ function NavBar() {
 
   return (
     <>
-      {/* Navbar */}
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
             <img src={logo} alt="Logo" className="logo-img me-2" />
           </Link>
-
-          {/* أيقونة Full Screen بجانب الشعار */}
           <button
             className="btn btn-outline-secondary ms-2"
             type="button"
@@ -115,9 +106,8 @@ function NavBar() {
         </div>
       </nav>
 
-      {/* Offcanvas Sidebar */}
       <div
-        className="offcanvas offcanvas-end "
+        className="offcanvas offcanvas-end sidebar"
         tabIndex="-1"
         id="offcanvasSidebar"
         aria-labelledby="offcanvasSidebarLabel"
@@ -176,25 +166,36 @@ function NavBar() {
                 link: "/Attachments",
                 icon: "fas fa-image",
               },
-              { name: "المصروفات", link: "/expenses", icon: "fas fa-wallet" },
+              {
+                name: "المصروفات",
+                link: "/expenses",
+                icon: "fas fa-wallet",
+                subItems: [
+                  {
+                    name: "إضافة مصروف",
+                    link: "/add-expense", // مسار صفحة إضافة المصروفات
+                    icon: "fas fa-plus",
+                  },
+                ],
+              },
             ].map((item, index) => (
-              <li key={index} className="nav-item">
+              <li key={index} className="nav-item sidebar-item">
                 <Link
                   to={item.link}
-                  className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold link-shadow fs-5"
+                  className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link"
                 >
-                  <i className={`${item.icon} me-2 fs-4`}></i>
+                  <i className={`${item.icon} me-2 fs-5`}></i>
                   <span>{item.name}</span>
                 </Link>
                 {item.subItems && (
-                  <ul className="nav flex-column ms-3">
+                  <ul className="nav flex-column ms-3 sidebar-sublist">
                     {item.subItems.map((subItem, subIndex) => (
-                      <li key={subIndex} className="nav-item">
+                      <li key={subIndex} className="nav-item sidebar-subitem">
                         <Link
                           to={subItem.link}
-                          className="nav-link text-dark fw-bold link-shadow d-flex justify-content-between align-items-center fs-6"
+                          className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-sublink"
                         >
-                          <i className={`${subItem.icon} me-2 fs-5`}></i>
+                          <i className={`${subItem.icon} me-2 fs-6`}></i>
                           <span>{subItem.name}</span>
                         </Link>
                       </li>
@@ -204,33 +205,33 @@ function NavBar() {
               </li>
             ))}
             {token && (
-              <li className="nav-item">
+              <li className="nav-item sidebar-item">
                 <button
-                  className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold link-shadow w-100 fs-5"
+                  className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-button"
                   onClick={handleLogout}
                 >
-                  <i className="fas fa-sign-out-alt me-2 fs-4"></i>
+                  <i className="fas fa-sign-out-alt me-2 fs-5"></i>
                   <span>تسجيل الخروج</span>
                 </button>
               </li>
             )}
             {!token && (
               <>
-                <li>
+                <li className="nav-item sidebar-item">
                   <Link
                     to="/login"
-                    className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold link-shadow p-2 fs-5"
+                    className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link"
                   >
-                    <i className="fas fa-sign-in-alt me-2 fs-4"></i>
+                    <i className="fas fa-sign-in-alt me-2 fs-5"></i>
                     <span>تسجيل الدخول</span>
                   </Link>
                 </li>
-                <li>
+                <li className="nav-item sidebar-item">
                   <Link
                     to="/signup"
-                    className="nav-link d-flex justify-content-between align-items-center gap-2 text-dark fw-bold link-shadow p-2 fs-5"
+                    className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link"
                   >
-                    <i className="fas fa-user-plus me-2 fs-4"></i>
+                    <i className="fas fa-user-plus me-2 fs-5"></i>
                     <span>إنشاء حساب</span>
                   </Link>
                 </li>

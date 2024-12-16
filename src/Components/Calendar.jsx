@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "../style/Calendar.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Calendar = () => {
   const getStartOfWeek = (date) => {
@@ -17,6 +19,7 @@ const Calendar = () => {
   const [sessions, setSessions] = useState([]);
   const [viewMode, setViewMode] = useState("month");
   const [weekStart, setWeekStart] = useState(getStartOfWeek(new Date()));
+  const [showToast, setShowToast] = useState(false);
 
   const getMonthName = (monthIndex) => {
     const months = [
@@ -94,13 +97,6 @@ const Calendar = () => {
 
   useEffect(() => {
     const fetchSessions = async () => {
-      Swal.fire({
-        title: "جاري تحميل البيانات الخاصة بك...",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
@@ -112,17 +108,23 @@ const Calendar = () => {
           }
         );
         setSessions(response.data.sessions);
-        Swal.close();
       } catch (error) {
         console.error("Error fetching sessions:", error);
-        Swal.fire({
-          icon: "error",
-          title: "عذرًا!",
-          text: "حدث خطأ أثناء تحميل بياناتك. يرجى المحاولة مرة أخرى.",
-        });
+        toast.error(
+          "عذرًا! حدث خطأ أثناء تحميل بياناتك. يرجى المحاولة مرة أخرى.",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+        );
       }
     };
-
     fetchSessions();
   }, []);
 
@@ -140,23 +142,26 @@ const Calendar = () => {
         .join(", ");
 
       // تحديد حجم الأزرار بناءً على الشاشة
-      const buttonSizeClass = "col-6 col-md-auto";
+      const buttonSizeClass = "col-6 col-md-auto p-1";
+
       return (
-        <div key={index} className={`${buttonSizeClass} text-center p-2`}>
+        <div key={index} className={buttonSizeClass}>
           {isSessionDay ? (
-            <Link to="/sessions">
+            <Link to="/sessions" className="w-100">
               <button
-                className={`btn btn-outline-primary btn-lg w-100 ${
-                  isSessionDay ? "bg-danger text-white" : ""
-                }`}
-                data-toggle="tooltip"
+                className={`btn btn-primary btn-sm w-100 calendar-day-button text-white session-day`}
+                data-bs-toggle="tooltip"
                 title={tooltipText}
+                style={{
+                  backgroundColor: "red",
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
+                }}
               >
                 {day.getDate()}
               </button>
             </Link>
           ) : (
-            <button className="btn btn-outline-secondary btn-lg w-100">
+            <button className="btn btn-outline-secondary btn-sm w-100 calendar-day-button">
               {day.getDate()}
             </button>
           )}
@@ -167,7 +172,7 @@ const Calendar = () => {
 
   useEffect(() => {
     const tooltipTriggerList = document.querySelectorAll(
-      '[data-toggle="tooltip"]'
+      '[data-bs-toggle="tooltip"]'
     );
     const tooltipList = [...tooltipTriggerList].map(
       (tooltipTriggerEl) => new window.bootstrap.Tooltip(tooltipTriggerEl)
@@ -188,50 +193,116 @@ const Calendar = () => {
         )} ${currentDate.getFullYear()} - الأسبوع من ${weekStart.getDate()}`
       : `${getMonthName(currentDate.getMonth())} ${currentDate.getFullYear()}`;
 
-  const navButtonClass = "btn btn-outline-secondary btn-lg mx-2";
+  const navButtonClass = "btn btn-outline-secondary btn-sm mx-1";
+  const toastId = useRef(null);
+
+  useEffect(() => {
+    const checkSessionsAndShowToast = () => {
+      if (viewMode === "month") {
+        const daysInCurrentMonth = getDaysOfMonth(currentDate);
+        let hasSessionsThisMonth = false;
+        let sessionTitles = [];
+
+        for (const day of daysInCurrentMonth) {
+          const daySessions = getSessionsForDay(day);
+          if (daySessions.length > 0) {
+            hasSessionsThisMonth = true;
+            sessionTitles = daySessions.map((session) => session.title);
+            break;
+          }
+        }
+        if (hasSessionsThisMonth) {
+          if (!toastId.current || !toast.isActive(toastId.current)) {
+            toastId.current = toast.warning(
+              `🔔 لديك جلسات مهمة هذا الشهر: ${sessionTitles.join(", ")}`,
+              {
+                position: "top-right",
+                autoClose: 15000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+              }
+            );
+          }
+        } else {
+          toast.dismiss(toastId.current);
+          toastId.current = null;
+        }
+      } else {
+        toast.dismiss(toastId.current);
+        toastId.current = null;
+      }
+    };
+
+    checkSessionsAndShowToast();
+
+    const intervalId = setInterval(checkSessionsAndShowToast, 60000); // 1 minute = 60000 ms
+
+    return () => {
+      clearInterval(intervalId);
+      toast.dismiss(toastId.current);
+    };
+  }, [sessions, currentDate, viewMode]);
 
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center mb-4">
-        <div className="col-12 d-flex justify-content-center mb-3">
-          <button className="btn btn-primary" onClick={toggleViewMode}>
-            عرض {viewMode === "week" ? "الشهر" : "الأسبوع"}
-          </button>
-        </div>
-        <div className="col-auto d-flex align-items-center">
-          {/* Previous Year Button */}
-          <button className={navButtonClass} onClick={() => changeYear(-1)}>
-            السنة السابقة
-          </button>
-          {/* Previous Month or Week Button */}
-          <button
-            className={navButtonClass}
-            onClick={() =>
-              viewMode === "week" ? changeWeek(-1) : changeMonth(-1)
-            }
-          >
-            السابق
-          </button>
-
-          {/* Display Date */}
-          <h4 className="mx-3 mb-0">{displayDate}</h4>
-
-          {/* Next Month or Week Button */}
-          <button
-            className={navButtonClass}
-            onClick={() =>
-              viewMode === "week" ? changeWeek(1) : changeMonth(1)
-            }
-          >
-            التالي
-          </button>
-          {/* Next Year Button */}
-          <button className={navButtonClass} onClick={() => changeYear(1)}>
-            السنة التالية
-          </button>
+    <div className="calendar-container p-3">
+      <ToastContainer />
+      <div className="d-flex justify-content-center mb-2">
+        <button className="btn btn-primary btn-sm" onClick={toggleViewMode}>
+          عرض {viewMode === "week" ? "الشهر" : "الأسبوع"}
+        </button>
+      </div>
+      <div className="mb-3">
+        <div className="d-flex justify-content-between align-items-center nav-container">
+          <div className="d-flex align-items-center">
+            {/* Previous Year Button */}
+            <button
+              className={navButtonClass}
+              onClick={() => changeYear(-1)}
+              title="السنة السابقة"
+            >
+              <i className="fas fa-angle-double-right"></i>
+            </button>
+            {/* Previous Month or Week Button */}
+            <button
+              className={navButtonClass}
+              onClick={() =>
+                viewMode === "week" ? changeWeek(-1) : changeMonth(-1)
+              }
+              title="السابق"
+            >
+              <i className="fas fa-angle-right"></i>
+            </button>
+          </div>
+          <div className="text-center">
+            <h6 className="mx-2 mb-0 date-display">{displayDate}</h6>
+          </div>
+          <div className="d-flex align-items-center">
+            {/* Next Month or Week Button */}
+            <button
+              className={navButtonClass}
+              onClick={() =>
+                viewMode === "week" ? changeWeek(1) : changeMonth(1)
+              }
+              title="التالي"
+            >
+              <i className="fas fa-angle-left"></i>
+            </button>
+            {/* Next Year Button */}
+            <button
+              className={navButtonClass}
+              onClick={() => changeYear(1)}
+              title="السنة التالية"
+            >
+              <i className="fas fa-angle-double-left"></i>
+            </button>
+          </div>
         </div>
       </div>
-      <div className="row justify-content-center" style={{ gap: "5px" }}>
+      <div className="row justify-content-center days-container">
         {renderDays()}
       </div>
     </div>

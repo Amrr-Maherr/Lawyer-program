@@ -1,0 +1,63 @@
+.calendar-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-day-button {
+    border-radius: 4px !important;
+    /* Make the buttons rounded */
+    transition: transform 0.2s ease-in-out;
+    /* Smooth transition effect */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-day-button:hover {
+    transform: scale(1.05);
+}
+
+.calendar-day-button.session-day {
+    color: white !important;
+    /* Ensure text is white on session days */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    /* Add a bigger shadow for session days */
+    background-color: red !important;
+    /* Set background color to red */
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    /* Add smooth transitions */
+}
+
+.calendar-day-button.session-day:hover {
+    transform: scale(1.1);
+    /* Make session days pop on hover */
+}
+
+.calendar-day-button:focus {
+    box-shadow: none !important;
+}
+
+.nav-container {
+    margin-bottom: 10px;
+}
+
+.date-display {
+    font-weight: bold;
+}
+.pulse {
+    animation: pulse-animation 0.5s ease-in-out 2;
+    /* تعديل مدة النبض ليصبح اسرع */
+}
+
+@keyframes pulse-animation {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

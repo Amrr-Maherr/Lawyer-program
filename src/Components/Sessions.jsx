@@ -183,7 +183,7 @@ function Sessions() {
     handleEditSession,
   }) {
     return (
-      <div className="col-xl-4 my-5">
+      <div className="col-xl-4">
         <div className="card h-100">
           <div className="card-header bg-dark text-white text-end">
             <h5 className="card-title mb-0">{session.title}</h5>
@@ -481,7 +481,7 @@ function Sessions() {
   }
 
   return (
-    <div className="sessions" style={{ backgroundColor: "white" }}>
+    <div className="sessions my-4">
       <div
         className=" container  py-5 mb-4 d-flex align-items-center justify-content-between"
         style={{ direction: "rtl" }}

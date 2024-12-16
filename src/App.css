@@ -347,3 +347,33 @@ body {
 .card-info:hover::before {
   height: 100%;
 }
+.home {
+  background-image: url(Assets/gavel-svgrepo-com.svg);
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-color: #00000068;
+}
+/*  */
+.case-card , .customer-card , .case-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.case-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.case-card-header {
+  background-color: #343a40;
+  /* لون خلفية الرأس */
+}
+
+.case-button {
+  margin: 2px;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+/*  */

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const AddCase = () => {
+  const navigate = useNavigate();
   const [caseData, setCaseData] = useState({
     opponent_name: "",
     opponent_phone: "",
@@ -24,19 +26,30 @@ const AddCase = () => {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
 
+  const checkToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      showErrorAlert("خطأ", "لم يتم العثور على التوكن. يرجى تسجيل الدخول.");
+      navigate("/SignUp"); // توجيه المستخدم إلى صفحة تسجيل الدخول
+      return null;
+    }
+    return token;
+  };
+
+  const showErrorAlert = (title, text) => {
+    Swal.fire({
+      title,
+      text,
+      icon: "error",
+      confirmButtonText: "موافق",
+      rtl: true,
+    });
+  };
+
   useEffect(() => {
     const fetchCaseCategories = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        Swal.fire({
-          title: "خطأ",
-          text: "لم يتم العثور على التوكن. يرجى تسجيل الدخول.",
-          icon: "error",
-          confirmButtonText: "موافق",
-          rtl: true,
-        });
-        return;
-      }
+      const token = checkToken();
+      if (!token) return;
 
       try {
         const response = await axios.get(
@@ -49,34 +62,23 @@ const AddCase = () => {
         );
         setCaseCategories(response.data);
       } catch (error) {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/SignUp");
+          return;
+        }
         console.error("حدث خطأ أثناء جلب فئات القضايا:", error);
-        Swal.fire({
-          title: "خطأ",
-          text: "حدث خطأ أثناء جلب فئات القضايا. حاول مرة أخرى.",
-          icon: "error",
-          confirmButtonText: "موافق",
-          rtl: true,
-        });
+        showErrorAlert("خطأ", "حدث خطأ أثناء جلب فئات القضايا. حاول مرة أخرى.");
       }
     };
 
     fetchCaseCategories();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        Swal.fire({
-          title: "خطأ",
-          text: "لم يتم العثور على التوكن. يرجى تسجيل الدخول.",
-          icon: "error",
-          confirmButtonText: "موافق",
-          rtl: true,
-        });
-        return;
-      }
-
+      const token = checkToken();
+      if (!token) return;
       try {
         const response = await axios.get(
           "https://law-office.al-mosa.com/api/customers",
@@ -88,29 +90,25 @@ const AddCase = () => {
         );
         setCustomers(response.data);
       } catch (error) {
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/SignUp");
+          return;
+        }
         console.error("حدث خطأ أثناء جلب بيانات العملاء:", error);
-        Swal.fire({
-          title: "خطأ",
-          text: "حدث خطأ أثناء جلب بيانات العملاء. حاول مرة أخرى.",
-          icon: "error",
-          confirmButtonText: "موافق",
-          rtl: true,
-        });
+        showErrorAlert(
+          "خطأ",
+          "حدث خطأ أثناء جلب بيانات العملاء. حاول مرة أخرى."
+        );
       }
     };
 
     fetchCustomers();
-  }, []);
+  }, [navigate]);
 
   const handleAddCase = async () => {
     if (!selectedCustomerId) {
-      Swal.fire({
-        title: "خطأ",
-        text: "يرجى اختيار العميل.",
-        icon: "error",
-        confirmButtonText: "موافق",
-        rtl: true,
-      });
+      showErrorAlert("خطأ", "يرجى اختيار العميل.");
       return;
     }
 
@@ -131,17 +129,8 @@ const AddCase = () => {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      Swal.fire({
-        title: "خطأ",
-        text: "لم يتم العثور على التوكن. يرجى تسجيل الدخول.",
-        icon: "error",
-        confirmButtonText: "موافق",
-        rtl: true,
-      });
-      return;
-    }
+    const token = checkToken();
+    if (!token) return;
 
     const casePayload = {
       ...caseData,
@@ -184,6 +173,11 @@ const AddCase = () => {
       });
       setSelectedCustomerId(null);
     } catch (error) {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/SignUp");
+        return;
+      }
       console.error("حدث خطأ أثناء إضافة القضية:", error);
       if (error.response && error.response.data && error.response.data.errors) {
         const errors = error.response.data.errors;
@@ -228,13 +222,7 @@ const AddCase = () => {
           rtl: true,
         });
       } else {
-        Swal.fire({
-          title: "خطأ",
-          text: "حدث خطأ أثناء إضافة القضية. حاول مرة أخرى.",
-          icon: "error",
-          confirmButtonText: "موافق",
-          rtl: true,
-        });
+        showErrorAlert("خطأ", "حدث خطأ أثناء إضافة القضية. حاول مرة أخرى.");
       }
     } finally {
       setLoading(false);

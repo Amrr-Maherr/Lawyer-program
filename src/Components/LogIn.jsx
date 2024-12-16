@@ -9,7 +9,7 @@ function Login() {
     password: "",
   });
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false); // حالة التحميل
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -29,45 +29,83 @@ function Login() {
     }
     return newErrors;
   };
+  const showErrorAlert = (title, text) => {
+    Swal.fire({
+      title,
+      text,
+      icon: "error",
+      confirmButtonText: "موافق",
+    });
+  };
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    setErrors({}); // مسح الأخطاء السابقة قبل التحقق
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length === 0) {
-      setLoading(true); // تعيين حالة التحميل إلى true
-      // إرسال البيانات إلى API
-      axios
-        .post("https://law-office.al-mosa.com/api/login", formData)
-        .then((response) => {
-          const { user, token } = response.data;
-
-          // تخزين بيانات المستخدم و token في localStorage
-          localStorage.setItem("user", JSON.stringify(user));
-          localStorage.setItem("token", token); // تخزين التوكن في localStorage
-
-          // إعادة التوجيه بعد تسجيل الدخول
-          Swal.fire({
-            title: "تم تسجيل الدخول بنجاح!",
-            text: `مرحبًا ${user.name}`,
-            icon: "success",
-            confirmButtonText: "موافق",
-          }).then(() => {
-            setLoading(false); // تعيين حالة التحميل إلى false
-            navigate("/"); // أو أي صفحة ترغب في التوجيه إليها بعد تسجيل الدخول
-          });
-        })
-        .catch((error) => {
-          Swal.fire({
-            title: "خطأ",
-            text: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-            icon: "error",
-            confirmButtonText: "موافق",
-          });
-          setLoading(false); // تعيين حالة التحميل إلى false في حالة حدوث خطأ
-          console.error("Error during login:", error);
+      setLoading(true);
+      try {
+        console.log(
+          "Sending login request to:",
+          "https://law-office.al-mosa.com/api/login"
+        );
+        console.log("Request data:", formData);
+        const response = await axios.post(
+          "https://law-office.al-mosa.com/api/login",
+          formData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log("Response:", response);
+        const { user, token } = response.data;
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", token);
+        Swal.fire({
+          title: "تم تسجيل الدخول بنجاح!",
+          text: `مرحبًا ${user.name}`,
+          icon: "success",
+          confirmButtonText: "موافق",
+        }).then(() => {
+          navigate("/");
         });
+      } catch (error) {
+        console.error("Error during login:", error);
+        if (error.response) {
+          // التعامل مع الأخطاء التي تأتي برد من الخادم
+          console.error("Response data:", error.response.data);
+          console.error("Response status:", error.response.status);
+          console.error("Response headers:", error.response.headers);
+
+          if (error.response.status === 403) {
+            showErrorAlert(
+              "خطأ",
+              `${error.response.data}<br>يرجى التواصل مع إدارة النظام لتفعيل حسابك.`
+            );
+          } else if (error.response.data && error.response.data.message) {
+            showErrorAlert("خطأ", error.response.data.message);
+          } else {
+            showErrorAlert(
+              "خطأ",
+              "البريد الإلكتروني أو كلمة المرور غير صحيحة."
+            );
+          }
+        } else if (error.request) {
+          // التعامل مع الأخطاء التي ليس لها رد من الخادم
+          console.error("Request error:", error.request);
+          showErrorAlert("خطأ", "حدث خطأ في الشبكة. يرجى المحاولة مرة أخرى.");
+        } else {
+          // التعامل مع الأخطاء الأخرى
+          console.error("Error message:", error.message);
+          showErrorAlert("خطأ", "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
+        }
+      } finally {
+        setLoading(false);
+      }
     } else {
-      // عرض أخطاء التحقق باستخدام SweetAlert
+      setErrors(validationErrors);
       let errorMessages = Object.values(validationErrors).join("<br>");
       Swal.fire({
         title: "خطأ في التحقق",
@@ -75,7 +113,6 @@ function Login() {
         icon: "error",
         confirmButtonText: "موافق",
       });
-      setErrors(validationErrors);
     }
   };
 
@@ -95,12 +132,15 @@ function Login() {
                 </label>
                 <input
                   type="email"
-                  className="form-control"
+                  className={`form-control ${errors.email ? "is-invalid" : ""}`}
                   id="email"
                   placeholder="أدخل بريدك الإلكتروني"
                   value={formData.email}
                   onChange={handleInputChange}
                 />
+                {errors.email && (
+                  <div className="invalid-feedback">{errors.email}</div>
+                )}
               </div>
               <div className="mb-3">
                 <label htmlFor="password" className="form-label">
@@ -108,17 +148,22 @@ function Login() {
                 </label>
                 <input
                   type="password"
-                  className="form-control"
+                  className={`form-control ${
+                    errors.password ? "is-invalid" : ""
+                  }`}
                   id="password"
                   placeholder="أدخل كلمة المرور"
                   value={formData.password}
                   onChange={handleInputChange}
                 />
+                {errors.password && (
+                  <div className="invalid-feedback">{errors.password}</div>
+                )}
               </div>
               <button
                 type="submit"
                 className="btn btn-dark w-100"
-                disabled={loading} // تعطيل الزر أثناء التحميل
+                disabled={loading}
               >
                 {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
               </button>

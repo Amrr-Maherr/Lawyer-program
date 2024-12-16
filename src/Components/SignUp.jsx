@@ -9,85 +9,128 @@ function SignUp() {
     email: "",
     password: "",
     confirmPassword: "",
+    phoneNumber: "",
+    profileImage: null,
+    idNumber: "",
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
   };
-
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    setFormData({ ...formData, profileImage: file }); // Store the file directly
+  };
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) {
-      newErrors.name = "الاسم الكامل مطلوب";
+      newErrors.name = "الرجاء إدخال الاسم الكامل.";
     }
     if (!formData.email.trim()) {
-      newErrors.email = "البريد الإلكتروني مطلوب";
+      newErrors.email = "الرجاء إدخال البريد الإلكتروني.";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "يرجى إدخال بريد إلكتروني صالح";
+      newErrors.email = "الرجاء إدخال بريد إلكتروني صالح.";
     }
     if (!formData.password) {
-      newErrors.password = "كلمة المرور مطلوبة";
+      newErrors.password = "الرجاء إدخال كلمة المرور.";
     } else if (formData.password.length < 8) {
-      newErrors.password = "يجب أن تكون كلمة المرور مكونة من 8 أحرف على الأقل";
+      newErrors.password = "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.";
     }
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "يرجى تأكيد كلمة المرور";
+      newErrors.confirmPassword = "الرجاء تأكيد كلمة المرور.";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "كلمتا المرور غير متطابقتين";
+      newErrors.confirmPassword = "كلمتا المرور غير متطابقتين.";
     }
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "الرجاء إدخال رقم الهاتف.";
+    } else if (isNaN(formData.phoneNumber)) {
+      newErrors.phoneNumber = "يجب أن يتكون رقم الهاتف من أرقام فقط.";
+    }
+    if (!formData.idNumber.trim()) {
+      newErrors.idNumber = "الرجاء إدخال رقم الكارنيه.";
+    } else if (isNaN(formData.idNumber)) {
+      newErrors.idNumber = "يجب أن يتكون رقم الكارنيه من أرقام فقط.";
+    }
+
     return newErrors;
+  };
+  const showErrorAlert = (title, text) => {
+    Swal.fire({
+      title,
+      text,
+      icon: "error",
+      confirmButtonText: "حسنًا",
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({}); // مسح الأخطاء السابقة قبل التحقق
     const formErrors = validateForm();
     setErrors(formErrors);
 
     if (Object.keys(formErrors).length > 0) {
       let errorMessages = Object.values(formErrors).join("<br>");
       Swal.fire({
-        title: "خطأ في التحقق",
-        html: errorMessages,
-        icon: "error",
-        confirmButtonText: "موافق",
+        title: "تنبيه!",
+        html: `الرجاء تصحيح الأخطاء التالية:<br>${errorMessages}`,
+        icon: "warning",
+        confirmButtonText: "حسنًا",
       });
       return;
     }
-
-    const dataToSend = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      password_confirmation: formData.confirmPassword,
-    };
-
+    setLoading(true);
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("password", formData.password);
+      formDataToSend.append("phone", formData.phoneNumber);
+      formDataToSend.append("card_number", formData.idNumber);
+      if (formData.profileImage) {
+        formDataToSend.append("image", formData.profileImage);
+      }
+
       const response = await axios.post(
         "https://law-office.al-mosa.com/api/register",
-        dataToSend
-      );
-      console.log("Registration successful:", response.data);
-      Swal.fire("تم التسجيل بنجاح!", "تم التسجيل بنجاح!", "success").then(
-        () => {
-          navigate("/login");
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
+      console.log("Registration successful:", response.data);
+      Swal.fire({
+        title: "تم إنشاء الحساب بنجاح!",
+        text: "تم إنشاء حسابك بنجاح، يمكنك الآن تسجيل الدخول.",
+        icon: "success",
+        confirmButtonText: "تسجيل الدخول",
+      }).then(() => {
+        navigate("/login");
+      });
     } catch (error) {
       if (error.response) {
         console.error("Error during registration:", error.response.data);
-        Swal.fire(
-          "خطأ",
-          error.response.data.message || "حدث خطأ أثناء التسجيل",
-          "error"
+        showErrorAlert(
+          "حدث خطأ!",
+          error.response.data.message ||
+            "حدث خطأ أثناء التسجيل، يرجى المحاولة مرة أخرى."
         );
       } else {
         console.error("Request failed", error.message);
-        Swal.fire("خطأ", "حدث خطأ أثناء التسجيل", "error");
+        showErrorAlert(
+          "حدث خطأ!",
+          "حدث خطأ أثناء التسجيل، يرجى المحاولة مرة أخرى."
+        );
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,69 +142,145 @@ function SignUp() {
       <div className="row">
         <div className="col-12 d-flex align-items-center justify-content-center vh-100">
           <div
-            className="card hover p-4 shadow"
-            style={{ maxWidth: "500px", width: "100%" }}
+            className="card  p-4 shadow"
+            style={{ maxWidth: "600px", width: "100%" }}
           >
             <h2 className="text-center mb-2">إنشاء حساب</h2>
             <form onSubmit={handleSubmit}>
-              <div className="mb-1">
-                <label htmlFor="name" className="form-label">
-                  الاسم الكامل
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="name"
-                  placeholder="أدخل اسمك الكامل"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  style={{ padding: "0.375rem 0.75rem" }}
-                />
+              <div className="row mb-1">
+                <div className="col-md-6">
+                  <label htmlFor="name" className="form-label">
+                    الاسم الكامل
+                  </label>
+                  <input
+                    type="text"
+                    className={`form-control ${
+                      errors.name ? "is-invalid" : ""
+                    }`}
+                    id="name"
+                    placeholder="أدخل اسمك الكامل"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                  />
+                  {errors.name && (
+                    <div className="invalid-feedback">{errors.name}</div>
+                  )}
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="email" className="form-label">
+                    البريد الإلكتروني
+                  </label>
+                  <input
+                    type="email"
+                    className={`form-control ${
+                      errors.email ? "is-invalid" : ""
+                    }`}
+                    id="email"
+                    placeholder="أدخل بريدك الإلكتروني"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                  />
+                  {errors.email && (
+                    <div className="invalid-feedback">{errors.email}</div>
+                  )}
+                </div>
+              </div>
+              <div className="row mb-1">
+                <div className="col-md-6">
+                  <label htmlFor="phoneNumber" className="form-label">
+                    رقم الهاتف
+                  </label>
+                  <input
+                    type="text"
+                    className={`form-control ${
+                      errors.phoneNumber ? "is-invalid" : ""
+                    }`}
+                    id="phoneNumber"
+                    placeholder="أدخل رقم هاتفك"
+                    value={formData.phoneNumber}
+                    onChange={handleInputChange}
+                  />
+                  {errors.phoneNumber && (
+                    <div className="invalid-feedback">{errors.phoneNumber}</div>
+                  )}
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="idNumber" className="form-label">
+                    رقم الكارنيه
+                  </label>
+                  <input
+                    type="text"
+                    className={`form-control ${
+                      errors.idNumber ? "is-invalid" : ""
+                    }`}
+                    id="idNumber"
+                    placeholder="أدخل رقم الكارنيه"
+                    value={formData.idNumber}
+                    onChange={handleInputChange}
+                  />
+                  {errors.idNumber && (
+                    <div className="invalid-feedback">{errors.idNumber}</div>
+                  )}
+                </div>
               </div>
               <div className="mb-1">
-                <label htmlFor="email" className="form-label">
-                  البريد الإلكتروني
+                <label htmlFor="profileImage" className="form-label">
+                  الصورة الشخصية
                 </label>
                 <input
-                  type="email"
+                  type="file"
                   className="form-control"
-                  id="email"
-                  placeholder="أدخل بريدك الإلكتروني"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  style={{ padding: "0.375rem 0.75rem" }}
+                  id="profileImage"
+                  accept="image/*"
+                  onChange={handleImageChange}
                 />
               </div>
-              <div className="mb-1">
-                <label htmlFor="password" className="form-label">
-                  كلمة المرور
-                </label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="password"
-                  placeholder="أدخل كلمة المرور"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  style={{ padding: "0.375rem 0.75rem" }}
-                />
+              <div className="row mb-1">
+                <div className="col-md-6">
+                  <label htmlFor="password" className="form-label">
+                    كلمة المرور
+                  </label>
+                  <input
+                    type="password"
+                    className={`form-control ${
+                      errors.password ? "is-invalid" : ""
+                    }`}
+                    id="password"
+                    placeholder="أدخل كلمة المرور"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                  />
+                  {errors.password && (
+                    <div className="invalid-feedback">{errors.password}</div>
+                  )}
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="confirmPassword" className="form-label">
+                    تأكيد كلمة المرور
+                  </label>
+                  <input
+                    type="password"
+                    className={`form-control ${
+                      errors.confirmPassword ? "is-invalid" : ""
+                    }`}
+                    id="confirmPassword"
+                    placeholder="أعد إدخال كلمة المرور"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                  />
+                  {errors.confirmPassword && (
+                    <div className="invalid-feedback">
+                      {errors.confirmPassword}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="mb-1">
-                <label htmlFor="confirmPassword" className="form-label">
-                  تأكيد كلمة المرور
-                </label>
-                <input
-                  type="password"
-                  className="form-control"
-                  id="confirmPassword"
-                  placeholder="أعد إدخال كلمة المرور"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  style={{ padding: "0.375rem 0.75rem" }}
-                />
-              </div>
-              <button type="submit" className="btn btn-dark w-100">
-                إنشاء حساب
+              <button
+                type="submit"
+                className="btn btn-dark w-100 mt-2"
+                disabled={loading}
+              >
+                {loading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
               </button>
             </form>
             <p className="text-center mt-1">
