@@ -1,100 +1,141 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "@fortawesome/fontawesome-free/css/all.css";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import Swal from "sweetalert2";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEdit,
+  faTrash,
+  faSave,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+
+ChartJS.register(ArcElement, Tooltip, Legend, Title);
+
+const API_URL = "https://law-office.al-mosa.com/api";
 
 function Expenses() {
-  const [expenses, setExpenses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [chartData, setChartData] = useState(null);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [selectedExpense, setSelectedExpense] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editedExpense, setEditedExpense] = useState(null);
+  const [expensesList, setExpensesList] = useState([]);
+  const [filteredExpenses, setFilteredExpenses] = useState([]);
+  const [editingExpenseId, setEditingExpenseId] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    amount: "",
+  });
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [hoveredExpenseAmount, setHoveredExpenseAmount] = useState(null);
 
   useEffect(() => {
-    const fetchExpenses = async () => {
-      Swal.fire({
-        title: "جاري تحميل المصروفات...",
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-      setLoading(true);
-      setError(null);
-
-      try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          setError("Token not found in localStorage.");
-          Swal.fire({
-            icon: "error",
-            title: "فشل",
-            text: "لم يتم العثور على الرمز المميز.",
-          });
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.get(
-          "https://law-office.al-mosa.com/api/expenses",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        console.log("Response Data:", response.data);
-
-        setExpenses(response.data);
-      } catch (err) {
-        setError("Error fetching expenses: " + err.message);
-        Swal.fire({
-          icon: "error",
-          title: "فشل",
-          text: "فشل في تحميل المصروفات.",
-        });
-      } finally {
-        setLoading(false);
-        Swal.close();
-      }
-    };
-
-    fetchExpenses();
+    fetchExpensesData();
   }, []);
 
-  if (loading) {
-    return null; // لا تعرض شيء أثناء التحميل
-  }
+  useEffect(() => {
+    filterExpenses();
+  }, [searchKeyword, expensesList]);
 
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
+  useEffect(() => {
+    setTotalExpenses(calculateTotalExpenses());
+  }, [expensesList]);
 
-  const filteredExpenses = expenses.filter((expense) =>
-    expense.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  const handleDetails = (expense) => {
+  const calculateTotalExpenses = () => {
+    return expensesList.reduce(
+      (total, expense) => total + parseFloat(expense.amount),
+      0
+    );
+  };
+
+  const fetchExpensesData = async () => {
     Swal.fire({
-      title: "جاري تحميل التفاصيل...",
+      title: "جاري التحميل...",
+      allowOutsideClick: false,
+      showConfirmButton: false,
       didOpen: () => {
         Swal.showLoading();
       },
     });
-    setTimeout(() => {
-      setSelectedExpense(expense);
-      setShowDetailsModal(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("لم يتم العثور على التوكن. يرجى تسجيل الدخول.");
+      }
+
+      const response = await axios.get(`${API_URL}/expenses`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const expensesData = response.data;
+      setExpensesList(expensesData);
+      setFilteredExpenses(expensesData);
+      const chartData = prepareChartData(expensesData);
+      setChartData(chartData);
+    } catch (err) {
+      console.error("Error fetching expenses:", err);
+      handleApiError(err, "فشل في جلب المصروفات.");
+    } finally {
       Swal.close();
-    }, 500);
+    }
   };
 
-  const handleDelete = async (id) => {
+  const prepareChartData = (expenses) => {
+    const expensesMap = new Map();
+    if (Array.isArray(expenses)) {
+      expenses.forEach((expense) => {
+        const amount = parseFloat(expense.amount);
+        expensesMap.set(
+          expense.name,
+          (expensesMap.get(expense.name) || 0) + amount
+        );
+      });
+    }
+
+    const labels = Array.from(expensesMap.keys());
+    const dataValues = Array.from(expensesMap.values());
+    const backgroundColors = labels.map(() => generateRandomColor());
+
+    return {
+      labels: labels,
+      datasets: [
+        {
+          label: "توزيع المصروفات",
+          data: dataValues,
+          backgroundColor: backgroundColors,
+          borderColor: backgroundColors.map((color) =>
+            color.replace("0.7", "1")
+          ),
+          borderWidth: 1,
+          hoverOffset: 10,
+        },
+      ],
+    };
+  };
+
+  const filterExpenses = () => {
+    if (!searchKeyword) {
+      setFilteredExpenses(expensesList);
+      return;
+    }
+    const filtered = expensesList.filter((expense) =>
+      expense.name.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+    setFilteredExpenses(filtered);
+  };
+
+  const generateRandomColor = () => {
+    const r = Math.floor(Math.random() * 255);
+    const g = Math.floor(Math.random() * 255);
+    const b = Math.floor(Math.random() * 255);
+    return `rgba(${r}, ${g}, ${b}, 0.7)`;
+  };
+
+  const handleDeleteExpense = async (expenseId) => {
     Swal.fire({
-      title: "هل أنت متأكد من حذف هذا المصروف؟",
+      title: "هل أنت متأكد؟",
+      text: "لن تتمكن من التراجع عن هذا الإجراء!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -104,444 +145,340 @@ function Expenses() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          Swal.fire({
-            title: "جاري الحذف...",
-            didOpen: () => {
-              Swal.showLoading();
-            },
-          });
           const token = localStorage.getItem("token");
-          await axios.delete(
-            `https://law-office.al-mosa.com/api/expenses/${id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          setExpenses((prevExpenses) =>
-            prevExpenses.filter((expense) => expense.id !== id)
-          );
-          Swal.close();
+          await axios.delete(`${API_URL}/expense/${expenseId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           Swal.fire({
-            icon: "success",
             title: "تم الحذف!",
             text: "تم حذف المصروف بنجاح.",
+            icon: "success",
+            confirmButtonText: "حسناً",
           });
+          fetchExpensesData();
         } catch (err) {
-          Swal.fire({
-            icon: "error",
-            title: "فشل!",
-            text: "حدث خطأ أثناء الحذف.",
-          });
+          console.error("Error deleting expense:", err);
+          handleApiError(err, "فشل في حذف المصروف.");
         }
       }
     });
   };
 
-  const handleEdit = (expense) => {
-    setEditedExpense({ ...expense });
-    setShowEditModal(true);
-    Swal.fire({
-      icon: "info",
-      title: "تعديل",
-      text: "يمكنك الان تعديل المصروف.",
+  const handleEditExpense = (expense) => {
+    setEditingExpenseId(expense.id);
+    setEditFormData({
+      name: expense.name,
+      amount: expense.amount,
     });
   };
-  const handleCloseDetailsModal = () => {
-    setShowDetailsModal(false);
-    setSelectedExpense(null);
-    Swal.fire({
-      icon: "info",
-      title: "تم",
-      text: "تم اغلاق تفاصيل المصروف.",
+
+  const handleCancelEdit = () => {
+    setEditingExpenseId(null);
+  };
+
+  const handleEditFormChange = (e) => {
+    setEditFormData({
+      ...editFormData,
+      [e.target.name]: e.target.value,
     });
   };
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
-    setEditedExpense(null);
+
+  const handleUpdateExpense = async (e) => {
+    e.preventDefault();
     Swal.fire({
-      icon: "info",
-      title: "تم",
-      text: "تم اغلاق تعديل المصروف.",
-    });
-  };
-  const handleEditInputChange = (event) => {
-    const { name, value } = event.target;
-    setEditedExpense((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-  const handleSaveEdit = async () => {
-    Swal.fire({
-      title: "جاري حفظ التعديلات...",
+      title: "جاري التحديث...",
+      allowOutsideClick: false,
+      showConfirmButton: false,
       didOpen: () => {
         Swal.showLoading();
       },
     });
     try {
       const token = localStorage.getItem("token");
-      await axios.put(
-        `https://law-office.al-mosa.com/api/expenses/${editedExpense.id}`,
-        editedExpense,
+      await axios.post(
+        `${API_URL}/update-expense/${editingExpenseId}`,
+        editFormData,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
-      );
-
-      setExpenses((prevExpenses) =>
-        prevExpenses.map((exp) =>
-          exp.id === editedExpense.id ? { ...editedExpense } : exp
-        )
       );
       Swal.close();
       Swal.fire({
+        title: "تم التعديل!",
+        text: "تم تعديل المصروف بنجاح.",
         icon: "success",
-        title: "تم",
-        text: "تم حفظ التعديلات بنجاح",
+        confirmButtonText: "حسناً",
       });
-      handleCloseEditModal();
+      setEditingExpenseId(null);
+      fetchExpensesData();
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "فشل",
-        text: "فشل في حفظ التعديلات",
-      });
+      console.error("Error updating expense:", err);
+      handleApiError(err, "فشل في تعديل المصروف.");
     }
   };
 
+  const handleApiError = (error, defaultMessage) => {
+    let errorMessage = defaultMessage;
+    if (error.response) {
+      if (error.response.status === 401) {
+        errorMessage = "غير مصرح. يرجى تسجيل الدخول مرة أخرى.";
+      } else if (error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    setError(errorMessage);
+    Swal.fire({
+      icon: "error",
+      title: "خطأ",
+      text: errorMessage,
+    });
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchKeyword(e.target.value);
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "right",
+        align: "center",
+        labels: {
+          font: {
+            size: 18,
+          },
+        },
+      },
+      title: {
+        display: true,
+        text: "توزيع المصروفات",
+        font: {
+          size: 26,
+        },
+        align: "center",
+      },
+      tooltip: {
+        callbacks: {
+          title: (tooltipItems) => {
+            if (tooltipItems.length > 0) {
+              const index = tooltipItems[0].dataIndex;
+              const label = chartData.labels[index];
+              return label;
+            }
+            return "";
+          },
+          label: (tooltipItem) => {
+            const value = tooltipItem.formattedValue;
+            return `المبلغ: ${value} ج.م`;
+          },
+          labelColor: (tooltipItem) => {
+            return {
+              backgroundColor:
+                tooltipItem.dataset.backgroundColor[tooltipItem.dataIndex],
+              borderColor:
+                tooltipItem.dataset.borderColor[tooltipItem.dataIndex],
+            };
+          },
+          labelTextColor: () => "#fff",
+        },
+        bodyFont: {
+          size: 14,
+        },
+        titleFont: {
+          size: 16,
+        },
+        padding: 10,
+        backgroundColor: "rgba(0,0,0,0.85)",
+        borderColor: "rgba(255,255,255,0.5)",
+        borderWidth: 1,
+      },
+    },
+    onHover: (event, chartElement) => {
+      if (chartElement.length > 0) {
+        const index = chartElement[0].index;
+        const amount = chartData.datasets[0].data[index];
+        setHoveredExpenseAmount(amount);
+      } else {
+        setHoveredExpenseAmount(null);
+      }
+    },
+  };
+
   return (
-    <div className="container-fluid  home" dir="rtl">
-      {/* إضافة dir="rtl" */}
-      <div className="row d-flex align-items-center justify-content-center">
-        <div className="col-xl-6 my-4">
-          <h1 className="mb-4 text-center">المصروفات</h1>
+    <div className="container mt-4">
+      <div className="row">
+        <div className="col-md-8 mb-4">
+          <div className="d-flex flex-column align-items-center">
+            <div style={{ height: "400px", width: "100%" }}>
+              {chartData && <Pie data={chartData} options={chartOptions} />}
+            </div>
+            <p className="lead mt-3 text-center">
+              {hoveredExpenseAmount !== null ? (
+                <>
+                  قيمة المصروف:{" "}
+                  <span className="fw-bold">
+                    {hoveredExpenseAmount.toFixed(2)} ج.م
+                  </span>
+                </>
+              ) : (
+                <>
+                  إجمالي المصروفات:{" "}
+                  <span className="fw-bold">
+                    {totalExpenses.toFixed(2)} ج.م
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
         </div>
-        <div className="col-xl-6 my-4">
-          <div className="mb-3 w-50">
+        <div className="col-md-4">
+          <div className="mb-3">
             <input
               type="text"
-              className="form-control"
-              placeholder="ابحث عن مصروف..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              className="form-control custom-input"
+              placeholder="ابحث عن المصروفات..."
+              value={searchKeyword}
+              onChange={handleSearchChange}
             />
           </div>
-        </div>
-      </div>
-      <div className="row flex-row-reverse">
-        {/* إضافة flex-row-reverse */}
-        {filteredExpenses.map((expense) => (
-          <div className="col-md-4 mb-4" key={expense.id}>
-            <div className="card h-100 case-card" dir="rtl">
-              <div className="card-header case-card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <h5 className="card-title m-0 text-start flex-grow-1 ps-2">
-                  {expense.name}
-                </h5>
-                <i className="fas fa-file-invoice fs-4 me-2"></i>
-              </div>
-              <div className="card-body">
-                <div className="table-responsive">
-                  <table className="table table-borderless table-sm custom-table">
-                    <tbody>
-                      <tr>
-                        <th scope="row" className="text-end align-middle">
-                          <span className="text-bold me-2">الوصف:</span>
-                          <i className="fas fa-file-alt ms-1"></i>
-                        </th>
-                        <td className="text-start align-middle">
-                          {expense.description}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row" className="text-end align-middle">
-                          <span className="text-bold me-2">المبلغ:</span>
-                          <i className="fas fa-coins ms-1"></i>
-                        </th>
-                        <td className="text-start align-middle">
-                          {expense.amount}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row" className="text-end align-middle">
-                          <span className="text-bold me-2">التاريخ:</span>
-                          <i className="fas fa-calendar-alt ms-1"></i>
-                        </th>
-                        <td className="text-start align-middle">
-                          {expense.date}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row" className="text-end align-middle">
-                          <span className="text-bold me-2">الطريقة:</span>
-                          <i className="fas fa-hand-holding-usd ms-1"></i>
-                        </th>
-                        <td className="text-start align-middle">
-                          {expense.method}
-                        </td>
-                      </tr>
-                      {expense.notes && (
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">ملاحظات:</span>
-                            <i className="fas fa-sticky-note ms-1"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            {expense.notes}
-                          </td>
-                        </tr>
+          <div
+            className="mb-3"
+            style={{ maxHeight: "400px", overflowY: "auto" }}
+          >
+            {filteredExpenses && filteredExpenses.length > 0 ? (
+              <div className="d-flex flex-wrap">
+                {filteredExpenses.map((expense) => (
+                  <div
+                    key={expense.id}
+                    className="card m-2"
+                    style={{ width: "18rem" }}
+                  >
+                    <div className="card-body">
+                      {editingExpenseId === expense.id ? (
+                        <ExpenseEditForm
+                          expense={expense}
+                          editFormData={editFormData}
+                          handleEditFormChange={handleEditFormChange}
+                          handleUpdateExpense={handleUpdateExpense}
+                          handleCancelEdit={handleCancelEdit}
+                        />
+                      ) : (
+                        <ExpenseItem
+                          expense={expense}
+                          handleEditExpense={handleEditExpense}
+                          handleDeleteExpense={handleDeleteExpense}
+                        />
                       )}
-                    </tbody>
-                  </table>
-                </div>
-                <hr className="my-3" />
-                <div className="d-flex flex-wrap justify-content-center gap-2 mt-2">
-                  <button
-                    className="btn btn-info btn-sm case-button"
-                    onClick={() => handleDetails(expense)}
-                  >
-                    <i className="fa fa-info-circle ms-1"></i> تفاصيل
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm case-button"
-                    onClick={() => handleDelete(expense.id)}
-                  >
-                    <i className="fa fa-trash-alt ms-1"></i> حذف
-                  </button>
-                  <button
-                    className="btn btn-warning btn-sm case-button"
-                    onClick={() => handleEdit(expense)}
-                  >
-                    <i className="fa fa-edit ms-1"></i> تعديل
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* موديل التفاصيل */}
-      <div
-        className={`modal fade ${showDetailsModal ? "show" : ""}`}
-        style={{ display: showDetailsModal ? "block" : "none" }}
-        tabIndex="-1"
-        aria-labelledby="detailsModalLabel"
-        aria-hidden={!showDetailsModal}
-      >
-        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="detailsModalLabel">
-                تفاصيل المصروف
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Close"
-                onClick={handleCloseDetailsModal}
-              ></button>
-            </div>
-            <div className="modal-body">
-              {selectedExpense && (
-                <div className="table-responsive">
-                  <table className="table table-borderless table-sm custom-table">
-                    <tbody>
-                      <tr>
-                        <th scope="row" className="text-end align-middle">
-                          <span className="text-bold me-2">الوصف:</span>
-                          <i className="fas fa-file-alt ms-1"></i>
-                        </th>
-                        <td className="text-start align-middle">
-                          {selectedExpense.description}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row" className="text-end align-middle">
-                          <span className="text-bold me-2">المبلغ:</span>
-                          <i className="fas fa-coins ms-1"></i>
-                        </th>
-                        <td className="text-start align-middle">
-                          {selectedExpense.amount}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row" className="text-end align-middle">
-                          <span className="text-bold me-2">التاريخ:</span>
-                          <i className="fas fa-calendar-alt ms-1"></i>
-                        </th>
-                        <td className="text-start align-middle">
-                          {selectedExpense.date}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row" className="text-end align-middle">
-                          <span className="text-bold me-2">الطريقة:</span>
-                          <i className="fas fa-hand-holding-usd ms-1"></i>
-                        </th>
-                        <td className="text-start align-middle">
-                          {selectedExpense.method}
-                        </td>
-                      </tr>
-                      {selectedExpense.notes && (
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">ملاحظات:</span>
-                            <i className="fas fa-sticky-note ms-1"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            {selectedExpense.notes}
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleCloseDetailsModal}
-              >
-                إغلاق
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* موديل التعديل */}
-      <div
-        className={`modal fade ${showEditModal ? "show" : ""}`}
-        style={{ display: showEditModal ? "block" : "none" }}
-        tabIndex="-1"
-        aria-labelledby="editModalLabel"
-        aria-hidden={!showEditModal}
-      >
-        <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="editModalLabel">
-                تعديل المصروف
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Close"
-                onClick={handleCloseEditModal}
-              ></button>
-            </div>
-            <div className="modal-body">
-              {editedExpense && (
-                <form>
-                  <div className="table-responsive">
-                    <table className="table table-borderless table-sm custom-table">
-                      <tbody>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">الوصف:</span>
-                            <i className="fas fa-file-alt ms-1"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="description"
-                              value={editedExpense.description || ""}
-                              onChange={handleEditInputChange}
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">المبلغ:</span>
-                            <i className="fas fa-coins ms-1"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            <input
-                              type="number"
-                              className="form-control"
-                              name="amount"
-                              value={editedExpense.amount || ""}
-                              onChange={handleEditInputChange}
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">التاريخ:</span>
-                            <i className="fas fa-calendar-alt ms-1"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            <input
-                              type="date"
-                              className="form-control"
-                              name="date"
-                              value={editedExpense.date || ""}
-                              onChange={handleEditInputChange}
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">الطريقة:</span>
-                            <i className="fas fa-hand-holding-usd ms-1"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="method"
-                              value={editedExpense.method || ""}
-                              onChange={handleEditInputChange}
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">ملاحظات:</span>
-                            <i className="fas fa-sticky-note ms-1"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            <textarea
-                              className="form-control"
-                              name="notes"
-                              value={editedExpense.notes || ""}
-                              onChange={handleEditInputChange}
-                            />
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    </div>
                   </div>
-                </form>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleCloseEditModal}
-              >
-                إلغاء
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleSaveEdit}
-              >
-                حفظ
-              </button>
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center">
+                <p>لا توجد مصروفات للعرض.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
+      <style>
+        {`
+          .custom-input {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            background-color: white;
+            color: #444;
+            font-size: 1rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+          }
+           .custom-input:focus {
+             border-color: #86b7fe;
+              outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+           }
+           .custom-edit-button {
+            border-radius: 0.375rem;
+            padding: 0.25rem 0.5rem; /* تقليل الحجم  */
+            font-size: 0.875rem; /* تقليل حجم الخط */
+           }
+           .custom-edit-button:focus {
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+           }
+        `}
+      </style>
     </div>
   );
 }
+
+const ExpenseItem = ({ expense, handleEditExpense, handleDeleteExpense }) => (
+  <>
+    <h5 className="card-title">{expense.name}</h5>
+    <p className="card-text">المبلغ: {expense.amount} ج.م</p>
+    <div className="d-flex justify-content-end">
+      <button
+        className="btn btn-primary btn-sm me-1 custom-edit-button"
+        onClick={() => handleEditExpense(expense)}
+      >
+        <FontAwesomeIcon icon={faEdit} />
+      </button>
+      <button
+        className="btn btn-danger btn-sm custom-edit-button"
+        onClick={() => handleDeleteExpense(expense.id)}
+      >
+        <FontAwesomeIcon icon={faTrash} />
+      </button>
+    </div>
+  </>
+);
+
+const ExpenseEditForm = ({
+  expense,
+  editFormData,
+  handleEditFormChange,
+  handleUpdateExpense,
+  handleCancelEdit,
+}) => (
+  <>
+    <input
+      type="text"
+      name="name"
+      value={editFormData.name}
+      className="form-control custom-input mb-2"
+      onChange={handleEditFormChange}
+      placeholder="اسم المصروف"
+    />
+    <input
+      type="number"
+      name="amount"
+      value={editFormData.amount}
+      className="form-control custom-input mb-2"
+      onChange={handleEditFormChange}
+      placeholder="المبلغ"
+    />
+    <div className="d-flex justify-content-end">
+      <button
+        type="submit"
+        onClick={handleUpdateExpense}
+        className="btn btn-success btn-sm me-1 custom-edit-button"
+      >
+        <FontAwesomeIcon icon={faSave} />
+      </button>
+      <button
+        type="button"
+        onClick={handleCancelEdit}
+        className="btn btn-secondary btn-sm custom-edit-button"
+      >
+        <FontAwesomeIcon icon={faTimes} />
+      </button>
+    </div>
+  </>
+);
 
 export default Expenses;

@@ -109,7 +109,7 @@ const CustomerCategories = () => {
       },
     });
   } else {
-    Swal.close(); // إغلاق sweet alert إذا لم يكن هناك تحميل
+    Swal.close();
   }
 
   if (error) {
@@ -119,60 +119,67 @@ const CustomerCategories = () => {
   return (
     <div className="container-fluid px-0 my-4">
       <div className="container">
-        <div className="row d-flex align-items-center justify-content-center">
-          <div className="col-xl-3 col-6">
+        <div className="row align-items-center justify-content-center mb-4">
+          <div className="col-12 col-md-4 mb-2">
             <input
               type="text"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
-              className="form-control"
+              className="form-control form-control-lg rounded-3 shadow-sm"
               placeholder="أدخل نوع العميل الجديد"
+              style={{
+                borderWidth: "2px",
+                borderColor: "#0d6efd",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
-          <div className="col-xl-3 col-6">
-            <button className="btn btn-dark" onClick={handleAddCategory}>
-              <i className="fas fa-plus"></i> إضافة نوع عميل جديد
+          <div className="col-12 col-md-4 mb-2">
+            <button
+              className="btn btn-dark btn-lg w-100 d-flex align-items-center justify-content-center"
+              onClick={handleAddCategory}
+            >
+              <i className="fas fa-plus me-2"></i> إضافة نوع عميل جديد
             </button>
           </div>
-          <div className="col-xl-6 col-12">
-            <h2 className="text-center py-4 fs-2 fw-bold">أنواع العملاء</h2>
+          <div className="col-12 col-md-4 mb-2">
+            <h2 className="text-center py-2 fs-2 fw-bold">أنواع العملاء</h2>
           </div>
         </div>
       </div>
-      <div className="table-responsive">
-        <table className="table table-bordered bg-dark table-striped text-center">
-          <thead className="text-white table-dark">
-            <tr>
-              <th>الإجراءات</th>
-              <th>اسم النوع</th>
-              <th>#</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.length > 0 ? (
-              categories.map((category, index) => (
-                <tr key={category.id}>
-                  <td>
+
+      <div className="container">
+        <div className="row">
+          {categories.length > 0 ? (
+            categories.map((category, index) => (
+              <div
+                key={category.id}
+                className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
+              >
+                <div className="card shadow-sm border h-100">
+                  <div className="card-body d-flex justify-content-between align-items-center">
                     <button
-                      className="btn btn-danger"
+                      className="btn btn-outline-danger btn-sm rounded-circle"
                       onClick={() => handleDelete(category.id)}
                     >
                       <i className="fas fa-trash"></i>
                     </button>
-                  </td>
-                  <td>{category.name}</td>
-                  <td>{index + 1}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="3" className="text-center text-danger">
-                  لا توجد أنواع عملاء حالياً.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                    <h5 className="card-title mb-0 text-end">
+                      {category.name}
+                    </h5>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-12 text-center text-danger mt-4">
+              لا توجد أنواع عملاء حالياً.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

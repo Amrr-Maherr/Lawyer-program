@@ -6,20 +6,21 @@ import { useNavigate } from "react-router-dom";
 const AddCase = () => {
   const navigate = useNavigate();
   const [caseData, setCaseData] = useState({
+    client_name: "",
     opponent_name: "",
     opponent_phone: "",
     opponent_address: "",
     case_category_id: "",
-    ID_number: "",
-    opponent_nation: "",
-    opponent_lawyer: "",
-    lawyer_phone: "",
+    client_ID: "",
+    opponent_nationality: "",
+    opponent_lawyer_name: "",
+    opponent_lawyer_phone: "",
     court_name: "",
     judge_name: "",
     case_number: "",
     case_title: "",
     contract_price: "",
-    notes: "",
+    case_notes: "",
   });
   const [loading, setLoading] = useState(false);
   const [caseCategories, setCaseCategories] = useState([]);
@@ -156,20 +157,21 @@ const AddCase = () => {
         rtl: true,
       });
       setCaseData({
+        client_name: "",
         opponent_name: "",
         opponent_phone: "",
         opponent_address: "",
         case_category_id: "",
-        ID_number: "",
-        opponent_nation: "",
-        opponent_lawyer: "",
-        lawyer_phone: "",
+        client_ID: "",
+        opponent_nationality: "",
+        opponent_lawyer_name: "",
+        opponent_lawyer_phone: "",
         court_name: "",
         judge_name: "",
         case_number: "",
         case_title: "",
         contract_price: "",
-        notes: "",
+        case_notes: "",
       });
       setSelectedCustomerId(null);
     } catch (error) {
@@ -234,198 +236,223 @@ const AddCase = () => {
       <h1 className="text-center mb-4">إضافة قضية جديدة</h1>
       <div className="row">
         <div className="col-12 text-end">
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">اختار العميل</label>
-            <select
-              className="form-control"
-              value={selectedCustomerId}
-              onChange={(e) => setSelectedCustomerId(e.target.value)}
-              disabled={loading}
-            >
-              <option value="">اختر العميل</option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name} - {customer.email}
-                </option>
-              ))}
-            </select>
+          <div className="row mb-3">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">العميل</label>
+              <select
+                className="form-select form-control-lg rounded-3 border-dark shadow-sm"
+                value={selectedCustomerId}
+                onChange={(e) => setSelectedCustomerId(e.target.value)}
+                disabled={loading}
+              >
+                <option value="">اختر العميل</option>
+                {customers.map((customer) => (
+                  <option key={customer.id} value={customer.id}>
+                    {customer.name} - {customer.email}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">اسم الخصم</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.opponent_name}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, opponent_name: e.target.value })
+                }
+                disabled={loading}
+              />
+            </div>
           </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">اسم الخصم</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.opponent_name}
-              onChange={(e) =>
-                setCaseData({ ...caseData, opponent_name: e.target.value })
-              }
-              disabled={loading}
-            />
+          <div className="row mb-3">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">هاتف الخصم</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.opponent_phone}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, opponent_phone: e.target.value })
+                }
+                disabled={loading}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">عنوان الخصم</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.opponent_address}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, opponent_address: e.target.value })
+                }
+                disabled={loading}
+              />
+            </div>
           </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">هاتف الخصم</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.opponent_phone}
-              onChange={(e) =>
-                setCaseData({ ...caseData, opponent_phone: e.target.value })
-              }
-              disabled={loading}
-            />
+          <div className="row mb-3">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">فئة القضية</label>
+              <select
+                className="form-select form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.case_category_id}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, case_category_id: e.target.value })
+                }
+                disabled={loading}
+              >
+                <option value="">اختر فئة القضية</option>
+                {caseCategories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">رقم هوية الموكل</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.client_ID}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, client_ID: e.target.value })
+                }
+                disabled={loading}
+              />
+            </div>
           </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">عنوان الخصم</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.opponent_address}
-              onChange={(e) =>
-                setCaseData({ ...caseData, opponent_address: e.target.value })
-              }
-              disabled={loading}
-            />
+          <div className="row mb-3">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">جنسية الخصم</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.opponent_nationality}
+                onChange={(e) =>
+                  setCaseData({
+                    ...caseData,
+                    opponent_nationality: e.target.value,
+                  })
+                }
+                disabled={loading}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">اسم محامي الخصم</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.opponent_lawyer_name}
+                onChange={(e) =>
+                  setCaseData({
+                    ...caseData,
+                    opponent_lawyer_name: e.target.value,
+                  })
+                }
+                disabled={loading}
+              />
+            </div>
           </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">نوع القضية</label>
-            <select
-              className="form-control"
-              value={caseData.case_category_id}
-              onChange={(e) =>
-                setCaseData({ ...caseData, case_category_id: e.target.value })
-              }
-              disabled={loading}
-            >
-              <option value="">اختر نوع القضية</option>
-              {caseCategories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+          <div className="row mb-3">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">
+                هاتف محامي الخصم
+              </label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.opponent_lawyer_phone}
+                onChange={(e) =>
+                  setCaseData({
+                    ...caseData,
+                    opponent_lawyer_phone: e.target.value,
+                  })
+                }
+                disabled={loading}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">اسم المحكمة</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.court_name}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, court_name: e.target.value })
+                }
+                disabled={loading}
+              />
+            </div>
           </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">رقم الهوية</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.ID_number}
-              onChange={(e) =>
-                setCaseData({ ...caseData, ID_number: e.target.value })
-              }
-              disabled={loading}
-            />
+          <div className="row mb-3">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">اسم القاضي</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.judge_name}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, judge_name: e.target.value })
+                }
+                disabled={loading}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">رقم القضية</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.case_number}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, case_number: e.target.value })
+                }
+                disabled={loading}
+              />
+            </div>
           </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">جنسية الخصم</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.opponent_nation}
-              onChange={(e) =>
-                setCaseData({ ...caseData, opponent_nation: e.target.value })
-              }
-              disabled={loading}
-            />
+          <div className="row mb-3">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">عنوان القضية</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.case_title}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, case_title: e.target.value })
+                }
+                disabled={loading}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">مبلغ العقد</label>
+              <input
+                type="number"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                value={caseData.contract_price}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, contract_price: e.target.value })
+                }
+                disabled={loading}
+              />
+            </div>
           </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">محامي الخصم</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.opponent_lawyer}
-              onChange={(e) =>
-                setCaseData({ ...caseData, opponent_lawyer: e.target.value })
-              }
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">هاتف المحامي</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.lawyer_phone}
-              onChange={(e) =>
-                setCaseData({ ...caseData, lawyer_phone: e.target.value })
-              }
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">اسم المحكمة</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.court_name}
-              onChange={(e) =>
-                setCaseData({ ...caseData, court_name: e.target.value })
-              }
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">اسم القاضي</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.judge_name}
-              onChange={(e) =>
-                setCaseData({ ...caseData, judge_name: e.target.value })
-              }
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">رقم القضية</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.case_number}
-              onChange={(e) =>
-                setCaseData({ ...caseData, case_number: e.target.value })
-              }
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">عنوان القضية</label>
-            <input
-              type="text"
-              className="form-control"
-              value={caseData.case_title}
-              onChange={(e) =>
-                setCaseData({ ...caseData, case_title: e.target.value })
-              }
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">مبلغ العقد</label>
-            <input
-              type="number"
-              className="form-control"
-              value={caseData.contract_price}
-              onChange={(e) =>
-                setCaseData({ ...caseData, contract_price: e.target.value })
-              }
-              disabled={loading}
-            />
-          </div>
-          <div className="form-group my-3">
-            <label className="fs-3 fw-bold">ملاحظات</label>
+          <div className="mb-3">
+            <label className="form-label fs-5 fw-bold">ملاحظات القضية</label>
             <textarea
-              className="form-control"
-              value={caseData.notes}
+              className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+              value={caseData.case_notes}
               onChange={(e) =>
-                setCaseData({ ...caseData, notes: e.target.value })
+                setCaseData({ ...caseData, case_notes: e.target.value })
               }
               disabled={loading}
             ></textarea>
           </div>
-          <div className="form-group text-end my-3">
+          <div className="text-end">
             <button
-              className="btn btn-dark"
+              className="btn btn-dark btn-lg"
               onClick={handleAddCase}
               disabled={loading}
             >

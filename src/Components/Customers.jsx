@@ -26,7 +26,7 @@ const Customers = () => {
 
     const fetchClients = async () => {
       Swal.fire({
-        title: "جاري تحميل بيانات العملاء",
+        title: "جاري تحميل بيانات الموكلين",
         text: "الرجاء الانتظار...",
         allowOutsideClick: false,
         showConfirmButton: false,
@@ -56,7 +56,7 @@ const Customers = () => {
 
   const handleViewDetails = async (client) => {
     Swal.fire({
-      title: "جاري تحميل بيانات العميل",
+      title: "جاري تحميل بيانات الموكل",
       text: "الرجاء الانتظار...",
       allowOutsideClick: false,
       showConfirmButton: false,
@@ -98,7 +98,7 @@ const Customers = () => {
       return;
     }
     Swal.fire({
-      title: "جاري تعديل بيانات العميل",
+      title: "جاري تعديل بيانات الموكل",
       text: "الرجاء الانتظار...",
       allowOutsideClick: false,
       showConfirmButton: false,
@@ -134,7 +134,6 @@ const Customers = () => {
       if (editedClient.notes !== selectedClient.notes) {
         updatedClientData.notes = String(editedClient.notes);
       }
-
       console.log("Data being sent:", updatedClientData);
 
       const response = await axios.post(
@@ -151,7 +150,7 @@ const Customers = () => {
       if (response.status === 200) {
         Swal.fire({
           title: "تم التعديل!",
-          text: "تم تعديل بيانات العميل بنجاح.",
+          text: "تم تعديل بيانات الموكل بنجاح.",
           icon: "success",
           confirmButtonText: "حسناً",
         }).then(() => {
@@ -168,7 +167,7 @@ const Customers = () => {
         console.error("Error response:", response);
         Swal.fire({
           title: "خطأ!",
-          text: response.data?.message || "حدث خطأ أثناء تعديل بيانات العميل",
+          text: response.data?.message || "حدث خطأ أثناء تعديل بيانات الموكل",
           icon: "error",
           confirmButtonText: "حسناً",
         });
@@ -179,7 +178,7 @@ const Customers = () => {
       Swal.fire({
         title: "خطأ!",
         text:
-          error.response?.data?.message || "حدث خطأ أثناء تعديل بيانات العميل",
+          error.response?.data?.message || "حدث خطأ أثناء تعديل بيانات الموكل",
         icon: "error",
         confirmButtonText: "حسناً",
       });
@@ -190,7 +189,7 @@ const Customers = () => {
 
   const handleEdit = (client) => {
     Swal.fire({
-      title: "تعديل اسم العميل",
+      title: "تعديل اسم الموكل",
       html: `
         <input id="name" class="swal2-input" placeholder="الاسم الجديد" value="${client.name}">
       `,
@@ -221,7 +220,7 @@ const Customers = () => {
             }
           )
           .then((response) => {
-            Swal.fire("تم التعديل!", "تم تعديل اسم العميل بنجاح.", "success");
+            Swal.fire("تم التعديل!", "تم تعديل اسم الموكل بنجاح.", "success");
             setClients((prevClients) =>
               prevClients.map((item) =>
                 item.id === client.id ? { ...item, name: updatedName } : item
@@ -229,7 +228,7 @@ const Customers = () => {
             );
           })
           .catch(() => {
-            Swal.fire("خطأ", "حدث خطأ أثناء تعديل اسم العميل", "error");
+            Swal.fire("خطأ", "حدث خطأ أثناء تعديل اسم الموكل", "error");
           });
       },
     });
@@ -260,13 +259,13 @@ const Customers = () => {
             },
           })
           .then(() => {
-            Swal.fire("تم الحذف!", "تم حذف العميل بنجاح.", "success");
+            Swal.fire("تم الحذف!", "تم حذف الموكل بنجاح.", "success");
             setClients((prevClients) =>
               prevClients.filter((client) => client.id !== id)
             );
           })
           .catch(() => {
-            Swal.fire("خطأ", "حدث خطأ أثناء حذف العميل", "error");
+            Swal.fire("خطأ", "حدث خطأ أثناء حذف الموكل", "error");
           });
       }
     });
@@ -280,28 +279,36 @@ const Customers = () => {
     <div className="text-center">
       <>
         <div className="container">
-          <div className="row p-0">
-            <div className="col-md-6 col-12 my-4 d-flex align-items-center justify-content-center">
+          <div className="row p-0 align-items-center">
+            <div className="col-12 col-md-6 my-3 d-flex justify-content-center justify-content-md-start">
               <input
                 type="text"
-                className="form-control ms-3 w-50"
-                placeholder="ابحث عن عميل بالاسم"
+                className="form-control w-75 w-md-50"
+                placeholder="ابحث عن موكل بالاسم"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#0d6efd",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
-            <div className="col-md-6 col-12 my-3">
-              <h1 className="py-4 fs-2 fw-bold">قائمة العملاء</h1>
+            <div className="col-12 col-md-6 my-3 text-center text-md-end">
+              <h1 className="py-2 py-md-4 fs-2 fw-bold">قائمة الموكلين</h1>
             </div>
           </div>
         </div>
 
         <div className="container">
-          <div className="row row-cols-1 row-cols-md-3 g-4 flex-row-reverse">
+          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 flex-row-reverse">
             {filteredClients.length > 0 ? (
               filteredClients.map((client) => (
-                <div className="col my-4" key={client.id}>
-                  <div className="card h-100 case-card case-card" dir="rtl">
+                <div className="col my-3" key={client.id}>
+                  <div className="card h-100 case-card" dir="rtl">
                     <div className="card-header case-card-header bg-dark text-white d-flex justify-content-between align-items-center">
                       <h5 className="card-title m-0 text-start flex-grow-1 ps-2">
                         {client.name}
@@ -309,42 +316,56 @@ const Customers = () => {
                       <i className="fas fa-user fs-4 me-2"></i>
                     </div>
                     <div className="card-body">
-                      <div className="table-responsive">
-                        <table className="table table-borderless table-sm custom-table">
-                          <tbody>
-                            <tr>
-                              <th scope="row" className="text-end align-middle">
-                                <span className="text-bold me-2">
-                                  رقم الهاتف:
-                                </span>
-                                <i className="fas fa-phone ms-3"></i>
-                              </th>
-                              <td className="text-start align-middle">
-                                {client.phone}
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row" className="text-end align-middle">
-                                <span className="text-bold me-2">الجنسية:</span>
-                                <i className="fas fa-globe ms-3"></i>
-                              </th>
-                              <td className="text-start align-middle">
-                                {client.nationality}
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row" className="text-end align-middle">
-                                <span className="text-bold me-2">العنوان:</span>
-                                <i className="fas fa-map-marker-alt ms-3"></i>
-                              </th>
-                              <td className="text-start align-middle">
-                                {client.address}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                      <div className="d-flex flex-column gap-2">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span
+                            className="text-bold me-2"
+                            style={{ fontSize: "1.1rem" }}
+                          >
+                            <i className="fas fa-phone ms-2"></i>
+                            رقم الهاتف:
+                          </span>
+                          <span
+                            className="text-start"
+                            style={{ fontSize: "1rem" }}
+                          >
+                            {client.phone}
+                          </span>
+                        </div>
+                        <hr className="my-2" style={{ margin: "5px 0" }} />
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span
+                            className="text-bold me-2"
+                            style={{ fontSize: "1.1rem" }}
+                          >
+                            <i className="fas fa-globe ms-2"></i>
+                            الجنسية:
+                          </span>
+                          <span
+                            className="text-start"
+                            style={{ fontSize: "1rem" }}
+                          >
+                            {client.nationality}
+                          </span>
+                        </div>
+                        <hr className="my-2" style={{ margin: "5px 0" }} />
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span
+                            className="text-bold me-2"
+                            style={{ fontSize: "1.1rem" }}
+                          >
+                            <i className="fas fa-map-marker-alt ms-2"></i>
+                            العنوان:
+                          </span>
+                          <span
+                            className="text-start"
+                            style={{ fontSize: "1rem" }}
+                          >
+                            {client.address}
+                          </span>
+                        </div>
+                        <hr className="my-2" style={{ margin: "5px 0" }} />
                       </div>
-                      <hr className="my-3" />
                       <div className="d-flex flex-wrap justify-content-center gap-2 mt-2">
                         <button
                           className="btn btn-info btn-sm case-button"
@@ -370,24 +391,29 @@ const Customers = () => {
                 </div>
               ))
             ) : (
-              <div className="col">
-                <p className="text-center text-danger fs-4">لا توجد عملاء.</p>
+              <div className="col d-flex justify-content-center align-items-center">
+                <p
+                  className="text-center fs-3 fw-bold"
+                  style={{ color: "#000" }}
+                >
+                  لا توجد موكلين.
+                </p>
               </div>
             )}
           </div>
           <div className="container">
             <div className="row text-center">
-              <div className="col-md-6 col-12 my-3">
+              <div className="col-12 col-md-6 my-3">
                 <Link to="/AddCustomer" className="btn btn-dark px-5 py-2">
-                  <i className="fa fa-plus me-2"></i> إضافة عميل جديد
+                  <i className="fa fa-plus me-2"></i> إضافة موكل جديد
                 </Link>
               </div>
-              <div className="col-md-6 col-12 my-3">
+              <div className="col-12 col-md-6 my-3">
                 <Link
                   to="/customer-categories"
                   className="btn btn-dark px-5 py-2"
                 >
-                  <i className="fa fa-list me-2"></i> إضافة نوع عميل جديد
+                  <i className="fa fa-list me-2"></i> إضافة نوع موكل جديد
                 </Link>
               </div>
             </div>
@@ -402,53 +428,197 @@ const Customers = () => {
           style={{ display: showModal ? "block" : "none" }}
         >
           <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header bg-dark text-white">
-                <h5 className="modal-title w-100 text-end">تفاصيل العميل</h5>
+            <div
+              className="modal-content"
+              style={{
+                borderWidth: "3px",
+                borderColor: "#343a40",
+                boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
+              }}
+            >
+              <div
+                className="modal-header bg-dark text-white"
+                style={{ padding: "15px" }}
+              >
+                <h5
+                  className="modal-title w-100 text-end"
+                  style={{ fontSize: "1.4rem" }}
+                >
+                  بيانات الموكل
+                </h5>
               </div>
-              <div className="modal-body" dir="rtl">
+              <div className="modal-body" dir="rtl" style={{ padding: "20px" }}>
                 {selectedClient && (
-                  <table className="table table-hover table-bordered">
+                  <table
+                    className="table table-hover table-bordered"
+                    style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+                  >
                     <tbody>
-                      <tr>
-                        <th className="text-end">الاسم:</th>
-                        <td className="text-end">{selectedClient.name}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          اسم الموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedClient.name}
+                        </td>
                       </tr>
-                      <tr>
-                        <th className="text-end">البريد الإلكتروني:</th>
-                        <td className="text-end">{selectedClient.email}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          البريد الإلكتروني للموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedClient.email}
+                        </td>
                       </tr>
-                      <tr>
-                        <th className="text-end">رقم الهوية:</th>
-                        <td className="text-end">{selectedClient.ID_number}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          رقم الهوية/السجل التجاري للموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedClient.ID_number}
+                        </td>
                       </tr>
-                      <tr>
-                        <th className="text-end">رقم الهاتف:</th>
-                        <td className="text-end">{selectedClient.phone}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          رقم هاتف الموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedClient.phone}
+                        </td>
                       </tr>
-                      <tr>
-                        <th className="text-end">العنوان:</th>
-                        <td className="text-end">{selectedClient.address}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          عنوان الموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedClient.address}
+                        </td>
                       </tr>
-                      <tr>
-                        <th className="text-end">الجنسية:</th>
-                        <td className="text-end">
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          جنسية الموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
                           {selectedClient.nationality}
                         </td>
                       </tr>
-                      <tr>
-                        <th className="text-end">اسم الشركة:</th>
-                        <td className="text-end">
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          اسم الشركة (إن وجد):
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
                           {selectedClient.company_name}
                         </td>
                       </tr>
-                      <tr>
-                        <th className="text-end">الملاحظات:</th>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          ملاحظات إضافية:
+                        </th>
                         <td
                           className="text-end"
                           style={{
                             wordWrap: "break-word",
                             whiteSpace: "normal",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
                           }}
                         >
                           {selectedClient.notes}
@@ -458,11 +628,12 @@ const Customers = () => {
                   </table>
                 )}
               </div>
-              <div className="modal-footer">
+              <div className="modal-footer" style={{ padding: "15px" }}>
                 <button
                   type="button"
                   className="btn btn-secondary"
                   onClick={handleCloseModal}
+                  style={{ fontSize: "1.1rem" }}
                 >
                   إغلاق
                 </button>
@@ -478,118 +649,305 @@ const Customers = () => {
           style={{ display: showEditModal ? "block" : "none" }}
         >
           <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header bg-dark text-white">
-                <h5 className="modal-title w-100 text-end">
-                  تعديل بيانات العميل
+            <div
+              className="modal-content"
+              style={{
+                borderWidth: "3px",
+                borderColor: "#343a40",
+                boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
+              }}
+            >
+              <div
+                className="modal-header bg-dark text-white"
+                style={{ padding: "15px" }}
+              >
+                <h5
+                  className="modal-title w-100 text-end"
+                  style={{ fontSize: "1.4rem" }}
+                >
+                  تعديل بيانات الموكل
                 </h5>
               </div>
-              <div className="modal-body" dir="rtl">
+              <div className="modal-body" dir="rtl" style={{ padding: "20px" }}>
                 {editedClient && (
-                  <form>
-                    <div className="mb-3">
-                      <label className="form-label text-end w-100">
-                        الاسم:
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control text-end"
-                        name="name"
-                        value={editedClient.name || ""}
-                        onChange={handleEditInputChange}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label text-end w-100">
-                        البريد الإلكتروني:
-                      </label>
-                      <input
-                        type="email"
-                        className="form-control text-end"
-                        name="email"
-                        value={editedClient.email || ""}
-                        onChange={handleEditInputChange}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label text-end w-100">
-                        رقم الهوية:
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control text-end"
-                        name="ID_number"
-                        value={editedClient.ID_number || ""}
-                        onChange={handleEditInputChange}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label text-end w-100">
-                        رقم الهاتف:
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control text-end"
-                        name="phone"
-                        value={editedClient.phone || ""}
-                        onChange={handleEditInputChange}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label text-end w-100">
-                        العنوان:
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control text-end"
-                        name="address"
-                        value={editedClient.address || ""}
-                        onChange={handleEditInputChange}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label text-end w-100">
-                        الجنسية:
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control text-end"
-                        name="nationality"
-                        value={editedClient.nationality || ""}
-                        onChange={handleEditInputChange}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label text-end w-100">
-                        اسم الشركة:
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control text-end"
-                        name="company_name"
-                        value={editedClient.company_name || ""}
-                        onChange={handleEditInputChange}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label text-end w-100">
-                        الملاحظات:
-                      </label>
-                      <textarea
-                        className="form-control text-end"
-                        name="notes"
-                        value={editedClient.notes || ""}
-                        onChange={handleEditInputChange}
-                      ></textarea>
-                    </div>
-                  </form>
+                  <table
+                    className="table table-hover table-bordered"
+                    style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+                  >
+                    <tbody>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                            width: "25%",
+                          }}
+                        >
+                          اسم الموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          <input
+                            type="text"
+                            className="form-control text-end"
+                            name="name"
+                            value={editedClient.name || ""}
+                            onChange={handleEditInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
+                          />
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                            width: "25%",
+                          }}
+                        >
+                          البريد الإلكتروني للموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          <input
+                            type="email"
+                            className="form-control text-end"
+                            name="email"
+                            value={editedClient.email || ""}
+                            onChange={handleEditInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
+                          />
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                            width: "25%",
+                          }}
+                        >
+                          رقم الهوية/السجل التجاري للموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          <input
+                            type="text"
+                            className="form-control text-end"
+                            name="ID_number"
+                            value={editedClient.ID_number || ""}
+                            onChange={handleEditInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
+                          />
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                            width: "25%",
+                          }}
+                        >
+                          رقم هاتف الموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          <input
+                            type="text"
+                            className="form-control text-end"
+                            name="phone"
+                            value={editedClient.phone || ""}
+                            onChange={handleEditInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
+                          />
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                            width: "25%",
+                          }}
+                        >
+                          عنوان الموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          <input
+                            type="text"
+                            className="form-control text-end"
+                            name="address"
+                            value={editedClient.address || ""}
+                            onChange={handleEditInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
+                          />
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                            width: "25%",
+                          }}
+                        >
+                          جنسية الموكل:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          <input
+                            type="text"
+                            className="form-control text-end"
+                            name="nationality"
+                            value={editedClient.nationality || ""}
+                            onChange={handleEditInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
+                          />
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                            width: "25%",
+                          }}
+                        >
+                          اسم الشركة (إن وجد):
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          <input
+                            type="text"
+                            className="form-control text-end"
+                            name="company_name"
+                            value={editedClient.company_name || ""}
+                            onChange={handleEditInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
+                          />
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                            width: "25%",
+                          }}
+                        >
+                          ملاحظات إضافية:
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          <textarea
+                            className="form-control text-end"
+                            name="notes"
+                            value={editedClient.notes || ""}
+                            onChange={handleEditInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
+                          ></textarea>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 )}
               </div>
-              <div className="modal-footer">
+              <div className="modal-footer" style={{ padding: "15px" }}>
                 <button
                   type="button"
                   className="btn btn-primary"
                   onClick={handleUpdateClient}
+                  style={{ fontSize: "1.1rem" }}
                 >
                   حفظ التعديلات
                 </button>
@@ -597,6 +955,7 @@ const Customers = () => {
                   type="button"
                   className="btn btn-secondary"
                   onClick={handleCloseModal}
+                  style={{ fontSize: "1.1rem" }}
                 >
                   إغلاق
                 </button>

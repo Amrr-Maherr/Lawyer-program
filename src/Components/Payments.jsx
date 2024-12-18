@@ -10,22 +10,8 @@ const Payments = () => {
   const [selectedCase, setSelectedCase] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
-  const [openEditModal, setOpenEditModal] = useState(false);
+  const [editPaymentId, setEditPaymentId] = useState(null);
   const [editPayment, setEditPayment] = useState(null);
-
-  // تعريف النمط الأساسي للمودال
-  const modalStyle = {
-    display: "block",
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    backgroundColor: "#fff",
-    padding: "20px",
-    borderRadius: "5px",
-    boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
-    zIndex: 1050,
-  };
 
   const handleSearchChange = (e) => {
     const term = e.target.value;
@@ -135,9 +121,8 @@ const Payments = () => {
 
   const handleCaseSelect = async (caseItem) => {
     setSelectedCase(caseItem);
-    // قم بتعيين المدفوعات كمصفوفة فارغة مبدئيًا
     setPayments([]);
-    // استدعي دالة جلب المدفوعات
+    setEditPaymentId(null);
     if (caseItem) {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -171,7 +156,6 @@ const Payments = () => {
         const fetchedPayments = response.data.payments;
         setPayments(fetchedPayments);
         Swal.close();
-        // إذا لم يكن هناك دفعات ، اعرض SweetAlert
         if (fetchedPayments.length === 0) {
           Swal.fire({
             icon: "info",
@@ -190,6 +174,16 @@ const Payments = () => {
         });
       }
     }
+  };
+
+  const handleEdit = async (payment) => {
+    setEditPaymentId(payment.id);
+    setEditPayment(payment);
+  };
+
+  const handleCancelEdit = () => {
+    setEditPaymentId(null);
+    setEditPayment(null);
   };
 
   const handleDelete = async (id) => {
@@ -246,11 +240,6 @@ const Payments = () => {
     });
   };
 
-  const handleEdit = async (payment) => {
-    setEditPayment(payment);
-    setOpenEditModal(true);
-  };
-
   const handleOpenModal = async (payment) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -292,18 +281,11 @@ const Payments = () => {
       });
     }
   };
-
   const handleCloseModal = () => {
     setOpenModal(false);
     setSelectedPayment(null);
   };
-
-  const handleCloseEditModal = () => {
-    setOpenEditModal(false);
-    setEditPayment(null);
-  };
-
-  const handleUpdatePayment = async () => {
+  const handleUpdatePayment = async (paymentId) => {
     const token = localStorage.getItem("token");
     if (!token) {
       Swal.fire({
@@ -327,32 +309,19 @@ const Payments = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const title = document.getElementById("title").value;
-          const amount = document.getElementById("amount").value;
-          const date = document.getElementById("date").value;
-          const method = document.getElementById("method").value;
+          const title = document.getElementById(`title-${paymentId}`).value;
+          const amount = document.getElementById(`amount-${paymentId}`).value;
+          const date = document.getElementById(`date-${paymentId}`).value;
+          const method = document.getElementById(`method-${paymentId}`).value;
           const updatedPayment = {
             title: title,
             amount: amount,
             date: date,
             method: method,
           };
-          // Start of commented section
-          // const remainingAmount = selectedPayment.case.contract_price - // Calculate remaining amount
-          //                           payments.reduce((sum, payment) => sum + payment.amount, 0);
-          // if(parseFloat(updatedPayment.amount) > remainingAmount){
-          //     Swal.fire({
-          //         icon: "error",
-          //         title: "خطأ!",
-          //         text: "المبلغ المدخل أكبر من المبلغ المتبقي للقضية.",
-          //         confirmButtonText: "حسنًا",
-          //       });
-          //       return;
-          // }
-          // End of commented section
           const { customer_id, case_id } = selectedCase;
           await axios.post(
-            `https://law-office.al-mosa.com/api/customer/${customer_id}/case/${case_id}/update-payment/${editPayment.id}`,
+            `https://law-office.al-mosa.com/api/customer/${customer_id}/case/${case_id}/update-payment/${paymentId}`,
             updatedPayment,
             {
               headers: {
@@ -361,27 +330,27 @@ const Payments = () => {
             }
           );
           const updatedPayments = payments.map((payment) => {
-            if (payment.id === editPayment.id) {
+            if (payment.id === paymentId) {
               return { ...payment, ...updatedPayment };
             }
             return payment;
           });
           setPayments(updatedPayments);
+          setEditPaymentId(null);
 
           Swal.fire({
             icon: "success",
             title: "تم التعديل!",
-            text: `تم تعديل الدفعة رقم ${editPayment.id} بنجاح.`,
+            text: `تم تعديل الدفعة رقم ${paymentId} بنجاح.`,
             confirmButtonText: "حسنًا",
           });
-          handleCloseEditModal();
         } catch (error) {
           console.error("خطأ أثناء تعديل الدفعة:", error);
           if (error.response && error.response.data) {
             Swal.fire({
               icon: "error",
               title: "خطأ!",
-              text: error.response.data, // Display the error from the API
+              text: error.response.data,
               confirmButtonText: "حسنًا",
             });
           } else {
@@ -397,28 +366,51 @@ const Payments = () => {
     });
   };
 
+  if (cases.length === 0 && !selectedCase) {
+    Swal.fire({
+      title: "جاري تحميل القضايا...",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+  } else {
+    Swal.close();
+  }
   return (
-    <div className="container mt-5">
-      <h2 className="text-center mb-4 text-dark">تفاصيل المدفوعات</h2>
-      <div className="mb-3 d-flex justify-content-end">
-        <input
-          type="text"
-          className="form-control w-25"
-          placeholder="ابحث باسم العميل"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          style={{ textAlign: "right", direction: "rtl" }}
-        />
+    <div className="container-fluid px-0 my-4">
+      <div className="container">
+        <div className="row align-items-center justify-content-center mb-4">
+          <div className="col-12 col-md-4 mb-2">
+            <input
+              type="text"
+              className="form-control form-control-lg rounded-3 shadow-sm"
+              placeholder="ابحث باسم العميل"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#0d6efd",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                textAlign: "right",
+                direction: "rtl",
+                transition: "border-color 0.3s ease",
+              }}
+            />
+          </div>
+          <div className="col-12 col-md-4 mb-2">
+            <h2 className="text-center py-2 fs-2 fw-bold">تفاصيل المدفوعات</h2>
+          </div>
+        </div>
       </div>
 
-      {cases.length === 0 && !selectedCase ? (
-        <div className="text-center text-muted">
-          يرجى الانتظار حتى يتم تحميل القضايا.
-        </div>
-      ) : (
+      <div className="container">
         <div className="row row-cols-1 row-cols-md-3 g-4 mb-4">
           {filteredCases.map((caseItem) => (
-            <div key={caseItem.case_id} className={`col`}>
+            <div key={caseItem.case_id} className="col">
               <div
                 className={`card h-100 text-center shadow-sm case-card ${
                   selectedCase?.case_id === caseItem.case_id
@@ -440,73 +432,139 @@ const Payments = () => {
             </div>
           ))}
         </div>
-      )}
+      </div>
 
-      {payments.length === 0 && selectedCase ? (
-        <div className="text-center text-muted">
-          يرجى الانتظار حتى يتم تحميل المدفوعات.
-        </div>
-      ) : payments.length === 0 && !selectedCase ? (
-        <div className="text-center text-muted">
-          يرجى اختيار قضية لعرض تفاصيل المدفوعات.
-        </div>
-      ) : payments.length > 0 ? (
-        <div className="table-responsive">
-          <table className="table table-bordered table-hover text-center">
-            <thead className="table-dark">
-              <tr>
-                <th className="align-middle">الإجراءات</th>
-                <th className="align-middle">طريقة الدفع</th>
-                <th className="align-middle">تاريخ الدفع</th>
-                <th className="align-middle">المبلغ المدفوع</th>
-                <th className="align-middle">عنوان الدفعة</th>
-                <th className="align-middle">#</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments.map((payment, index) => (
-                <tr
-                  key={payment.id}
-                  className={index % 2 === 0 ? "table-light" : ""}
-                >
-                  <td className="align-middle">
-                    <button
-                      className="btn btn-danger btn-sm me-2 action-btn"
-                      onClick={() => handleDelete(payment.id)}
-                    >
-                      <i className="fa fa-trash"></i>
-                    </button>
-                    <button
-                      className="btn btn-primary btn-sm me-2 action-btn"
-                      onClick={() => handleEdit(payment)}
-                    >
-                      <i className="fa fa-edit"></i>
-                    </button>
-                    <button
-                      className="btn btn-info btn-sm action-btn"
-                      onClick={() => handleOpenModal(payment)}
-                    >
-                      <i className="fa fa-info-circle"></i>
-                    </button>
-                  </td>
-                  <td className="align-middle">{payment.method}</td>
-                  <td className="align-middle">
-                    {new Date(payment.date).toLocaleDateString("ar-EG")}
-                  </td>
-                  <td className="align-middle">{payment.amount}</td>
-                  <td className="align-middle">{payment.title}</td>
-                  <td className="align-middle">{index + 1}</td>
+      <div className="container">
+        {payments.length === 0 && selectedCase ? (
+          <div className="text-center text-muted">
+            يرجى الانتظار حتى يتم تحميل المدفوعات.
+          </div>
+        ) : payments.length === 0 && !selectedCase ? (
+          <div className="text-center text-muted">
+            يرجى اختيار قضية لعرض تفاصيل المدفوعات.
+          </div>
+        ) : payments.length > 0 ? (
+          <div className="table-responsive">
+            <table className="table table-bordered table-hover text-center">
+              <thead className="table-dark">
+                <tr>
+                  <th className="align-middle">الإجراءات</th>
+                  <th className="align-middle">طريقة الدفع</th>
+                  <th className="align-middle">تاريخ الدفع</th>
+                  <th className="align-middle">المبلغ المدفوع</th>
+                  <th className="align-middle">عنوان الدفعة</th>
+                  <th className="align-middle">#</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="text-center text-danger">
-          لا توجد مدفوعات لهذه القضية.
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {payments.map((payment, index) => (
+                  <tr
+                    key={payment.id}
+                    className={index % 2 === 0 ? "table-light" : ""}
+                  >
+                    <td className="align-middle">
+                      <button
+                        className="btn btn-danger btn-sm me-2 action-btn"
+                        onClick={() => handleDelete(payment.id)}
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                      {editPaymentId === payment.id ? (
+                        <>
+                          <button
+                            className="btn btn-secondary btn-sm me-2 action-btn"
+                            onClick={() => handleCancelEdit()}
+                          >
+                            <i className="fas fa-times"></i>
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          className="btn btn-primary btn-sm me-2 action-btn"
+                          onClick={() => handleEdit(payment)}
+                        >
+                          <i className="fas fa-edit"></i>
+                        </button>
+                      )}
 
+                      <button
+                        className="btn btn-info btn-sm action-btn"
+                        onClick={() => handleOpenModal(payment)}
+                      >
+                        <i className="fas fa-info-circle"></i>
+                      </button>
+                    </td>
+                    <td className="align-middle">
+                      {editPaymentId === payment.id ? (
+                        <input
+                          type="text"
+                          className="form-control"
+                          id={`method-${payment.id}`}
+                          defaultValue={payment.method}
+                        />
+                      ) : (
+                        payment.method
+                      )}
+                    </td>
+                    <td className="align-middle">
+                      {editPaymentId === payment.id ? (
+                        <input
+                          type="date"
+                          className="form-control"
+                          id={`date-${payment.id}`}
+                          defaultValue={
+                            new Date(payment.date).toISOString().split("T")[0]
+                          }
+                        />
+                      ) : (
+                        new Date(payment.date).toLocaleDateString("ar-EG")
+                      )}
+                    </td>
+                    <td className="align-middle">
+                      {editPaymentId === payment.id ? (
+                        <input
+                          type="number"
+                          className="form-control"
+                          id={`amount-${payment.id}`}
+                          defaultValue={payment.amount}
+                        />
+                      ) : (
+                        payment.amount
+                      )}
+                    </td>
+                    <td className="align-middle">
+                      {editPaymentId === payment.id ? (
+                        <input
+                          type="text"
+                          className="form-control"
+                          id={`title-${payment.id}`}
+                          defaultValue={payment.title}
+                        />
+                      ) : (
+                        payment.title
+                      )}
+                      {editPaymentId === payment.id && (
+                        <button
+                          type="button"
+                          className="btn btn-success btn-sm mt-1"
+                          onClick={() => handleUpdatePayment(payment.id)}
+                        >
+                          تحديث
+                        </button>
+                      )}
+                    </td>
+                    <td className="align-middle">{index + 1}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center text-danger mt-4">
+            لا توجد مدفوعات لهذه القضية.
+          </div>
+        )}
+      </div>
       {/* Bootstrap Modal تفاصيل */}
       <div
         className={`modal fade ${openModal ? "show d-block" : ""}`}
@@ -692,112 +750,6 @@ const Payments = () => {
         </div>
       </div>
       {openModal && <div className="modal-backdrop fade show"></div>}
-
-      {/* Bootstrap Modal تعديل */}
-      <div
-        className={`modal fade ${openEditModal ? "show d-block" : ""}`}
-        tabIndex="-1"
-        role="dialog"
-        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-      >
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content">
-            <div className="modal-header bg-dark text-white">
-              <h5
-                className="modal-title"
-                style={{ textAlign: "right", width: "100%" }}
-              >
-                تعديل الدفعة
-              </h5>
-            </div>
-            <div className="modal-body">
-              {editPayment && (
-                <form style={{ direction: "rtl" }}>
-                  <div className="mb-3">
-                    <label
-                      htmlFor="title"
-                      className="form-label"
-                      style={{ textAlign: "right", width: "100%" }}
-                    >
-                      العنوان
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="title"
-                      defaultValue={editPayment.title}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label
-                      htmlFor="amount"
-                      className="form-label"
-                      style={{ textAlign: "right", width: "100%" }}
-                    >
-                      المبلغ
-                    </label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      id="amount"
-                      defaultValue={editPayment.amount}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label
-                      htmlFor="date"
-                      className="form-label"
-                      style={{ textAlign: "right", width: "100%" }}
-                    >
-                      التاريخ
-                    </label>
-                    <input
-                      type="date"
-                      className="form-control"
-                      id="date"
-                      defaultValue={
-                        new Date(editPayment.date).toISOString().split("T")[0]
-                      }
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label
-                      htmlFor="method"
-                      className="form-label"
-                      style={{ textAlign: "right", width: "100%" }}
-                    >
-                      طريقة الدفع
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="method"
-                      defaultValue={editPayment.method}
-                    />
-                  </div>
-                </form>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleCloseEditModal}
-              >
-                إغلاق
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleUpdatePayment}
-              >
-                تحديث
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {openEditModal && <div className="modal-backdrop fade show"></div>}
     </div>
   );
 };

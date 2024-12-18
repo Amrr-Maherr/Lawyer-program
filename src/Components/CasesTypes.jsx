@@ -1,218 +1,135 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Swal from "sweetalert2"; // استيراد sweetalert2
+import Swal from "sweetalert2";
 
 const CaseTypes = () => {
-  const [caseTypes, setCaseTypes] = useState([]); // لتخزين قائمة أنواع القضايا
-  const [newCaseType, setNewCaseType] = useState(""); // لتخزين نوع القضية الجديد
-  const [loading, setLoading] = useState(false); // حالة التحميل
+  const [caseTypes, setCaseTypes] = useState([]);
+  const [newCaseType, setNewCaseType] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // جلب أنواع القضايا من الـ API
   const fetchCaseTypes = async () => {
-    setLoading(true); // بدأ التحميل
+    setLoading(true);
     const token = localStorage.getItem("token");
+    if (!token) {
+      setError("يرجى تسجيل الدخول أولاً.");
+      setLoading(false);
+      return;
+    }
 
-    if (token) {
-      try {
-        const response = await axios.get(
-          "https://law-office.al-mosa.com/api/case-categories",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setCaseTypes(response.data); // تعيين البيانات في الحالة
-      } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "حدث خطأ",
-          text: `خطأ أثناء جلب البيانات: ${err.message}`,
-          confirmButtonText: "موافق",
-          rtl: true, // دعم اللغة العربية
-        });
-      } finally {
-        setLoading(false); // انتهى التحميل
-      }
-    } else {
-      Swal.fire({
-        icon: "warning",
-        title: "تحذير",
-        text: "التوكن غير موجود",
-        confirmButtonText: "موافق",
-        rtl: true, // دعم اللغة العربية
-      });
-      setLoading(false); // انتهى التحميل
+    try {
+      const response = await axios.get(
+        "https://law-office.al-mosa.com/api/case-categories",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setCaseTypes(response.data);
+    } catch (err) {
+      Swal.fire("حدث خطأ", "فشل في تحميل أنواع القضايا.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCaseTypes(); // جلب البيانات عند تحميل الصفحة
+    fetchCaseTypes();
   }, []);
 
-  // إرسال نوع قضية جديد
-  const handleAddCaseType = (e) => {
-    e.preventDefault(); // منع إعادة تحميل الصفحة
+  const handleAddCaseType = async (e) => {
+    e.preventDefault();
     const token = localStorage.getItem("token");
-
-    if (newCaseType.trim() === "") {
-      // التحقق إذا كان الحقل فارغًا
-      Swal.fire({
-        icon: "warning",
-        title: "الرجاء إدخال نوع القضية",
-        text: "لا يمكن إضافة نوع قضية فارغ.",
-        confirmButtonText: "موافق",
-        rtl: true, // دعم اللغة العربية
-      });
-      return; // إيقاف التنفيذ إذا كان الحقل فارغًا
+    if (!token || !newCaseType) {
+      Swal.fire("تحذير", "يرجى تعبئة الحقل أولاً.", "warning");
+      return;
     }
 
-    if (token) {
-      setLoading(true); // بدأ التحميل
-      axios
-        .post(
-          "https://law-office.al-mosa.com/api/case-category",
-          { name: newCaseType },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-        .then(() => {
-          fetchCaseTypes(); // تحديث الجدول بعد الإضافة
-          setNewCaseType(""); // تفريغ الحقل
-          Swal.fire({
-            icon: "success",
-            title: "تم بنجاح",
-            text: "تم إضافة نوع القضية بنجاح",
-            confirmButtonText: "موافق",
-            rtl: true, // دعم اللغة العربية
-          });
-        })
-        .catch((err) => {
-          Swal.fire({
-            icon: "error",
-            title: "حدث خطأ",
-            text: `خطأ أثناء الإضافة: ${err.message}`,
-            confirmButtonText: "موافق",
-            rtl: true, // دعم اللغة العربية
-          });
-        })
-        .finally(() => {
-          setLoading(false); // انتهى التحميل
-        });
-    } else {
-      Swal.fire({
-        icon: "warning",
-        title: "تحذير",
-        text: "التوكن غير موجود",
-        confirmButtonText: "موافق",
-        rtl: true, // دعم اللغة العربية
-      });
+    setLoading(true);
+    try {
+      await axios.post(
+        "https://law-office.al-mosa.com/api/case-category",
+        { name: newCaseType },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      Swal.fire("تم الإضافة بنجاح", "تم إضافة نوع القضية بنجاح.", "success");
+      setNewCaseType("");
+      fetchCaseTypes();
+    } catch (err) {
+      Swal.fire("حدث خطأ", "فشل في إضافة نوع القضية.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // التحقق من وجود قضايا مرتبطة بنوع القضية
   const checkIfCaseTypeLinked = async (id) => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning");
+      return false;
+    }
 
-    if (token) {
-      try {
-        const response = await axios.get(
-          `https://law-office.al-mosa.com/api/cases?case_category_id=${id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        // إذا كانت البيانات تحتوي على قضايا مرتبطة
-        return response.data.length > 0;
-      } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "حدث خطأ",
-          text: `خطأ أثناء التحقق من القضايا المرتبطة: ${err.message}`,
-          confirmButtonText: "موافق",
-          rtl: true, // دعم اللغة العربية
-        });
-        return false;
-      }
-    } else {
-      Swal.fire({
-        icon: "warning",
-        title: "تحذير",
-        text: "التوكن غير موجود",
-        confirmButtonText: "موافق",
-        rtl: true, // دعم اللغة العربية
-      });
+    try {
+      const response = await axios.get(
+        `https://law-office.al-mosa.com/api/cases?case_category_id=${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data.length > 0;
+    } catch (err) {
+      Swal.fire("حدث خطأ", "فشل في التحقق من القضايا المرتبطة.", "error");
       return false;
     }
   };
 
-  // حذف نوع القضية
   const handleDeleteCaseType = async (id) => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning");
+      return;
+    }
 
-    if (token) {
-      const isLinked = await checkIfCaseTypeLinked(id);
-      if (isLinked) {
-        Swal.fire({
-          icon: "warning",
-          title: "غير قادر على الحذف",
-          text: "نوع القضية هذا مرتبط بقضية ولا يمكن حذفه",
-          confirmButtonText: "موافق",
-          rtl: true, // دعم اللغة العربية
-        });
-      } else {
-        Swal.fire({
-          title: "هل أنت متأكد؟",
-          text: "لن تتمكن من استعادة هذا النوع بعد الحذف!",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "نعم، احذفه!",
-          cancelButtonText: "إلغاء",
-          rtl: true,
-        }).then(async (result) => {
-          if (result.isConfirmed) {
-            setLoading(true); // بدأ التحميل
-            try {
-              await axios.delete(
-                `https://law-office.al-mosa.com/api/case-category/${id}`,
-                {
-                  headers: { Authorization: `Bearer ${token}` },
-                }
-              );
-              fetchCaseTypes(); // تحديث الجدول بعد الحذف
-              Swal.fire({
-                icon: "success",
-                title: "تم الحذف",
-                text: "تم حذف نوع القضية بنجاح",
-                confirmButtonText: "موافق",
-                rtl: true, // دعم اللغة العربية
-              });
-            } catch (err) {
-              Swal.fire({
-                icon: "error",
-                title: "حدث خطأ",
-                text: `خطأ أثناء الحذف: ${err.message}`,
-                confirmButtonText: "موافق",
-                rtl: true, // دعم اللغة العربية
-              });
-            } finally {
-              setLoading(false); // انتهى التحميل
-            }
+    const isLinked = await checkIfCaseTypeLinked(id);
+    if (isLinked) {
+      Swal.fire("تحذير", "نوع القضية هذا مرتبط بقضية ولا يمكن حذفه", "warning");
+      return;
+    }
+
+    const confirmDelete = await Swal.fire({
+      title: "هل أنت متأكد؟",
+      text: "لن تتمكن من استرجاع البيانات بعد الحذف.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "نعم، حذف!",
+      cancelButtonText: "إلغاء",
+    });
+
+    if (confirmDelete.isConfirmed) {
+      setLoading(true);
+      try {
+        await axios.delete(
+          `https://law-office.al-mosa.com/api/case-category/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
+        );
+        Swal.fire("تم الحذف بنجاح", "تم حذف نوع القضية.", "success");
+        fetchCaseTypes();
+      } catch (err) {
+        Swal.fire("حدث خطأ", "فشل في حذف نوع القضية.", "error");
+      } finally {
+        setLoading(false);
       }
     } else {
-      Swal.fire({
-        icon: "warning",
-        title: "تحذير",
-        text: "التوكن غير موجود",
-        confirmButtonText: "موافق",
-        rtl: true, // دعم اللغة العربية
-      });
+      Swal.fire("تم الإلغاء", "لم يتم حذف نوع القضية.", "info");
     }
   };
+
   if (loading) {
     Swal.fire({
-      title: "جاري تحميل بيانات أنواع القضايا...",
+      title: "جاري تحميل أنواع القضايا...",
       allowOutsideClick: false,
       allowEscapeKey: false,
       didOpen: () => {
@@ -220,72 +137,76 @@ const CaseTypes = () => {
       },
     });
   } else {
-    Swal.close(); // إغلاق sweet alert إذا لم يكن هناك تحميل
+    Swal.close();
+  }
+
+  if (error) {
+    return <div className="alert alert-danger">{error}</div>;
   }
 
   return (
-    <div className="container-fluid mt-5">
-      <div className="container my-4">
-        <div className="row text-center">
-          <div className="col-6">
-            <form onSubmit={handleAddCaseType} className="row mb-4">
-              <div className="col-md-6">
-                <input
-                  type="text"
-                  id="caseType"
-                  className="form-control"
-                  value={newCaseType}
-                  onChange={(e) => setNewCaseType(e.target.value)}
-                  placeholder="أدخل نوع القضية"
-                />
-              </div>
-              <div className="col-md-6 d-flex align-items-end">
-                <button type="submit" className="btn btn-dark w-100">
-                  <i className="fas fa-plus me-2"></i> إضافة
-                </button>
-              </div>
-            </form>
+    <div className="container-fluid px-0 my-4">
+      <div className="container">
+        <div className="row align-items-center justify-content-center mb-4">
+          <div className="col-12 col-md-4 mb-2">
+            <input
+              type="text"
+              value={newCaseType}
+              onChange={(e) => setNewCaseType(e.target.value)}
+              className="form-control form-control-lg rounded-3 shadow-sm"
+              placeholder="أدخل نوع القضية الجديد"
+              style={{
+                borderWidth: "2px",
+                borderColor: "#0d6efd",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
+            />
           </div>
-          <div className="col-6">
-            <h1>انواع القضايا</h1>
+          <div className="col-12 col-md-4 mb-2">
+            <button
+              className="btn btn-dark btn-lg w-100 d-flex align-items-center justify-content-center"
+              onClick={handleAddCaseType}
+            >
+              <i className="fas fa-plus me-2"></i> إضافة نوع قضية جديد
+            </button>
+          </div>
+          <div className="col-12 col-md-4 mb-2">
+            <h2 className="text-center py-2 fs-2 fw-bold">أنواع القضايا</h2>
           </div>
         </div>
       </div>
 
-      {/* جدول عرض الأنواع */}
-      <table className="table table-bordered text-center" dir="rtl">
-        <thead className="table-dark">
-          <tr>
-            <th>#</th>
-            <th>نوع القضية</th>
-            <th>الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div className="container">
+        <div className="row">
           {caseTypes.length > 0 ? (
             caseTypes.map((type, index) => (
-              <tr key={type.id}>
-                <td>{index + 1}</td>
-                <td>{type.name}</td>
-                <td>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDeleteCaseType(type.id)}
-                  >
-                    حذف
-                  </button>
-                </td>
-              </tr>
+              <div
+                key={type.id}
+                className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
+              >
+                <div className="card shadow-sm border h-100">
+                  <div className="card-body d-flex justify-content-between align-items-center">
+                    <button
+                      className="btn btn-outline-danger btn-sm rounded-circle"
+                      onClick={() => handleDeleteCaseType(type.id)}
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                    <h5 className="card-title mb-0 text-end">{type.name}</h5>
+                  </div>
+                </div>
+              </div>
             ))
           ) : (
-            <tr>
-              <td colSpan="3" className="text-center">
-                لا توجد بيانات لعرضها
-              </td>
-            </tr>
+            <div className="col-12 text-center text-danger mt-4">
+              لا توجد أنواع قضايا حالياً.
+            </div>
           )}
-        </tbody>
-      </table>
+        </div>
+      </div>
     </div>
   );
 };

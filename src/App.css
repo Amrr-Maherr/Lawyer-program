@@ -1,3 +1,6 @@
+body {
+  font-family: "Inter", "Amiri"  !important;
+}
 .sidebar {
   height: 100vh;
   top: 0;

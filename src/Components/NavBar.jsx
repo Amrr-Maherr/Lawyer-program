@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../Assets/gavel-svgrepo-com.svg";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
-
-const token = localStorage.getItem("token");
 
 function NavBar() {
   const [username, setUsername] = useState(null);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const savedUsername = JSON.parse(localStorage.getItem("user"));
@@ -73,6 +71,105 @@ function NavBar() {
     }
   };
 
+    const navItems = [
+        {
+            name: "الصفحة الرئيسية",
+            link: "/",
+            icon: "fas fa-home",
+        },
+        {
+            name: "العملاء",
+            link: "/customers",
+            icon: "fas fa-users",
+            subItems: [
+                {
+                    name: "أنواع العملاء",
+                    link: "/customer-categories",
+                    icon: "fas fa-users-cog",
+                },
+                {
+                    name: "إضافة عميل",
+                    link: "/AddCustomer",
+                    icon: "fas fa-user-plus",
+                },
+            ],
+        },
+        {
+            name: "القضايا",
+            link: "/cases",
+            icon: "fas fa-gavel",
+            subItems: [
+                {
+                    name: "أنواع القضايا",
+                    link: "/CaseTypes",
+                    icon: "fas fa-balance-scale",
+                },
+                {
+                    name: "إضافة قضية",
+                    link: "/add-case",
+                    icon: "fas fa-plus-circle",
+                },
+            ],
+        },
+        {
+            name: "الجلسات",
+            link: "/sessions",
+            icon: "fas fa-calendar-alt",
+        },
+        {
+            name: "المدفوعات",
+            link: "/payments",
+            icon: "fas fa-credit-card",
+            subItems: [
+                {
+                    name: "تقارير المدفوعات",
+                    link: "/PaymentReports",
+                    icon: "fas fa-file-alt",
+                },
+            ],
+        },
+        {
+            name: "الصور والملفات",
+            link: "/Attachments",
+            icon: "fas fa-image",
+        },
+        {
+            name: "المصروفات",
+            link: "/expenses",
+            icon: "fas fa-wallet",
+            subItems: [
+                {
+                    name: "إضافة مصروف",
+                    link: "/add-expense",
+                    icon: "fas fa-plus",
+                },
+                {
+                  name: "إضافة تصنيف مصاريف",
+                    link: "/AddExpenseCategory",
+                  icon: "fas fa-plus",
+              }
+            ],
+        },
+    ];
+    const authItems = [
+        {
+          name: "تسجيل الخروج",
+          action: handleLogout,
+          icon: "fas fa-sign-out-alt",
+        },
+        {
+          name: "تسجيل الدخول",
+          link: "/login",
+          icon: "fas fa-sign-in-alt",
+        },
+        {
+          name: "إنشاء حساب",
+          link: "/signup",
+          icon: "fas fa-user-plus",
+        },
+    ];
+
+
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -115,78 +212,23 @@ function NavBar() {
       >
         <div className="offcanvas-body">
           <ul className="nav flex-column text-end">
-            {[
-              { name: "الصفحة الرئيسية", link: "/", icon: "fas fa-home" },
-              {
-                name: "العملاء",
-                link: "/customers",
-                icon: "fas fa-users",
-                subItems: [
-                  {
-                    name: "أنواع العملاء",
-                    link: "/customer-categories",
-                    icon: "fas fa-users-cog",
-                  },
-                  {
-                    name: "إضافة عميل",
-                    link: "/AddCustomer",
-                    icon: "fas fa-user-plus",
-                  },
-                ],
-              },
-              {
-                name: "القضايا",
-                link: "/cases",
-                icon: "fas fa-gavel",
-                subItems: [
-                  {
-                    name: "أنواع القضايا",
-                    link: "/CaseTypes",
-                    icon: "fas fa-balance-scale",
-                  },
-                  {
-                    name: "إضافة قضية",
-                    link: "/add-case",
-                    icon: "fas fa-plus-circle",
-                  },
-                ],
-              },
-              {
-                name: "الجلسات",
-                link: "/sessions",
-                icon: "fas fa-calendar-alt",
-              },
-              {
-                name: "المدفوعات",
-                link: "/payments",
-                icon: "fas fa-credit-card",
-              },
-              {
-                name: "الصور والملفات",
-                link: "/Attachments",
-                icon: "fas fa-image",
-              },
-              {
-                name: "المصروفات",
-                link: "/expenses",
-                icon: "fas fa-wallet",
-                subItems: [
-                  {
-                    name: "إضافة مصروف",
-                    link: "/add-expense", // مسار صفحة إضافة المصروفات
-                    icon: "fas fa-plus",
-                  },
-                ],
-              },
-            ].map((item, index) => (
+            {navItems.map((item, index) => (
               <li key={index} className="nav-item sidebar-item">
-                <Link
-                  to={item.link}
-                  className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link"
-                >
-                  <i className={`${item.icon} me-2 fs-5`}></i>
-                  <span>{item.name}</span>
-                </Link>
+                {item.link ? (
+                  <Link
+                    to={item.link}
+                    className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link"
+                  >
+                    <i className={`${item.icon} me-2 fs-5`}></i>
+                    <span>{item.name}</span>
+                  </Link>
+                ) : (
+                  <span className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link">
+                    <i className={`${item.icon} me-2 fs-5`}></i>
+                    <span>{item.name}</span>
+                  </span>
+                )}
+
                 {item.subItems && (
                   <ul className="nav flex-column ms-3 sidebar-sublist">
                     {item.subItems.map((subItem, subIndex) => (
@@ -204,38 +246,28 @@ function NavBar() {
                 )}
               </li>
             ))}
-            {token && (
+            {token ? (
               <li className="nav-item sidebar-item">
                 <button
                   className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-button"
-                  onClick={handleLogout}
+                  onClick={authItems[0].action}
                 >
-                  <i className="fas fa-sign-out-alt me-2 fs-5"></i>
-                  <span>تسجيل الخروج</span>
+                  <i className={`${authItems[0].icon} me-2 fs-5`}></i>
+                  <span>{authItems[0].name}</span>
                 </button>
               </li>
-            )}
-            {!token && (
-              <>
-                <li className="nav-item sidebar-item">
+            ) : (
+              authItems.slice(1).map((item, index) => (
+                <li key={index} className="nav-item sidebar-item">
                   <Link
-                    to="/login"
+                    to={item.link}
                     className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link"
                   >
-                    <i className="fas fa-sign-in-alt me-2 fs-5"></i>
-                    <span>تسجيل الدخول</span>
+                    <i className={`${item.icon} me-2 fs-5`}></i>
+                    <span>{item.name}</span>
                   </Link>
                 </li>
-                <li className="nav-item sidebar-item">
-                  <Link
-                    to="/signup"
-                    className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link"
-                  >
-                    <i className="fas fa-user-plus me-2 fs-5"></i>
-                    <span>إنشاء حساب</span>
-                  </Link>
-                </li>
-              </>
+              ))
             )}
           </ul>
         </div>

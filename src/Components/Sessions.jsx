@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import axios from "axios";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 function Sessions() {
   const [sessions, setSessions] = useState([]);
@@ -71,8 +72,8 @@ function Sessions() {
       text: "لن تتمكن من التراجع عن هذا الإجراء!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
       confirmButtonText: "نعم، احذفها!",
       cancelButtonText: "إلغاء",
     }).then(async (result) => {
@@ -183,44 +184,77 @@ function Sessions() {
     handleEditSession,
   }) {
     return (
-      <div className="col-xl-4">
-        <div className="card h-100">
-          <div className="card-header bg-dark text-white text-end">
-            <h5 className="card-title mb-0">{session.title}</h5>
+      <div className="col-xl-4 my-3">
+        <div className="card h-100 session-card" dir="rtl">
+          <div className="card-header bg-dark text-white text-end session-card-header d-flex justify-content-between align-items-center">
+            <h5 className="card-title mb-0 text-start flex-grow-1 ps-2">
+              {session.title}
+            </h5>
+            <i className="fas fa-calendar-alt fs-4 me-2"></i>
           </div>
           <div className="card-body">
-            <p className="card-text">
-              <strong>رقم القضية:</strong> {session.case_number}
-            </p>
-            <p className="card-text">
-              <strong>اسم العميل:</strong> {session.customer_name}
-            </p>
-            <p className="card-text">
-              <strong>الوصف:</strong> {session.description}
-            </p>
-            <p className="card-text">
-              <strong>التاريخ:</strong> {session.date}
-            </p>
-          </div>
-          <div className="card-footer text-muted d-flex justify-content-between">
-            <button
-              className="btn btn-sm btn-info"
-              onClick={() => handleShowDetails(session)}
-            >
-              <i className="fas fa-eye me-1"></i> التفاصيل
-            </button>
-            <button
-              className="btn btn-sm btn-warning"
-              onClick={() => handleEditSession(session)}
-            >
-              <i className="fas fa-pencil-alt me-1"></i> تعديل
-            </button>
-            <button
-              className="btn btn-sm btn-danger"
-              onClick={() => handleDeleteSession(session)}
-            >
-              <i className="fas fa-trash me-1"></i> حذف
-            </button>
+            <div className="d-flex flex-column gap-2">
+              <div className="d-flex justify-content-between align-items-center">
+                <span className="text-bold me-2" style={{ fontSize: "1.1rem" }}>
+                  <i className="fas fa-list-ol ms-2"></i>
+                  رقم القضية:
+                </span>
+                <span className="text-start" style={{ fontSize: "1rem" }}>
+                  {session.case_number}
+                </span>
+              </div>
+              <hr className="my-2" style={{ margin: "5px 0" }} />
+              <div className="d-flex justify-content-between align-items-center">
+                <span className="text-bold me-2" style={{ fontSize: "1.1rem" }}>
+                  <i className="fas fa-user ms-2"></i>
+                  اسم الموكل:
+                </span>
+                <span className="text-start" style={{ fontSize: "1rem" }}>
+                  {session.customer_name}
+                </span>
+              </div>
+              <hr className="my-2" style={{ margin: "5px 0" }} />
+              <div className="d-flex justify-content-between align-items-start">
+                <span className="text-bold me-2" style={{ fontSize: "1.1rem" }}>
+                  <i className="fas fa-info-circle ms-2"></i>
+                  ملخص الجلسة:
+                </span>
+                <span className="text-start" style={{ fontSize: "1rem" }}>
+                  {session.description}
+                </span>
+              </div>
+              <hr className="my-2" style={{ margin: "5px 0" }} />
+              <div className="d-flex justify-content-between align-items-center">
+                <span className="text-bold me-2" style={{ fontSize: "1.1rem" }}>
+                  <i className="fas fa-calendar ms-2"></i>
+                  تاريخ الجلسة:
+                </span>
+                <span className="text-start" style={{ fontSize: "1rem" }}>
+                  {session.date}
+                </span>
+              </div>
+              <hr className="my-2" style={{ margin: "5px 0" }} />
+            </div>
+            <div className="d-flex flex-wrap justify-content-center gap-2 mt-2">
+              <button
+                className="btn btn-info btn-sm session-button"
+                onClick={() => handleShowDetails(session)}
+              >
+                <i className="fa fa-info-circle ms-1"></i> تفاصيل
+              </button>
+              <button
+                className="btn btn-primary btn-sm session-button"
+                onClick={() => handleEditSession(session)}
+              >
+                <i className="fa fa-edit ms-1"></i> تعديل
+              </button>
+              <button
+                className="btn btn-danger btn-sm session-button"
+                onClick={() => handleDeleteSession(session)}
+              >
+                <i className="fa fa-trash-alt ms-1"></i> حذف
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -239,35 +273,95 @@ function Sessions() {
         role="dialog"
       >
         <div className="modal-dialog modal-lg">
-          <div className="modal-content">
-            <div className="modal-header bg-dark text-white d-flex justify-content-between align-items-center">
+          <div
+            className="modal-content"
+            style={{
+              borderWidth: "3px",
+              borderColor: "#343a40",
+              boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            <div
+              className="modal-header bg-dark text-white d-flex justify-content-between align-items-center"
+              style={{ padding: "15px" }}
+            >
               <h5
                 className="modal-title m-0 text-end w-100"
                 id="sessionDetailsModalLabel"
+                style={{ fontSize: "1.4rem" }}
               >
                 تفاصيل الجلسة
               </h5>
             </div>
-            <div className="modal-body" dir="rtl">
+            <div className="modal-body" dir="rtl" style={{ padding: "20px" }}>
               {selectedSession && (
                 <div className="container">
-                  <h4 className="mb-3 text-center">تفاصيل الجلسة</h4>
-                  <table className="table table-bordered">
+                  <h4 className="mb-3 text-center">معلومات الجلسة</h4>
+                  <table
+                    className="table table-hover table-bordered"
+                    style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+                  >
                     <tbody>
-                      <tr>
-                        <th>عنوان الجلسة</th>
-                        <td>{selectedSession.title}</td>
-                      </tr>
-                      <tr>
-                        <th>تاريخ الجلسة</th>
-                        <td>{selectedSession.date}</td>
-                      </tr>
-                      <tr>
-                        <th>وصف الجلسة</th>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          عنوان الجلسة
+                        </th>
                         <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.title}
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          تاريخ الجلسة
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.date}
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          ملخص الجلسة
+                        </th>
+                        <td
+                          className="text-end"
                           style={{
                             wordWrap: "break-word",
                             whiteSpace: "normal",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
                           }}
                         >
                           {selectedSession.description}
@@ -275,100 +369,391 @@ function Sessions() {
                       </tr>
                     </tbody>
                   </table>
-                  <h4 className="mb-3 text-center">تفاصيل القضية</h4>
-                  <table className="table table-bordered">
+                  <h4 className="mb-3 text-center">بيانات القضية</h4>
+                  <table
+                    className="table table-hover table-bordered"
+                    style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+                  >
                     <tbody>
-                      <tr>
-                        <th>رقم القضية</th>
-                        <td>{selectedSession.case?.case_number}</td>
-                      </tr>
-                      <tr>
-                        <th>عنوان القضية</th>
-                        <td>{selectedSession.case?.case_title}</td>
-                      </tr>
-                      <tr>
-                        <th>سعر العقد</th>
-                        <td>{selectedSession.case?.contract_price}</td>
-                      </tr>
-                      <tr>
-                        <th>اسم المحكمة</th>
-                        <td>{selectedSession.case?.court_name}</td>
-                      </tr>
-                      <tr>
-                        <th>اسم القاضي</th>
-                        <td>{selectedSession.case?.judge_name}</td>
-                      </tr>
-                      <tr>
-                        <th>ملاحظات</th>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          رقم القضية
+                        </th>
                         <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.case_number}
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          موضوع القضية
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.case_title}
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          أتعاب المحاماة
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.contract_price}
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          المحكمة المختصة
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.court_name}
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          اسم القاضي
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.judge_name}
+                        </td>
+                      </tr>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          ملاحظات إضافية
+                        </th>
+                        <td
+                          className="text-end"
                           style={{
                             wordWrap: "break-word",
                             whiteSpace: "normal",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
                           }}
                         >
                           {selectedSession.case?.notes}
                         </td>
                       </tr>
-                      <tr>
-                        <th>اسم الخصم</th>
-                        <td>{selectedSession.case?.opponent_name}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          اسم الخصم
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.opponent_name}
+                        </td>
                       </tr>
-                      <tr>
-                        <th>هاتف الخصم</th>
-                        <td>{selectedSession.case?.opponent_phone}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          هاتف الخصم
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.opponent_phone}
+                        </td>
                       </tr>
-                      <tr>
-                        <th>جنسية الخصم</th>
-                        <td>{selectedSession.case?.opponent_nation}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          جنسية الخصم
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.opponent_nation}
+                        </td>
                       </tr>
-                      <tr>
-                        <th>عنوان الخصم</th>
-                        <td>{selectedSession.case?.opponent_address}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          عنوان الخصم
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.opponent_address}
+                        </td>
                       </tr>
-                      <tr>
-                        <th>اسم محامي الخصم</th>
-                        <td>{selectedSession.case?.opponent_lawyer}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          اسم محامي الخصم
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.opponent_lawyer}
+                        </td>
                       </tr>
-                      <tr>
-                        <th>هاتف محامي الخصم</th>
-                        <td>{selectedSession.case?.lawyer_phone}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          هاتف محامي الخصم
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.lawyer_phone}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
-                  <h4 className="mb-3 text-center">تفاصيل العميل</h4>
-                  <table className="table table-bordered">
+                  <h4 className="mb-3 text-center">بيانات الموكل</h4>
+                  <table
+                    className="table table-hover table-bordered"
+                    style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+                  >
                     <tbody>
-                      <tr>
-                        <th>اسم العميل</th>
-                        <td>{selectedSession.case?.customer?.name}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          اسم الموكل
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.customer?.name}
+                        </td>
                       </tr>
-                      <tr>
-                        <th>رقم العميل</th>
-                        <td>{selectedSession.case?.customer?.ID_number}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          رقم الهوية/السجل التجاري
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.customer?.ID_number}
+                        </td>
                       </tr>
-                      <tr>
-                        <th>بريد العميل</th>
-                        <td>{selectedSession.case?.customer?.email}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          البريد الإلكتروني
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.customer?.email}
+                        </td>
                       </tr>
-                      <tr>
-                        <th>هاتف العميل</th>
-                        <td>{selectedSession.case?.customer?.phone}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          رقم الهاتف
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.customer?.phone}
+                        </td>
                       </tr>
-                      <tr>
-                        <th>عنوان العميل</th>
-                        <td>{selectedSession.case?.customer?.address}</td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          العنوان
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          {selectedSession.case?.customer?.address}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               )}
             </div>
-            <div className="modal-footer">
+            <div className="modal-footer" style={{ padding: "15px" }}>
               <button
                 type="button"
                 className="btn btn-secondary"
                 data-bs-dismiss="modal"
                 onClick={onClose}
+                style={{ fontSize: "1.1rem" }}
               >
                 إغلاق
               </button>
@@ -399,9 +784,23 @@ function Sessions() {
         role="dialog"
       >
         <div className="modal-dialog modal-lg">
-          <div className="modal-content">
-            <div className="modal-header bg-dark text-white d-flex justify-content-between align-items-center">
-              <h5 className="modal-title m-0" id="editSessionModalLabel">
+          <div
+            className="modal-content"
+            style={{
+              borderWidth: "3px",
+              borderColor: "#343a40",
+              boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            <div
+              className="modal-header bg-dark text-white d-flex justify-content-between align-items-center"
+              style={{ padding: "15px" }}
+            >
+              <h5
+                className="modal-title m-0"
+                id="editSessionModalLabel"
+                style={{ fontSize: "1.4rem" }}
+              >
                 تعديل الجلسة
               </h5>
               <button
@@ -411,44 +810,107 @@ function Sessions() {
                 aria-label="Close"
               ></button>
             </div>
-            <div className="modal-body" dir="rtl">
+            <div className="modal-body" dir="rtl" style={{ padding: "20px" }}>
               {editSessionData && (
                 <div className="container">
-                  <h4 className="mb-3 text-center">تعديل تفاصيل الجلسة</h4>
-                  <table className="table table-bordered">
+                  <h4 className="mb-3 text-center">تعديل بيانات الجلسة</h4>
+                  <table
+                    className="table table-hover table-bordered"
+                    style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+                  >
                     <tbody>
-                      <tr>
-                        <th>عنوان الجلسة</th>
-                        <td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          عنوان الجلسة
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
                           <input
                             type="text"
-                            className="form-control"
+                            className="form-control text-end"
                             name="title"
                             value={editSessionForm.title}
                             onChange={handleEditSessionInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
                           />
                         </td>
                       </tr>
-                      <tr>
-                        <th>تاريخ الجلسة</th>
-                        <td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          تاريخ الجلسة
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
                           <input
                             type="date"
-                            className="form-control"
+                            className="form-control text-end"
                             name="date"
                             value={editSessionForm.date}
                             onChange={handleEditSessionInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
                           />
                         </td>
                       </tr>
-                      <tr>
-                        <th>وصف الجلسة</th>
-                        <td>
+                      <tr style={{ lineHeight: "2.2rem" }}>
+                        <th
+                          className="text-end"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
+                          ملخص الجلسة
+                        </th>
+                        <td
+                          className="text-end"
+                          style={{
+                            padding: "10px",
+                            border: "2px solid #6c757d",
+                          }}
+                        >
                           <textarea
-                            className="form-control"
+                            className="form-control text-end"
                             name="description"
                             value={editSessionForm.description}
                             onChange={handleEditSessionInputChange}
+                            style={{
+                              fontSize: "1rem",
+                              padding: "10px",
+                              border: "1px solid #6c757d",
+                            }}
                           />
                         </td>
                       </tr>
@@ -457,12 +919,13 @@ function Sessions() {
                 </div>
               )}
             </div>
-            <div className="modal-footer">
+            <div className="modal-footer" style={{ padding: "15px" }}>
               <button
                 type="button"
                 className="btn btn-secondary"
                 onClick={onClose}
                 data-bs-dismiss="modal"
+                style={{ fontSize: "1.1rem" }}
               >
                 إغلاق
               </button>
@@ -470,6 +933,7 @@ function Sessions() {
                 type="button"
                 className="btn btn-primary"
                 onClick={handleUpdateSession}
+                style={{ fontSize: "1.1rem" }}
               >
                 حفظ التغييرات
               </button>
@@ -502,6 +966,14 @@ function Sessions() {
               placeholder="ابحث عن جلسة..."
               value={searchTerm}
               onChange={handleSearch}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#0d6efd",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
         </div>
@@ -519,6 +991,8 @@ function Sessions() {
           ))}
         </div>
       </div>
+      {isEditModalOpen && <div className="modal-backdrop fade show"></div>}
+      {isModalOpen && <div className="modal-backdrop fade show"></div>}
       <SessionDetailsModal
         selectedSession={selectedSession}
         isOpen={isModalOpen}

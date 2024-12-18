@@ -1,10 +1,16 @@
-import "./App.css";
-import NavBar from "./Components/NavBar";
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+
+import "./App.css";
+
+// Components
+import NavBar from "./Components/NavBar";
 import Home from "./Components/Home";
 import Cases from "./Components/Cases";
-import SingleCase from "./Components/SingleCase"; // صفحة تفاصيل القضية
-import AddCase from "./Components/AddCase"; // إضافة استيراد صفحة إضافة القضايا
+import SingleCase from "./Components/SingleCase";
+import AddCase from "./Components/AddCase";
 import Sessions from "./Components/Sessions";
 import Payments from "./Components/Payments";
 import Attachments from "./Components/attachments";
@@ -16,10 +22,11 @@ import SystemSettings from "./Components/SystemSettings";
 import CaseTypes from "./Components/CasesTypes";
 import AddCustomer from "./Components/AddCustomer";
 import ResetPassword from "./Components/ResetPassword";
-import CustomerCategories from "./Components/CustomerCategories"; // استيراد صفحة إدارة أنواع العملاء
-import "bootstrap/dist/css/bootstrap.min.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
+import CustomerCategories from "./Components/CustomerCategories";
+import PaymentReports from "./Components/PaymentReports";
 import ForgotPassword from "./Components/ForgotPassword";
+import AddExpense from "./Components/AddExpense.jsx";
+import AddExpenseCategory from "./Components/AddExpenseCategory.jsx";
 
 function App() {
   return (
@@ -72,6 +79,15 @@ function App() {
             }
           />
           <Route
+            path="PaymentReports"
+            element={
+              <>
+                <NavBar />
+                <PaymentReports />
+              </>
+            }
+          />
+          <Route
             path="payments"
             element={
               <>
@@ -104,6 +120,24 @@ function App() {
               <>
                 <NavBar />
                 <Expenses />
+              </>
+            }
+          />
+          <Route
+            path="/add-expense"
+            element={
+              <>
+                <NavBar />
+                <AddExpense />
+              </>
+            }
+          />
+          <Route
+            path="/AddExpenseCategory"
+            element={
+              <>
+                <NavBar />
+                <AddExpenseCategory />
               </>
             }
           />

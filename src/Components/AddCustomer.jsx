@@ -10,12 +10,12 @@ const AddCustomer = () => {
     address: "",
     customer_category_id: "",
     ID_number: "",
-    nationality: "", // القيمة الافتراضية تم إزالتها، الحقل فارغ الآن
+    nationality: "",
     company_name: "",
     notes: "",
   });
-
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -26,6 +26,7 @@ const AddCustomer = () => {
           text: "يرجى تسجيل الدخول أولاً.",
           icon: "warning",
           confirmButtonText: "حسنًا",
+          rtl: true, // إضافة rtl
         });
         return;
       }
@@ -47,6 +48,7 @@ const AddCustomer = () => {
           text: "حدث خطأ أثناء تحميل فئات العملاء، يرجى المحاولة مرة أخرى.",
           icon: "error",
           confirmButtonText: "حسنًا",
+          rtl: true, // إضافة rtl
         });
       }
     };
@@ -72,6 +74,7 @@ const AddCustomer = () => {
         text: "يرجى تسجيل الدخول أولاً للوصول إلى هذه الصفحة.",
         icon: "warning",
         confirmButtonText: "حسنًا",
+        rtl: true,
       });
       return;
     }
@@ -84,6 +87,7 @@ const AddCustomer = () => {
       clientData.ID_number
     ) {
       try {
+        setLoading(true); // تعيين حالة التحميل إلى true
         const response = await axios.post(
           "https://law-office.al-mosa.com/api/store-customer",
           clientData,
@@ -98,7 +102,8 @@ const AddCustomer = () => {
           title: "تم إضافة العميل بنجاح",
           text: `تم إضافة العميل ${clientData.name} بنجاح.`,
           icon: "success",
-          confirmButtonText: "حسنًا",
+          confirmButtonText: "موافق",
+          rtl: true,
         });
         setClientData({
           name: "",
@@ -107,187 +112,203 @@ const AddCustomer = () => {
           address: "",
           customer_category_id: "",
           ID_number: "",
-          nationality: "", // تم إزالة القيمة الافتراضية من هنا أيضاً
+          nationality: "",
           company_name: "",
           notes: "",
         });
       } catch (error) {
         console.error("خطأ في إرسال البيانات: ", error);
-        Swal.fire({
-          title: "فشل في إضافة العميل",
-          text:
-            error.response?.data?.message ||
-            "حدث خطأ أثناء إضافة العميل، يرجى المحاولة مرة أخرى.",
-          icon: "error",
-          confirmButtonText: "حسنًا",
-        });
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.errors
+        ) {
+          const errors = error.response.data.errors;
+          let errorMessages = [];
+          for (const key in errors) {
+            errorMessages = errorMessages.concat(errors[key]);
+          }
+          const translatedErrorMessages = errorMessages.map((msg) => {
+            switch (msg) {
+              case "The name field is required.":
+                return "حقل الاسم مطلوب.";
+              case "The email field is required.":
+                return "حقل البريد الإلكتروني مطلوب.";
+              case "The phone field is required.":
+                return "حقل الهاتف مطلوب.";
+              case "The category field is required.":
+                return "حقل فئة العميل مطلوب.";
+              case "The ID number field is required.":
+                return "حقل رقم الهوية مطلوب";
+              default:
+                return msg;
+            }
+          });
+
+          Swal.fire({
+            title: "خطأ في الإدخال",
+            html: translatedErrorMessages
+              .map((msg) => `<p style="text-align: right;">${msg}</p>`)
+              .join(""),
+            icon: "error",
+            confirmButtonText: "موافق",
+            rtl: true,
+          });
+        } else {
+          Swal.fire({
+            title: "فشل في إضافة العميل",
+            text:
+              error.response?.data?.message ||
+              "حدث خطأ أثناء إضافة العميل، يرجى المحاولة مرة أخرى.",
+            icon: "error",
+            confirmButtonText: "موافق",
+            rtl: true,
+          });
+        }
+      } finally {
+        setLoading(false); // تعيين حالة التحميل إلى false بعد الانتهاء
       }
     } else {
       Swal.fire({
         title: "خطأ في البيانات",
         text: "يرجى التأكد من ملء جميع الحقول الأساسية (الاسم، البريد الإلكتروني، رقم الهاتف، وفئة العميل ورقم الهوية).",
         icon: "error",
-        confirmButtonText: "حسنًا",
+        confirmButtonText: "موافق",
+        rtl: true,
       });
     }
   };
 
   return (
-    <div className="container my-4">
-      <h2 className="text-center py-4 fs-2 fw-bold">إضافة عميل جديد</h2>
+    <div className="container mt-5" dir="rtl">
+      <h1 className="text-center mb-4">إضافة عميل جديد</h1>
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label
-            htmlFor="name"
-            className="form-label text-end w-100 fs-3 fw-bold"
-          >
-            الاسم الكامل
-          </label>
-          <input
-            type="text"
-            className="form-control text-end w-100"
-            id="name"
-            name="name"
-            value={clientData.name}
-            onChange={handleChange}
-          />
+        <div className="row mb-3">
+          <div className="col-md-6 mb-3">
+            <label className="form-label fs-5 fw-bold">الاسم الكامل</label>
+            <input
+              type="text"
+              className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+              name="name"
+              value={clientData.name}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+          <div className="col-md-6 mb-3">
+            <label className="form-label fs-5 fw-bold">البريد الإلكتروني</label>
+            <input
+              type="email"
+              className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+              name="email"
+              value={clientData.email}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
         </div>
-        <div className="mb-3">
-          <label
-            htmlFor="email"
-            className="form-label text-end w-100 fs-3 fw-bold"
-          >
-            البريد الإلكتروني
-          </label>
-          <input
-            type="email"
-            className="form-control text-end w-100"
-            id="email"
-            name="email"
-            value={clientData.email}
-            onChange={handleChange}
-          />
+        <div className="row mb-3">
+          <div className="col-md-6 mb-3">
+            <label className="form-label fs-5 fw-bold">رقم الهاتف</label>
+            <input
+              type="text"
+              className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+              name="phone"
+              value={clientData.phone}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+          <div className="col-md-6 mb-3">
+            <label className="form-label fs-5 fw-bold">العنوان</label>
+            <input
+              type="text"
+              className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+              name="address"
+              value={clientData.address}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
         </div>
-        <div className="mb-3">
-          <label
-            htmlFor="phone"
-            className="form-label text-end w-100 fs-3 fw-bold"
-          >
-            رقم الهاتف
-          </label>
-          <input
-            type="text"
-            className="form-control text-end w-100"
-            id="phone"
-            name="phone"
-            value={clientData.phone}
-            onChange={handleChange}
-          />
+        <div className="row mb-3">
+          <div className="col-md-6 mb-3">
+            <label className="form-label fs-5 fw-bold">فئة العميل</label>
+            <select
+              className="form-select form-control-lg rounded-3 border-dark shadow-sm"
+              name="customer_category_id"
+              value={clientData.customer_category_id}
+              onChange={handleChange}
+              disabled={loading}
+            >
+              <option value="">اختر فئة العميل</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-6 mb-3">
+            <label className="form-label fs-5 fw-bold">رقم الهوية</label>
+            <input
+              type="text"
+              className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+              name="ID_number"
+              value={clientData.ID_number}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
         </div>
-        <div className="mb-3">
-          <label
-            htmlFor="address"
-            className="form-label text-end w-100 fs-3 fw-bold"
-          >
-            العنوان
-          </label>
-          <input
-            type="text"
-            className="form-control text-end w-100"
-            id="address"
-            name="address"
-            value={clientData.address}
-            onChange={handleChange}
-          />
+        <div className="row mb-3">
+          <div className="col-md-6 mb-3">
+            <label className="form-label fs-5 fw-bold">الجنسية</label>
+            <input
+              type="text"
+              className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+              name="nationality"
+              value={clientData.nationality}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+          <div className="col-md-6 mb-3">
+            <label className="form-label fs-5 fw-bold">اسم الشركة</label>
+            <input
+              type="text"
+              className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+              name="company_name"
+              value={clientData.company_name}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
         </div>
+
         <div className="mb-3">
-          <label
-            htmlFor="customer_category_id"
-            className="form-label text-end w-100 fs-3 fw-bold"
-          >
-            فئة العميل
-          </label>
-          <select
-            className="form-select text-end w-100"
-            id="customer_category_id"
-            name="customer_category_id"
-            value={clientData.customer_category_id}
-            onChange={handleChange}
-          >
-            <option value="">اختر فئة العميل</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mb-3">
-          <label
-            htmlFor="ID_number"
-            className="form-label text-end w-100 fs-3 fw-bold"
-          >
-            رقم الهوية
-          </label>
-          <input
-            type="text"
-            className="form-control text-end w-100"
-            id="ID_number"
-            name="ID_number"
-            value={clientData.ID_number}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="mb-3">
-          <label
-            htmlFor="nationality"
-            className="form-label text-end w-100 fs-3 fw-bold"
-          >
-            الجنسية
-          </label>
-          <input
-            type="text"
-            className="form-control text-end w-100"
-            id="nationality"
-            name="nationality"
-            value={clientData.nationality}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="mb-3">
-          <label
-            htmlFor="company_name"
-            className="form-label text-end w-100 fs-3 fw-bold"
-          >
-            اسم الشركة
-          </label>
-          <input
-            type="text"
-            className="form-control text-end w-100"
-            id="company_name"
-            name="company_name"
-            value={clientData.company_name}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="mb-3">
-          <label
-            htmlFor="notes"
-            className="form-label text-end w-100 fs-3 fw-bold"
-          >
-            الملاحظات
-          </label>
+          <label className="form-label fs-5 fw-bold">الملاحظات</label>
           <textarea
-            className="form-control text-end w-100"
-            id="notes"
+            className="form-control form-control-lg rounded-3 border-dark shadow-sm"
             name="notes"
             value={clientData.notes}
             onChange={handleChange}
+            disabled={loading}
           />
         </div>
         <div className="text-end">
-          <button type="submit" className="btn btn-dark text-white">
-            <i className="fa fa-user-plus me-2"></i> إضافة العميل
+          <button
+            type="submit"
+            className="btn btn-dark btn-lg"
+            disabled={loading}
+          >
+            {loading ? (
+              "جاري الإضافة..."
+            ) : (
+              <>
+                <i className="fa fa-user-plus me-2"></i>إضافة العميل
+              </>
+            )}
           </button>
         </div>
       </form>

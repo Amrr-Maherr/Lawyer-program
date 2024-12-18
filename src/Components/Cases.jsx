@@ -4,85 +4,104 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 const Modal = ({
-    isOpen,
-    title,
-    onClose,
-    children,
-    modalSize = "modal-dialog",
+  isOpen,
+  title,
+  onClose,
+  children,
+  modalSize = "modal-dialog",
 }) => {
-    return (
+  return (
+    <div
+      className={`modal fade ${isOpen ? "show" : ""}`}
+      tabIndex="-1"
+      aria-hidden={!isOpen}
+      style={{ display: isOpen ? "block" : "none" }}
+    >
+      <div
+        className={`modal-dialog ${modalSize}`}
+        style={{
+          maxWidth: modalSize.includes("modal-lg") ? "80%" : "initial",
+        }}
+      >
         <div
-            className={`modal fade ${isOpen ? "show" : ""}`}
-            tabIndex="-1"
-            aria-hidden={!isOpen}
-            style={{ display: isOpen ? "block" : "none" }}
+          className="modal-content"
+          style={{
+            borderWidth: "3px",
+            borderColor: "#343a40",
+            boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
+          }}
         >
-            <div className={`modal-dialog ${modalSize}`}>
-                <div className="modal-content">
-                    <div className="modal-header bg-dark text-white">
-                        <h5 className="modal-title text-end w-100">{title}</h5>
-                    </div>
-                    <div className="modal-body" dir="rtl">
-                        {children}
-                    </div>
-                    <div className="modal-footer d-flex justify-content-center">
-                        <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={onClose}
-                        >
-                            إغلاق
-                        </button>
-                    </div>
-                </div>
-            </div>
+          <div
+            className="modal-header bg-dark text-white"
+            style={{ padding: "15px" }}
+          >
+            <h5
+              className="modal-title text-end w-100"
+              style={{ fontSize: "1.4rem" }}
+            >
+              {title}
+            </h5>
+          </div>
+          <div className="modal-body" dir="rtl" style={{ padding: "20px" }}>
+            {children}
+          </div>
+          <div className="modal-footer" style={{ padding: "15px" }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onClose}
+              style={{ fontSize: "1.1rem" }}
+            >
+              إغلاق
+            </button>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
-
 const apiRequest = async (url, method, data = null, headers = {}, navigate) => {
-    const token = localStorage.getItem("token");
-    try {
-        const response = await axios({
-            url,
-            method,
-            data,
-            headers: {
-                Authorization: `Bearer ${token}`,
-                ...headers,
-            },
-        });
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axios({
+      url,
+      method,
+      data,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...headers,
+      },
+    });
 
-        if (response.status >= 200 && response.status < 300) {
-            return response.data;
-        } else {
-            throw new Error(`HTTP error ${response.status}`);
-        }
-    } catch (error) {
-        console.error("API request failed:", error);
-        let errorMessage = "حدث خطأ غير متوقع أثناء تنفيذ العملية.";
-
-        if (error.response) {
-            if (error.response.status === 401) {
-                localStorage.removeItem("token");
-                navigate("/SignUp");
-                return;
-            }
-            errorMessage = error.response.data.message || "حدث خطأ غير متوقع.";
-        } else if (error.request) {
-            errorMessage =
-                "لا يمكن الاتصال بالخادم، يرجى التحقق من اتصالك بالإنترنت.";
-        }
-
-        Swal.fire({
-            icon: "error",
-            title: "فشل في العملية",
-            text: errorMessage,
-        });
-        throw new Error(errorMessage);
+    if (response.status >= 200 && response.status < 300) {
+      return response.data;
+    } else {
+      throw new Error(`HTTP error ${response.status}`);
     }
-};
+  } catch (error) {
+    console.error("API request failed:", error);
+    let errorMessage = "حدث خطأ غير متوقع أثناء تنفيذ العملية.";
 
+    if (error.response) {
+      if (error.response.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/SignUp");
+        return;
+      }
+      errorMessage = error.response.data.message || "حدث خطأ غير متوقع.";
+    } else if (error.request) {
+      errorMessage =
+        "لا يمكن الاتصال بالخادم، يرجى التحقق من اتصالك بالإنترنت.";
+    }
+
+    Swal.fire({
+      icon: "error",
+      title: "فشل في العملية",
+      text: errorMessage,
+    });
+    throw new Error(errorMessage);
+  }
+};
 const Cases = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -745,7 +764,6 @@ const Cases = () => {
       );
     }
   };
-
   if (loading) return null;
   if (error) return <p>{error}</p>;
 
@@ -760,6 +778,14 @@ const Cases = () => {
               placeholder="ابحث عن القضية"
               value={searchTerm}
               onChange={handleSearch}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#0d6efd",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
           <div className="col-md-6 col-12 my-4  text-md-end text-center">
@@ -767,90 +793,121 @@ const Cases = () => {
           </div>
         </div>
       </div>
-      <div className="row row-cols-1 row-cols-md-3 g-4 flex-row-reverse my-4">
+      <div className="row row-cols- row-cols-1 row-cols-md-3 g-4 flex-row-reverse my-4">
         {filteredData.length > 0 ? (
           filteredData.map((item) => (
             <div className="col" key={item.case_id}>
-              <div className="card h-100 case-card case-card" dir="rtl">
+              <div className="card h-100 case-card" dir="rtl">
+                {/* بداية رأس الكارت (Card Header) */}
                 <div className="card-header case-card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                  {/* اسم العميل (نص ديناميكي) */}
                   <h5 className="card-title m-0 text-start flex-grow-1 ps-2">
                     {item.customer_name}
                   </h5>
+                  {/* أيقونة المستخدم (فاصل بصري) */}
                   <i className="fas fa-user fs-4 me-2"></i>
                 </div>
+                {/* نهاية رأس الكارت (Card Header) */}
+
+                {/* بداية جسم الكارت (Card Body) */}
                 <div className="card-body">
-                  <div className="table-responsive">
-                    <table className="table table-borderless table-sm custom-table">
-                      <tbody>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">
-                              رقم الدعوى القضائية:
-                            </span>
-                            <i className="fas fa-file-invoice ms-3"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            {item.case_number}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">فئة الدعوى:</span>
-                            <i className="fas fa-tags ms-3"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            {item.case_category}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">
-                              أتعاب المحاماة (المتفق عليها):
-                            </span>
-                            <i className="fas fa-coins ms-3"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            {item.contract_price}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">
-                              رقم الهاتف الخاص بالموكل:
-                            </span>
-                            <i className="fas fa-phone ms-3"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            {item.customer_phone}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">
-                              المبالغ المسددة من الأتعاب:
-                            </span>
-                            <i className="fas fa-money-bill-wave ms-3"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            {item.paid_amount}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" className="text-end align-middle">
-                            <span className="text-bold me-2">
-                              المبلغ المتبقي من الأتعاب:
-                            </span>
-                            <i className="fas fa-hand-holding-usd ms-3"></i>
-                          </th>
-                          <td className="text-start align-middle">
-                            {item.remaining_amount}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  {/* بداية تنسيق معلومات القضية باستخدام flexbox */}
+                  <div className="d-flex flex-column gap-2">
+                    {/* معلومات رقم الدعوى القضائية */}
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span
+                        className="text-bold me-2"
+                        style={{ fontSize: "1.1rem" }}
+                      >
+                        <i className="fas fa-file-invoice ms-2"></i>
+                        رقم الدعوى القضائية:
+                      </span>
+                      <span className="text-start" style={{ fontSize: "1rem" }}>
+                        {item.case_number}
+                      </span>
+                    </div>
+                    <hr className="my-2" style={{ margin: "5px 0" }} />
+
+                    {/* معلومات فئة الدعوى */}
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span
+                        className="text-bold me-2"
+                        style={{ fontSize: "1.1rem" }}
+                      >
+                        <i className="fas fa-tags ms-2"></i>
+                        فئة الدعوى:
+                      </span>
+                      <span className="text-start" style={{ fontSize: "1rem" }}>
+                        {item.case_category}
+                      </span>
+                    </div>
+                    <hr className="my-2" style={{ margin: "5px 0" }} />
+
+                    {/* معلومات أتعاب المحاماة (المتفق عليها) */}
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span
+                        className="text-bold me-2"
+                        style={{ fontSize: "1.1rem" }}
+                      >
+                        <i className="fas fa-coins ms-2"></i>
+                        أتعاب المحاماة (المتفق عليها):
+                      </span>
+                      <span className="text-start" style={{ fontSize: "1rem" }}>
+                        {item.contract_price}
+                      </span>
+                    </div>
+                    <hr className="my-2" style={{ margin: "5px 0" }} />
+
+                    {/* معلومات رقم الهاتف الخاص بالموكل */}
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span
+                        className="text-bold me-2"
+                        style={{ fontSize: "1.1rem" }}
+                      >
+                        <i className="fas fa-phone ms-2"></i>
+                        رقم الهاتف الخاص بالموكل:
+                      </span>
+                      <span className="text-start" style={{ fontSize: "1rem" }}>
+                        {item.customer_phone}
+                      </span>
+                    </div>
+                    <hr className="my-2" style={{ margin: "5px 0" }} />
+
+                    {/* معلومات المبالغ المسددة من الأتعاب */}
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span
+                        className="text-bold me-2"
+                        style={{ fontSize: "1.1rem" }}
+                      >
+                        <i className="fas fa-money-bill-wave ms-2"></i>
+                        المبالغ المسددة من الأتعاب:
+                      </span>
+                      <span className="text-start" style={{ fontSize: "1rem" }}>
+                        {item.paid_amount}
+                      </span>
+                    </div>
+                    <hr className="my-2" style={{ margin: "5px 0" }} />
+
+                    {/* معلومات المبلغ المتبقي من الأتعاب */}
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span
+                        className="text-bold me-2"
+                        style={{ fontSize: "1.1rem" }}
+                      >
+                        <i className="fas fa-hand-holding-usd ms-2"></i>
+                        المبلغ المتبقي من الأتعاب:
+                      </span>
+                      <span className="text-start" style={{ fontSize: "1rem" }}>
+                        {item.remaining_amount}
+                      </span>
+                    </div>
+                    <hr className="my-2" style={{ margin: "5px 0" }} />
                   </div>
-                  <hr className="" />
+                  {/* نهاية تنسيق معلومات القضية باستخدام flexbox */}
+
+                  {/* بداية منطقة أزرار الإجراءات */}
                   <div className="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                    {/* ... (أزرار الإجراءات لم تتغير) ... */}
                     <button
                       className="btn btn-info btn-sm case-button"
                       onClick={() =>
@@ -859,6 +916,7 @@ const Cases = () => {
                     >
                       <i className="fa fa-info-circle ms-1"></i> تفاصيل
                     </button>
+                    {/* زر الحذف (مع فاصل أيقونة ونص) */}
                     <button
                       className="btn btn-danger btn-sm case-button"
                       onClick={() =>
@@ -867,6 +925,7 @@ const Cases = () => {
                     >
                       <i className="fa fa-trash-alt ms-1"></i> حذف
                     </button>
+                    {/* زر الدفع (مع فاصل أيقونة ونص) */}
                     <button
                       className="btn btn-success btn-sm case-button"
                       onClick={() =>
@@ -875,6 +934,7 @@ const Cases = () => {
                     >
                       <i className="fa fa-money-bill ms-1"></i> دفع
                     </button>
+                    {/* زر إضافة جلسة (مع فاصل أيقونة ونص) */}
                     <button
                       className="btn btn-primary btn-sm case-button"
                       onClick={() =>
@@ -883,6 +943,7 @@ const Cases = () => {
                     >
                       <i className="fa fa-plus ms-1"></i> جلسة
                     </button>
+                    {/* زر إضافة مرفق (مع فاصل أيقونة ونص) */}
                     <button
                       className="btn btn-secondary btn-sm case-button"
                       onClick={() =>
@@ -894,12 +955,14 @@ const Cases = () => {
                     >
                       <i className="fa fa-paperclip ms-1"></i> مرفق
                     </button>
+                    {/* زر التعديل (مع فاصل أيقونة ونص) */}
                     <button
                       className="btn btn-warning btn-sm case-button"
                       onClick={() => handleOpenEditModal(item)}
                     >
                       <i className="fa fa-edit ms-1"></i> تعديل
                     </button>
+                    {/* زر عرض المصاريف (مع فاصل أيقونة ونص) */}
                     <button
                       className="btn btn-secondary btn-sm case-button"
                       onClick={() =>
@@ -908,6 +971,7 @@ const Cases = () => {
                     >
                       <i className="fas fa-coins ms-1"></i> المصاريف
                     </button>
+                    {/* زر إضافة مصاريف جديدة (مع فاصل أيقونة ونص) */}
                     <button
                       className="btn btn-success btn-sm case-button"
                       onClick={() =>
@@ -920,7 +984,9 @@ const Cases = () => {
                       <i className="fas fa-plus ms-1"></i> مصاريف جديدة
                     </button>
                   </div>
+                  {/* نهاية منطقة أزرار الإجراءات */}
                 </div>
+                {/* نهاية جسم الكارت (Card Body) */}
               </div>
             </div>
           ))
@@ -939,131 +1005,542 @@ const Cases = () => {
       >
         {selectedCase && (
           <>
-            <table className="table table-hover table-bordered">
+            <table
+              className="table table-hover table-bordered"
+              style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+            >
               <tbody>
-                <tr>
-                  <th className="text-end">رقم الدعوى القضائية:</th>
-                  <td className="text-end">{selectedCase.case.case_number}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    رقم الدعوى القضائية:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.case.case_number}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">اسم المدعى عليه/الخصم:</th>
-                  <td className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    اسم المدعى عليه/الخصم:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.case.opponent_name}
                   </td>
                 </tr>
-                <tr>
-                  <th className="text-end">هاتف المدعى عليه/الخصم:</th>
-                  <td className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    هاتف المدعى عليه/الخصم:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.case.opponent_phone}
                   </td>
                 </tr>
-                <tr>
-                  <th className="text-end">جنسية المدعى عليه/الخصم:</th>
-                  <td className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    جنسية المدعى عليه/الخصم:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.case.opponent_nation}
                   </td>
                 </tr>
-                <tr>
-                  <th className="text-end">عنوان المدعى عليه/الخصم:</th>
-                  <td className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    عنوان المدعى عليه/الخصم:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.case.opponent_address}
                   </td>
                 </tr>
-                <tr>
-                  <th className="text-end">اسم محامي المدعى عليه/الخصم:</th>
-                  <td className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    اسم محامي المدعى عليه/الخصم:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.case.opponent_lawyer}
                   </td>
                 </tr>
-                <tr>
-                  <th className="text-end">هاتف محامي المدعى عليه/الخصم:</th>
-                  <td className="text-end">{selectedCase.case.lawyer_phone}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    هاتف محامي المدعى عليه/الخصم:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.case.lawyer_phone}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">المحكمة المنظورة أمامها الدعوى:</th>
-                  <td className="text-end">{selectedCase.case.court_name}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    المحكمة المنظورة أمامها الدعوى:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.case.court_name}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
                     اسم القاضي/الدائرة المنظورة أمامها الدعوى:
                   </th>
-                  <td className="text-end">{selectedCase.case.judge_name}</td>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.case.judge_name}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">موضوع الدعوى:</th>
-                  <td className="text-end">{selectedCase.case.case_title}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    موضوع الدعوى:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.case.case_title}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">أتعاب المحاماة (المتفق عليها):</th>
-                  <td className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    أتعاب المحاماة (المتفق عليها):
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.case.contract_price}
                   </td>
                 </tr>
-                <tr>
-                  <th className="text-end">ملاحظات/ملخص القضية:</th>
-                  <td className="text-end">{selectedCase.case.notes}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    ملاحظات/ملخص القضية:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.case.notes}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">المبالغ المسددة من الأتعاب:</th>
-                  <td className="text-end">{selectedCase.paid_amount}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    المبالغ المسددة من الأتعاب:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.paid_amount}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">المبلغ المتبقي من الأتعاب:</th>
-                  <td className="text-end">{selectedCase.remaining_amount}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    المبلغ المتبقي من الأتعاب:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.remaining_amount}
+                  </td>
                 </tr>
               </tbody>
             </table>
-            <h4>تفاصيل الموكل:</h4>
-            <table className="table table-hover table-bordered">
+            <h4
+              className="text-end mt-3"
+              style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+            >
+              تفاصيل الموكل:
+            </h4>
+            <table
+              className="table table-hover table-bordered"
+              style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+            >
               <tbody>
-                <tr>
-                  <th className="text-end">اسم الموكل:</th>
-                  <td className="text-end">{selectedCase.customer.name}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    اسم الموكل:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.customer.name}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">البريد الإلكتروني الخاص بالموكل:</th>
-                  <td className="text-end">{selectedCase.customer.email}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    البريد الإلكتروني الخاص بالموكل:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.customer.email}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
                     رقم الهوية/الإقامة الخاص بالموكل:
                   </th>
-                  <td className="text-end">
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.customer.ID_number}
                   </td>
                 </tr>
-                <tr>
-                  <th className="text-end">رقم الهاتف الخاص بالموكل:</th>
-                  <td className="text-end">{selectedCase.customer.phone}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    رقم الهاتف الخاص بالموكل:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.customer.phone}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">عنوان إقامة الموكل:</th>
-                  <td className="text-end">{selectedCase.customer.address}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    عنوان إقامة الموكل:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.customer.address}
+                  </td>
                 </tr>
-                <tr>
-                  <th className="text-end">جنسية الموكل/المقيم:</th>
-                  <td className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    جنسية الموكل/المقيم:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.customer.nationality}
                   </td>
                 </tr>
-                <tr>
-                  <th className="text-end">اسم الشركة (إن وجد):</th>
-                  <td className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    اسم الشركة (إن وجد):
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.customer.company_name}
                   </td>
                 </tr>
-                <tr>
-                  <th className="text-end">ملاحظات/بيانات إضافية عن الموكل:</th>
-                  <td className="text-end">{selectedCase.customer.notes}</td>
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    ملاحظات/بيانات إضافية عن الموكل:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      wordWrap: "break-word",
+                      whiteSpace: "normal",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
+                    {selectedCase.customer.notes}
+                  </td>
                 </tr>
               </tbody>
             </table>
-            <h4>تصنيف الدعوى:</h4>
-            <table className="table table-hover table-bordered">
+            <h4
+              className="text-end mt-3"
+              style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+            >
+              تصنيف الدعوى:
+            </h4>
+            <table
+              className="table table-hover table-bordered"
+              style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+            >
               <tbody>
-                <tr>
-                  <th className="text-end">فئة الدعوى:</th>
-                  <td className="text-end">
+                <tr style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    فئة الدعوى:
+                  </th>
+                  <td
+                    className="text-end"
+                    style={{
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                    }}
+                  >
                     {selectedCase.case_category.name}
                   </td>
                 </tr>
@@ -1086,6 +1563,11 @@ const Cases = () => {
             name="title"
             value={paymentData.title}
             onChange={handlePaymentInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1096,6 +1578,11 @@ const Cases = () => {
             name="date"
             value={paymentData.date}
             onChange={handlePaymentInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1106,6 +1593,11 @@ const Cases = () => {
             name="amount"
             value={paymentData.amount}
             onChange={handlePaymentInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1115,6 +1607,11 @@ const Cases = () => {
             name="method"
             value={paymentData.method}
             onChange={handlePaymentInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           >
             <option value="cash">كاش</option>
             <option value="credit card">بطاقة ائتمان</option>
@@ -1126,6 +1623,7 @@ const Cases = () => {
             type="button"
             className="btn btn-secondary"
             onClick={handleClosePaymentModal}
+            style={{ fontSize: "1.1rem" }}
           >
             إغلاق
           </button>
@@ -1133,6 +1631,7 @@ const Cases = () => {
             type="button"
             className="btn btn-primary"
             onClick={handlePaymentSubmit}
+            style={{ fontSize: "1.1rem" }}
           >
             تأكيد الدفع
           </button>
@@ -1152,6 +1651,11 @@ const Cases = () => {
             name="title"
             value={sessionData.title}
             onChange={handleSessionInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1162,6 +1666,11 @@ const Cases = () => {
             name="date"
             value={sessionData.date}
             onChange={handleSessionInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1171,6 +1680,11 @@ const Cases = () => {
             name="description"
             value={sessionData.description}
             onChange={handleSessionInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="modal-footer d-flex justify-content-center">
@@ -1178,6 +1692,7 @@ const Cases = () => {
             type="button"
             className="btn btn-secondary"
             onClick={handleCloseSessionModal}
+            style={{ fontSize: "1.1rem" }}
           >
             إغلاق
           </button>
@@ -1185,6 +1700,7 @@ const Cases = () => {
             type="button"
             className="btn btn-primary"
             onClick={handleSessionSubmit}
+            style={{ fontSize: "1.1rem" }}
           >
             تأكيد الإضافة
           </button>
@@ -1208,6 +1724,11 @@ const Cases = () => {
               name="case_number"
               value={editData.case_number}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1220,6 +1741,11 @@ const Cases = () => {
               name="opponent_name"
               value={editData.opponent_name}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1232,6 +1758,11 @@ const Cases = () => {
               name="opponent_phone"
               value={editData.opponent_phone}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1244,6 +1775,11 @@ const Cases = () => {
               name="opponent_nation"
               value={editData.opponent_nation}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1256,6 +1792,11 @@ const Cases = () => {
               name="opponent_address"
               value={editData.opponent_address}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1268,6 +1809,11 @@ const Cases = () => {
               name="opponent_lawyer"
               value={editData.opponent_lawyer}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1280,6 +1826,11 @@ const Cases = () => {
               name="lawyer_phone"
               value={editData.lawyer_phone}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1292,6 +1843,11 @@ const Cases = () => {
               name="court_name"
               value={editData.court_name}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1304,16 +1860,26 @@ const Cases = () => {
               name="judge_name"
               value={editData.judge_name}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
             <label className="form-label text-end w-100">موضوع الدعوى</label>
             <input
               type="text"
-              className="form-control text-end"
+              className="form-              control text-end"
               name="case_title"
               value={editData.case_title}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1326,6 +1892,11 @@ const Cases = () => {
               name="contract_price"
               value={editData.contract_price}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1338,6 +1909,11 @@ const Cases = () => {
               name="notes"
               value={editData.notes}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1348,6 +1924,11 @@ const Cases = () => {
               name="name"
               value={editData.name}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1360,6 +1941,11 @@ const Cases = () => {
               name="email"
               value={editData.email}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1372,6 +1958,11 @@ const Cases = () => {
               name="ID_number"
               value={editData.ID_number}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1384,6 +1975,11 @@ const Cases = () => {
               name="phone"
               value={editData.phone}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1396,6 +1992,11 @@ const Cases = () => {
               name="address"
               value={editData.address}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1408,6 +2009,11 @@ const Cases = () => {
               name="nationality"
               value={editData.nationality}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1420,6 +2026,11 @@ const Cases = () => {
               name="company_name"
               value={editData.company_name}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1432,6 +2043,11 @@ const Cases = () => {
               name="notes"
               value={editData.notes}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
           <div className="mb-3 col-md-6">
@@ -1442,6 +2058,11 @@ const Cases = () => {
               name="case_category"
               value={editData.case_category}
               onChange={handleEditInputChange}
+              style={{
+                fontSize: "1rem",
+                padding: "10px",
+                border: "1px solid #6c757d",
+              }}
             />
           </div>
         </div>
@@ -1450,6 +2071,7 @@ const Cases = () => {
             type="button"
             className="btn btn-secondary"
             onClick={handleCloseEditModal}
+            style={{ fontSize: "1.1rem" }}
           >
             إغلاق
           </button>
@@ -1457,6 +2079,7 @@ const Cases = () => {
             type="button"
             className="btn btn-primary"
             onClick={handleEditSubmit}
+            style={{ fontSize: "1.1rem" }}
           >
             تأكيد التعديل
           </button>
@@ -1476,6 +2099,11 @@ const Cases = () => {
             name="title"
             value={attachmentData.title}
             onChange={handleAttachmentInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1485,6 +2113,11 @@ const Cases = () => {
             className="form-control text-end"
             name="file"
             onChange={handleAttachmentInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="modal-footer d-flex justify-content-center">
@@ -1492,6 +2125,7 @@ const Cases = () => {
             type="button"
             className="btn btn-secondary"
             onClick={handleCloseAttachmentModal}
+            style={{ fontSize: "1.1rem" }}
           >
             إغلاق
           </button>
@@ -1499,6 +2133,7 @@ const Cases = () => {
             type="button"
             className="btn btn-primary"
             onClick={handleAttachmentSubmit}
+            style={{ fontSize: "1.1rem" }}
           >
             تأكيد الإضافة
           </button>
@@ -1513,28 +2148,104 @@ const Cases = () => {
       >
         {caseExpenses && caseExpenses.length > 0 ? (
           <>
-            <table className="table table-hover table-bordered">
+            <table
+              className="table table-hover table-bordered"
+              style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+            >
               <thead>
-                <tr className="text-center">
-                  <th className="text-end">م</th>
-                  <th className="text-end">بيان المصروف</th>
-                  <th className="text-end">المبلغ المستحق</th>
-                  <th className="text-end">تاريخ الصرف</th>
-                  <th className="text-end">الإجراءات</th>
+                <tr className="text-center" style={{ lineHeight: "2.2rem" }}>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "8%",
+                    }}
+                  >
+                    م
+                  </th>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "35%",
+                    }}
+                  >
+                    بيان المصروف
+                  </th>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "25%",
+                    }}
+                  >
+                    المبلغ المستحق
+                  </th>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "20%",
+                    }}
+                  >
+                    تاريخ الصرف
+                  </th>
+                  <th
+                    className="text-end"
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      padding: "10px",
+                      border: "2px solid #6c757d",
+                      width: "12%",
+                    }}
+                  >
+                    الإجراءات
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {caseExpenses.map((expense, index) => (
-                  <tr key={index} className="text-center">
-                    <td className="text-end">{index + 1}</td>
-                    <td className="text-end">{expense.title}</td>
-                    <td className="text-end">
+                  <tr
+                    key={index}
+                    className="text-center"
+                    style={{ lineHeight: "2.2rem" }}
+                  >
+                    <td
+                      className="text-end"
+                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                    >
+                      {index + 1}
+                    </td>
+                    <td
+                      className="text-end"
+                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                    >
+                      {expense.title}
+                    </td>
+                    <td
+                      className="text-end"
+                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                    >
                       {parseFloat(expense.amount).toFixed(2)} ج.م
                     </td>
-                    <td className="text-end">
+                    <td
+                      className="text-end"
+                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                    >
                       {new Date(expense.date).toLocaleDateString("ar-EG")}
                     </td>
-                    <td className="text-end">
+                    <td
+                      className="text-end"
+                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                    >
                       <button
                         className="btn btn-sm btn-outline-danger ms-1"
                         onClick={() =>
@@ -1587,6 +2298,11 @@ const Cases = () => {
             name="title"
             value={addExpenseData.title}
             onChange={handleAddExpenseInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1597,6 +2313,11 @@ const Cases = () => {
             name="date"
             value={addExpenseData.date}
             onChange={handleAddExpenseInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1607,6 +2328,11 @@ const Cases = () => {
             name="amount"
             value={addExpenseData.amount}
             onChange={handleAddExpenseInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="modal-footer d-flex justify-content-center">
@@ -1614,6 +2340,7 @@ const Cases = () => {
             type="button"
             className="btn btn-secondary"
             onClick={handleCloseAddExpenseModal}
+            style={{ fontSize: "1.1rem" }}
           >
             إغلاق
           </button>
@@ -1621,6 +2348,7 @@ const Cases = () => {
             type="button"
             className="btn btn-primary"
             onClick={handleAddExpenseSubmit}
+            style={{ fontSize: "1.1rem" }}
           >
             تأكيد الإضافة
           </button>
@@ -1640,6 +2368,11 @@ const Cases = () => {
             name="title"
             value={editExpenseData.title}
             onChange={handleEditExpenseInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1650,6 +2383,11 @@ const Cases = () => {
             name="date"
             value={editExpenseData.date}
             onChange={handleEditExpenseInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="mb-3">
@@ -1660,6 +2398,11 @@ const Cases = () => {
             name="amount"
             value={editExpenseData.amount}
             onChange={handleEditExpenseInputChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #6c757d",
+            }}
           />
         </div>
         <div className="modal-footer d-flex justify-content-center">
@@ -1667,6 +2410,7 @@ const Cases = () => {
             type="button"
             className="btn btn-secondary"
             onClick={handleCloseEditExpenseModal}
+            style={{ fontSize: "1.1rem" }}
           >
             إغلاق
           </button>
@@ -1674,6 +2418,7 @@ const Cases = () => {
             type="button"
             className="btn btn-primary"
             onClick={handleEditExpenseSubmit}
+            style={{ fontSize: "1.1rem" }}
           >
             تأكيد التعديل
           </button>
@@ -1696,5 +2441,4 @@ const Cases = () => {
     </div>
   );
 };
-
 export default Cases;

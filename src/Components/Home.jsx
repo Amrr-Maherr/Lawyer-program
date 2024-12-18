@@ -115,7 +115,7 @@ function Home() {
     targetRevenueAmount
   ) => {
     let startTime = null;
-    const duration = 600;
+    const duration = 800; // Increased duration for smoother animation
 
     const animate = (currentTime) => {
       if (!startTime) {
@@ -149,11 +149,17 @@ function Home() {
         beginAtZero: true,
         ticks: {
           color: "#6c757d",
+          font: {
+            size: 14, // تم تعديل حجم الخط
+          },
         },
       },
       x: {
         ticks: {
           color: "#6c757d",
+          font: {
+            size: 14, // تم تعديل حجم الخط
+          },
         },
       },
     },
@@ -170,20 +176,60 @@ function Home() {
         bodyColor: "#fff",
         borderColor: "#546e7a",
         borderWidth: 1,
-        position: "nearest", // تحديد موقع التلميح بالقرب من الماوس
-        padding: 10, // زيادة حجم الـ padding
+        position: "nearest",
+        padding: 10,
         titleFont: {
-          size: 14,
+          size: 16, // تم تعديل حجم خط العنوان في التلميح
         },
         bodyFont: {
-          size: 14,
+          size: 16, // تم تعديل حجم خط محتوى التلميح
+        },
+        callbacks: {
+          title: (tooltipItems) => {
+            return `${tooltipItems[0].label}`;
+          },
+          label: (tooltipItem) => {
+            return `${displayData(tooltipItem.formattedValue)}`;
+          },
+        },
+      },
+      title: {
+        display: true,
+        color: "#343a40",
+        font: {
+          size: 18, // تم تعديل حجم خط العنوان
+          weight: "bold",
         },
       },
     },
     animation: {
-      duration: 800,
-      easing: "easeOutQuad",
+      duration: 1000, // Increased duration for smoother animation
+      easing: "easeInOutQuad", // Changed easing function for smoother transitions
     },
+  };
+
+  const handleMouseMove = (chart, event) => {
+    if (chart && chart.canvas) {
+      const canvas = chart.canvas;
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      const activePoints = chart.getElementsAtEventForMode(
+        event,
+        "nearest",
+        { intersect: true },
+        true
+      );
+
+      if (activePoints.length > 0) {
+        const point = activePoints[0];
+        chart.tooltip.x = mouseX;
+        chart.tooltip.y = mouseY;
+        chart.tooltip.setActiveElements([point], { x: mouseX, y: mouseY });
+        chart.update();
+      }
+    }
   };
 
   const createChart = (
@@ -197,7 +243,7 @@ function Home() {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
-      chartInstanceRef.current = new Chart(chartRef.current, {
+      const chart = new Chart(chartRef.current, {
         type: "bar",
         data: {
           labels: [label],
@@ -207,21 +253,25 @@ function Home() {
               data: [data],
               backgroundColor: [backgroundColor],
               hoverBackgroundColor: [backgroundColor],
+              borderRadius: 5,
             },
           ],
         },
         options: {
           ...chartOptions,
+          onHover: (event, chart) => {
+            handleMouseMove(chart, event);
+          },
           plugins: {
             ...chartOptions.plugins,
             title: {
-              display: true,
-              text: `${label} ${displayData(data)}`,
-              color: "#343a40",
+              ...chartOptions.plugins.title,
+              text: `${label} :  ${displayData(data)}`,
             },
           },
         },
       });
+      chartInstanceRef.current = chart;
     }
 
     return () => {
@@ -264,16 +314,6 @@ function Home() {
 
   useEffect(() => {
     return createChart(
-      remainingAmountChartRef,
-      remainingAmountChartInstance,
-      displayRemainingAmount,
-      "المتبقي",
-      "#78909c"
-    );
-  }, [displayRemainingAmount]);
-
-  useEffect(() => {
-    return createChart(
       paidAmountChartRef,
       paidAmountChartInstance,
       displayPaidAmount,
@@ -313,16 +353,20 @@ function Home() {
   }, [displayRevenueAmount]);
 
   return (
-    <div
-      className="container-fluid home p-4"
-    >
-      <div className="row">
-        <div className="col-12 mb-4">
+    <div className="container-fluid home p-4">
+      {/* Row for welcome message */}
+      <div className="row mb-4">
+        <div className="col-12">
           <WelcomeMessage message="أهلاً ومرحباً بك في برنامج المحامي" />
         </div>
-        <div className="col-lg-4 col-12 col-md-5 d-flex align-items-center justify-content-center mb-3">
+      </div>
+
+      {/* Row for calendar and charts */}
+      <div className="row">
+        {/* Calendar Card */}
+        <div className="col-lg-4 col-md-5 col-12 mb-3 d-flex align-items-stretch">
           <div
-            className="card shadow-lg p-3 w-100"
+            className="card shadow-lg d-flex align-items-center justify-content-center p-3 w-100 h-100"
             style={{ border: "1px solid #dee2e6" }}
           >
             <Suspense fallback={<div>جاري تحميل التقويم...</div>}>
@@ -330,9 +374,11 @@ function Home() {
             </Suspense>
           </div>
         </div>
-        <div className="col-lg-8 col-12 col-md-7">
+
+        {/* Charts Section */}
+        <div className="col-lg-8 col-md-7 col-12">
           <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <div className="col-lg-4">
+            <div className="col">
               <Link to="/sessions" className="text-decoration-none">
                 <div
                   className="chart-container"
@@ -342,7 +388,7 @@ function Home() {
                 </div>
               </Link>
             </div>
-            <div className="col-xl-4 col-12">
+            <div className="col">
               <Link to="/cases" className="text-decoration-none">
                 <div
                   className="chart-container"
@@ -352,7 +398,7 @@ function Home() {
                 </div>
               </Link>
             </div>
-            <div className="col-xl-4 col-12">
+            <div className="col">
               <Link to="/customers" className="text-decoration-none">
                 <div
                   className="chart-container"
@@ -362,15 +408,7 @@ function Home() {
                 </div>
               </Link>
             </div>
-            <div className="col-xl-4 col-12">
-              <div
-                className="chart-container"
-                style={{ backgroundColor: "white", borderRadius: "8px" }}
-              >
-                <canvas ref={remainingAmountChartRef}></canvas>
-              </div>
-            </div>
-            <div className="col-xl-4 col-12">
+            <div className="col">
               <div
                 className="chart-container"
                 style={{ backgroundColor: "white", borderRadius: "8px" }}
@@ -378,7 +416,7 @@ function Home() {
                 <canvas ref={paidAmountChartRef}></canvas>
               </div>
             </div>
-            <div className="col-xl-4 col-12">
+            <div className="col">
               <div
                 className="chart-container"
                 style={{ backgroundColor: "white", borderRadius: "8px" }}
@@ -386,15 +424,7 @@ function Home() {
                 <canvas ref={contractsChartRef}></canvas>
               </div>
             </div>
-            <div className="col-xl-6 col-12">
-              <div
-                className="chart-container"
-                style={{ backgroundColor: "white", borderRadius: "8px" }}
-              >
-                <canvas ref={revenueChartRef}></canvas>
-              </div>
-            </div>
-            <div className="col-xl-6 col-12">
+            <div className="col-12">
               <div
                 className="chart-container"
                 style={{ backgroundColor: "white", borderRadius: "8px" }}
@@ -402,15 +432,28 @@ function Home() {
                 <canvas ref={expensesChartRef}></canvas>
               </div>
             </div>
+            <div className="col-12">
+              <div
+                className="chart-container"
+                style={{ backgroundColor: "white", borderRadius: "8px" }}
+              >
+                <canvas ref={revenueChartRef}></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div className="container-fluid mt-4">
-        <div className="row row-cols-1 row-cols-md-2 g-4">
-          <div className="col-lg-12 text-end">
-            <HotLinksTitle title="روابط سريعة" style={{ color: "#343a40" }} />
-          </div>
-          <div className="col-lg-3 col-6">
+
+      {/* Hot Links Section */}
+      <div className="row mt-4">
+        {/* Header for Hot Links */}
+        <div className="col-12 text-end">
+          <HotLinksTitle title="روابط سريعة" style={{ color: "#343a40" }} />
+        </div>
+
+        {/* Hot Links */}
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+          <div className="col">
             <HotLink
               title="الجلسات"
               icon="fa-solid fa-calendar-day"
@@ -423,11 +466,11 @@ function Home() {
               }}
             />
           </div>
-          <div className="col-lg-3 col-6">
+          <div className="col">
             <HotLink
-              title="قضية جديدة"
-              icon="fa-solid fa-plus-circle"
-              link="/add-case"
+              title="القضايا"
+              icon="fa-solid fa-folder-open"
+              link="/cases"
               style={{
                 backgroundColor: "#f0f0f0",
                 color: "#343a40",
@@ -436,7 +479,20 @@ function Home() {
               }}
             />
           </div>
-          <div className="col-lg-3 col-6">
+          <div className="col">
+            <HotLink
+              title="العملاء"
+              icon="fa-solid fa-users"
+              link="/customers"
+              style={{
+                backgroundColor: "#f0f0f0",
+                color: "#343a40",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                borderRadius: "8px",
+              }}
+            />
+          </div>
+          <div className="col">
             <HotLink
               title="المصروفات"
               icon="fa-solid fa-credit-card"
@@ -449,7 +505,7 @@ function Home() {
               }}
             />
           </div>
-          <div className="col-lg-3 col-6">
+          <div className="col">
             <HotLink
               title="الإعدادات"
               icon="fa-solid fa-cogs"
