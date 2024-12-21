@@ -71,108 +71,110 @@ function NavBar() {
     }
   };
 
-    const navItems = [
+  const navItems = [
+    {
+      name: "الصفحة الرئيسية",
+      link: "/",
+      icon: "fas fa-home",
+    },
+    {
+      name: "العملاء",
+      link: "/customers",
+      icon: "fas fa-users",
+      subItems: [
         {
-            name: "الصفحة الرئيسية",
-            link: "/",
-            icon: "fas fa-home",
+          name: "أنواع العملاء",
+          link: "/customer-categories",
+          icon: "fas fa-users-cog",
         },
         {
-            name: "العملاء",
-            link: "/customers",
-            icon: "fas fa-users",
-            subItems: [
-                {
-                    name: "أنواع العملاء",
-                    link: "/customer-categories",
-                    icon: "fas fa-users-cog",
-                },
-                {
-                    name: "إضافة عميل",
-                    link: "/AddCustomer",
-                    icon: "fas fa-user-plus",
-                },
-            ],
-        },
-        {
-            name: "القضايا",
-            link: "/cases",
-            icon: "fas fa-gavel",
-            subItems: [
-                {
-                    name: "أنواع القضايا",
-                    link: "/CaseTypes",
-                    icon: "fas fa-balance-scale",
-                },
-                {
-                    name: "إضافة قضية",
-                    link: "/add-case",
-                    icon: "fas fa-plus-circle",
-                },
-            ],
-        },
-        {
-            name: "الجلسات",
-            link: "/sessions",
-            icon: "fas fa-calendar-alt",
-        },
-        {
-            name: "المدفوعات",
-            link: "/payments",
-            icon: "fas fa-credit-card",
-            subItems: [
-                {
-                    name: "تقارير المدفوعات",
-                    link: "/PaymentReports",
-                    icon: "fas fa-file-alt",
-                },
-            ],
-        },
-        {
-            name: "الصور والملفات",
-            link: "/Attachments",
-            icon: "fas fa-image",
-        },
-        {
-            name: "المصروفات",
-            link: "/expenses",
-            icon: "fas fa-wallet",
-            subItems: [
-                {
-                    name: "إضافة مصروف",
-                    link: "/add-expense",
-                    icon: "fas fa-plus",
-                },
-                {
-                  name: "إضافة تصنيف مصاريف",
-                    link: "/AddExpenseCategory",
-                  icon: "fas fa-plus",
-              }
-            ],
-        },
-    ];
-    const authItems = [
-        {
-          name: "تسجيل الخروج",
-          action: handleLogout,
-          icon: "fas fa-sign-out-alt",
-        },
-        {
-          name: "تسجيل الدخول",
-          link: "/login",
-          icon: "fas fa-sign-in-alt",
-        },
-        {
-          name: "إنشاء حساب",
-          link: "/signup",
+          name: "إضافة عميل",
+          link: "/AddCustomer",
           icon: "fas fa-user-plus",
         },
-    ];
-
+      ],
+    },
+    {
+      name: "القضايا",
+      link: "/cases",
+      icon: "fas fa-gavel",
+      subItems: [
+        {
+          name: "أنواع القضايا",
+          link: "/CaseTypes",
+          icon: "fas fa-balance-scale",
+        },
+        {
+          name: "إضافة قضية",
+          link: "/add-case",
+          icon: "fas fa-plus-circle",
+        },
+      ],
+    },
+    {
+      name: "الجلسات",
+      link: "/sessions",
+      icon: "fas fa-calendar-alt",
+    },
+    {
+      name: "المدفوعات",
+      link: "/payments",
+      icon: "fas fa-credit-card",
+      subItems: [
+        {
+          name: "تقارير المدفوعات",
+          link: "/PaymentReports",
+          icon: "fas fa-file-alt",
+        },
+      ],
+    },
+    {
+      name: "الصور والملفات",
+      link: "/Attachments",
+      icon: "fas fa-image",
+    },
+    {
+      name: "المصروفات",
+      link: "/expenses",
+      icon: "fas fa-wallet",
+      subItems: [
+        {
+          name: "إضافة مصروف",
+          link: "/add-expense",
+          icon: "fas fa-plus",
+        },
+        {
+          name: "إضافة تصنيف مصاريف",
+          link: "/AddExpenseCategory",
+          icon: "fas fa-plus",
+        },
+      ],
+    },
+  ];
+  const authItems = [
+    {
+      name: "تسجيل الخروج",
+      action: handleLogout,
+      icon: "fas fa-sign-out-alt",
+    },
+    {
+      name: "تسجيل الدخول",
+      link: "/login",
+      icon: "fas fa-sign-in-alt",
+    },
+    {
+      name: "إنشاء حساب",
+      link: "/signup",
+      icon: "fas fa-user-plus",
+    },
+  ];
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg bg-body-tertiary">
+      <nav
+        className="navbar navbar-expand-lg"
+        style={{ backgroundColor: "#fff" }}
+      >
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
             <img src={logo} alt="Logo" className="logo-img me-2" />
@@ -181,12 +183,16 @@ function NavBar() {
             className="btn btn-outline-secondary ms-2"
             type="button"
             onClick={toggleFullScreen}
+            style={{ color: "#1a237e", borderColor: "#f0f0f0" }}
           >
-            <i className="fas fa-expand"></i>
+            <i className="fas fa-expand" style={{ color: "#1a237e" }}></i>
           </button>
 
           {username && (
-            <span className="navbar-text ms-auto text-dark fw-bold">
+            <span
+              className="navbar-text ms-auto fw-bold"
+              style={{ color: "#1a237e" }}
+            >
               مرحبًا، {username.name.toUpperCase()}
             </span>
           )}
@@ -197,8 +203,9 @@ function NavBar() {
             data-bs-toggle="offcanvas"
             data-bs-target="#offcanvasSidebar"
             aria-controls="offcanvasSidebar"
+            style={{ color: "#1a237e", borderColor: "#f0f0f0" }}
           >
-            <i className="fas fa-bars"></i>
+            <i className="fas fa-bars" style={{ color: "#1a237e" }}></i>
           </button>
         </div>
       </nav>
@@ -208,7 +215,7 @@ function NavBar() {
         tabIndex="-1"
         id="offcanvasSidebar"
         aria-labelledby="offcanvasSidebarLabel"
-        style={{ width: "300px" }}
+        style={{ width: "300px", backgroundColor: "#fff" }}
       >
         <div className="offcanvas-body">
           <ul className="nav flex-column text-end">
@@ -217,14 +224,24 @@ function NavBar() {
                 {item.link ? (
                   <Link
                     to={item.link}
-                    className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link"
+                    className="nav-link d-flex justify-content-between align-items-center fw-bold sidebar-link"
+                    style={{ color: "#1a237e" }}
                   >
-                    <i className={`${item.icon} me-2 fs-5`}></i>
+                    <i
+                      className={`${item.icon} me-2 fs-5`}
+                      style={{ color: "#1a237e" }}
+                    ></i>
                     <span>{item.name}</span>
                   </Link>
                 ) : (
-                  <span className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link">
-                    <i className={`${item.icon} me-2 fs-5`}></i>
+                  <span
+                    className="nav-link d-flex justify-content-between align-items-center fw-bold sidebar-link"
+                    style={{ color: "#1a237e" }}
+                  >
+                    <i
+                      className={`${item.icon} me-2 fs-5`}
+                      style={{ color: "#1a237e" }}
+                    ></i>
                     <span>{item.name}</span>
                   </span>
                 )}
@@ -235,9 +252,13 @@ function NavBar() {
                       <li key={subIndex} className="nav-item sidebar-subitem">
                         <Link
                           to={subItem.link}
-                          className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-sublink"
+                          className="nav-link d-flex justify-content-between align-items-center fw-bold sidebar-sublink"
+                          style={{ color: "#1a237e" }}
                         >
-                          <i className={`${subItem.icon} me-2 fs-6`}></i>
+                          <i
+                            className={`${subItem.icon} me-2 fs-6`}
+                            style={{ color: "#1a237e" }}
+                          ></i>
                           <span>{subItem.name}</span>
                         </Link>
                       </li>
@@ -249,10 +270,14 @@ function NavBar() {
             {token ? (
               <li className="nav-item sidebar-item">
                 <button
-                  className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-button"
+                  className="nav-link d-flex justify-content-between align-items-center fw-bold sidebar-button"
                   onClick={authItems[0].action}
+                  style={{ color: "#1a237e" }}
                 >
-                  <i className={`${authItems[0].icon} me-2 fs-5`}></i>
+                  <i
+                    className={`${authItems[0].icon} me-2 fs-5`}
+                    style={{ color: "#1a237e" }}
+                  ></i>
                   <span>{authItems[0].name}</span>
                 </button>
               </li>
@@ -261,9 +286,13 @@ function NavBar() {
                 <li key={index} className="nav-item sidebar-item">
                   <Link
                     to={item.link}
-                    className="nav-link d-flex justify-content-between align-items-center text-dark fw-bold sidebar-link"
+                    className="nav-link d-flex justify-content-between align-items-center fw-bold sidebar-link"
+                    style={{ color: "#1a237e" }}
                   >
-                    <i className={`${item.icon} me-2 fs-5`}></i>
+                    <i
+                      className={`${item.icon} me-2 fs-5`}
+                      style={{ color: "#1a237e" }}
+                    ></i>
                     <span>{item.name}</span>
                   </Link>
                 </li>

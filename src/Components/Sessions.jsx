@@ -185,9 +185,16 @@ function Sessions() {
   }) {
     return (
       <div className="col-xl-4 my-3">
-        <div className="card h-100 session-card" dir="rtl">
-          <div className="card-header bg-dark text-white text-end session-card-header d-flex justify-content-between align-items-center">
-            <h5 className="card-title mb-0 text-start flex-grow-1 ps-2">
+        <div
+          className="card h-100 session-card"
+          dir="rtl"
+          style={{ backgroundColor: "#fff" }}
+        >
+          <div
+            className="card-header session-card-header text-white d-flex justify-content-between align-items-center"
+            style={{ backgroundColor: "#1a237e" }}
+          >
+            <h5 className="card-title mb-0 text-start flex-grow-1 ps-2 w-100 text-end">
               {session.title}
             </h5>
             <i className="fas fa-calendar-alt fs-4 me-2"></i>
@@ -195,41 +202,65 @@ function Sessions() {
           <div className="card-body">
             <div className="d-flex flex-column gap-2">
               <div className="d-flex justify-content-between align-items-center">
-                <span className="text-bold me-2" style={{ fontSize: "1.1rem" }}>
+                <span
+                  className="text-bold me-2"
+                  style={{ fontSize: "1.1rem", color: "#343a40" }}
+                >
                   <i className="fas fa-list-ol ms-2"></i>
                   رقم القضية:
                 </span>
-                <span className="text-start" style={{ fontSize: "1rem" }}>
+                <span
+                  className="text-start"
+                  style={{ fontSize: "1rem", color: "#343a40" }}
+                >
                   {session.case_number}
                 </span>
               </div>
               <hr className="my-2" style={{ margin: "5px 0" }} />
               <div className="d-flex justify-content-between align-items-center">
-                <span className="text-bold me-2" style={{ fontSize: "1.1rem" }}>
+                <span
+                  className="text-bold me-2"
+                  style={{ fontSize: "1.1rem", color: "#343a40" }}
+                >
                   <i className="fas fa-user ms-2"></i>
                   اسم الموكل:
                 </span>
-                <span className="text-start" style={{ fontSize: "1rem" }}>
+                <span
+                  className="text-start"
+                  style={{ fontSize: "1rem", color: "#343a40" }}
+                >
                   {session.customer_name}
                 </span>
               </div>
               <hr className="my-2" style={{ margin: "5px 0" }} />
               <div className="d-flex justify-content-between align-items-start">
-                <span className="text-bold me-2" style={{ fontSize: "1.1rem" }}>
+                <span
+                  className="text-bold me-2"
+                  style={{ fontSize: "1.1rem", color: "#343a40" }}
+                >
                   <i className="fas fa-info-circle ms-2"></i>
                   ملخص الجلسة:
                 </span>
-                <span className="text-start" style={{ fontSize: "1rem" }}>
+                <span
+                  className="text-start"
+                  style={{ fontSize: "1rem", color: "#343a40" }}
+                >
                   {session.description}
                 </span>
               </div>
               <hr className="my-2" style={{ margin: "5px 0" }} />
               <div className="d-flex justify-content-between align-items-center">
-                <span className="text-bold me-2" style={{ fontSize: "1.1rem" }}>
+                <span
+                  className="text-bold me-2"
+                  style={{ fontSize: "1.1rem", color: "#343a40" }}
+                >
                   <i className="fas fa-calendar ms-2"></i>
                   تاريخ الجلسة:
                 </span>
-                <span className="text-start" style={{ fontSize: "1rem" }}>
+                <span
+                  className="text-start"
+                  style={{ fontSize: "1rem", color: "#343a40" }}
+                >
                   {session.date}
                 </span>
               </div>
@@ -239,18 +270,21 @@ function Sessions() {
               <button
                 className="btn btn-info btn-sm session-button"
                 onClick={() => handleShowDetails(session)}
+                style={{ backgroundColor: "#0dcaf0", color: "#fff" }}
               >
                 <i className="fa fa-info-circle ms-1"></i> تفاصيل
               </button>
               <button
                 className="btn btn-primary btn-sm session-button"
                 onClick={() => handleEditSession(session)}
+                style={{ backgroundColor: "#0d6efd", color: "#fff" }}
               >
                 <i className="fa fa-edit ms-1"></i> تعديل
               </button>
               <button
                 className="btn btn-danger btn-sm session-button"
                 onClick={() => handleDeleteSession(session)}
+                style={{ backgroundColor: "#dc3545", color: "#fff" }}
               >
                 <i className="fa fa-trash-alt ms-1"></i> حذف
               </button>
@@ -277,13 +311,13 @@ function Sessions() {
             className="modal-content"
             style={{
               borderWidth: "3px",
-              borderColor: "#343a40",
+              borderColor: "#1a237e",
               boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
             }}
           >
             <div
-              className="modal-header bg-dark text-white d-flex justify-content-between align-items-center"
-              style={{ padding: "15px" }}
+              className="modal-header text-white d-flex justify-content-between align-items-center"
+              style={{ padding: "15px", backgroundColor: "#1a237e" }}
             >
               <h5
                 className="modal-title m-0 text-end w-100"
@@ -788,27 +822,21 @@ function Sessions() {
             className="modal-content"
             style={{
               borderWidth: "3px",
-              borderColor: "#343a40",
+              borderColor: "#1a237e",
               boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
             }}
           >
             <div
-              className="modal-header bg-dark text-white d-flex justify-content-between align-items-center"
-              style={{ padding: "15px" }}
+              className="modal-header text-white d-flex justify-content-between align-items-center"
+              style={{ padding: "15px", backgroundColor: "#1a237e" }}
             >
               <h5
-                className="modal-title m-0"
+                className="modal-title m-0 text-end"
                 id="editSessionModalLabel"
                 style={{ fontSize: "1.4rem" }}
               >
                 تعديل الجلسة
               </h5>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={onClose}
-                aria-label="Close"
-              ></button>
             </div>
             <div className="modal-body" dir="rtl" style={{ padding: "20px" }}>
               {editSessionData && (
@@ -945,15 +973,18 @@ function Sessions() {
   }
 
   return (
-    <div className="sessions my-4">
+    <div
+      className="sessions my-4"
+      style={{ backgroundColor: "#f0f0f0", minHeight: "100vh" }}
+    >
       <div
         className=" container  py-5 mb-4 d-flex align-items-center justify-content-between"
         style={{ direction: "rtl" }}
       >
         <div className="col-xl-6 col-12">
           <div className="d-flex align-items-center">
-            <i className="fas fa-calendar-alt me-2 ms-3"></i>
-            <h2 className="mb-0" style={{ fontWeight: "bold" }}>
+            <i className="fas fa-calendar-alt me-2 ms-3" style={{ color: "#1a237e" }}></i>
+            <h2 className="mb-0" style={{ fontWeight: "bold", color: "#1a237e" }}>
               إدارة الجلسات
             </h2>
           </div>
@@ -962,13 +993,13 @@ function Sessions() {
           <div className="me-auto" style={{ maxWidth: "300px" }}>
             <input
               type="text"
-              className="form-control"
+              className="form-control text-end"
               placeholder="ابحث عن جلسة..."
               value={searchTerm}
               onChange={handleSearch}
               style={{
                 borderWidth: "2px",
-                borderColor: "#0d6efd",
+                borderColor: "#64b5f6",
                 boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
                 fontSize: "1rem",
                 padding: "10px",

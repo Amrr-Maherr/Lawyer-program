@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -63,7 +64,7 @@ const ForgotPassword = () => {
       console.error("Network error:", error);
       Swal.fire({
         title: "خطأ في الاتصال!",
-        text: "حدث خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
+        text: "حدث خطأ أثناء الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
         icon: "error",
         confirmButtonText: "موافق",
       });
@@ -76,19 +77,24 @@ const ForgotPassword = () => {
 
   return (
     <div className="container" style={{ direction: "rtl" }}>
-      <div className="row justify-content-center vh-100 d-flex align-items-center justify-content-center">
+      <div className="row justify-content-center align-items-center vh-100">
         <div className="col-md-6">
-          <div className="card hover shadow-lg p-4 mt-5">
-            <h2 className="text-center">نسيان كلمة المرور</h2>
+          <div className="card shadow-lg p-4">
+            <h2
+              className="text-center mb-4 fw-bold"
+              style={{ fontSize: "2rem" }}
+            >
+              نسيان كلمة المرور
+            </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label htmlFor="email" className="form-label">
+                <label htmlFor="email" className="form-label fw-bold fs-5">
                   البريد الإلكتروني
                 </label>
                 <input
                   type="email"
                   id="email"
-                  className="form-control"
+                  className="form-control border-2"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="أدخل بريدك الإلكتروني"
@@ -97,8 +103,9 @@ const ForgotPassword = () => {
 
               <button
                 type="submit"
-                className="btn btn-dark w-100"
+                className="btn btn-dark w-100 fw-bold"
                 disabled={loading}
+                style={{ fontSize: "1.1rem" }}
               >
                 {loading
                   ? "جاري إرسال الرابط..."

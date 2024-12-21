@@ -7,6 +7,7 @@ const CustomerCategories = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [newCategory, setNewCategory] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // 1. إضافة state isSubmitting
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -29,6 +30,7 @@ const CustomerCategories = () => {
       Swal.fire("حدث خطأ", "فشل في تحميل أنواع العملاء.", "error");
     } finally {
       setLoading(false);
+      Swal.close(); // 2. اغلاق رسالة التحميل عند الانتهاء
     }
   };
 
@@ -63,35 +65,43 @@ const CustomerCategories = () => {
       return;
     }
 
-    const confirmDelete = await Swal.fire({
-      title: "هل أنت متأكد؟",
-      text: "لن تتمكن من استرجاع البيانات بعد الحذف.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "نعم، حذف!",
-      cancelButtonText: "إلغاء",
-    });
+    setIsSubmitting(true);
+    try {
+      // First, try to delete the category
+      await axios.delete(
+        `https://law-office.al-mosa.com/api/category/${categoryId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    if (confirmDelete.isConfirmed) {
-      setLoading(true);
-      try {
-        await axios.delete(
-          `https://law-office.al-mosa.com/api/category/${categoryId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        Swal.fire("تم الحذف بنجاح", "تم حذف نوع العميل.", "success");
-        fetchCategories();
-      } catch (err) {
+      Swal.fire("تم الحذف بنجاح", "تم حذف نوع العميل بنجاح.", "success").then(
+        () => {
+          // Update categories state immediately
+          fetchCategories();
+        }
+      );
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        if (
+          err.response.data.message.includes("foreign key constraint fails")
+        ) {
+          Swal.fire({
+            title: "تحذير",
+            text: "هذا النوع مرتبط بعملاء، يرجى حذف العملاء المرتبطين أولاً.",
+            icon: "warning",
+            confirmButtonText: "حسناً",
+          });
+        } else {
+          Swal.fire("حدث خطأ", "فشل في حذف نوع العميل.", "error");
+        }
+      } else {
         Swal.fire("حدث خطأ", "فشل في حذف نوع العميل.", "error");
-      } finally {
-        setLoading(false);
       }
-    } else {
-      Swal.fire("تم الإلغاء", "لم يتم حذف نوع العميل.", "info");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -108,8 +118,6 @@ const CustomerCategories = () => {
         Swal.showLoading();
       },
     });
-  } else {
-    Swal.close();
   }
 
   if (error) {
@@ -117,7 +125,10 @@ const CustomerCategories = () => {
   }
 
   return (
-    <div className="container-fluid px-0 my-4">
+    <div
+      className="container-fluid px-0 my-4"
+      style={{ backgroundColor: "#f0f0f0" }}
+    >
       <div className="container">
         <div className="row align-items-center justify-content-center mb-4">
           <div className="col-12 col-md-4 mb-2">
@@ -129,7 +140,7 @@ const CustomerCategories = () => {
               placeholder="أدخل نوع العميل الجديد"
               style={{
                 borderWidth: "2px",
-                borderColor: "#0d6efd",
+                borderColor: "#64b5f6",
                 boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
                 fontSize: "1rem",
                 padding: "10px",
@@ -141,12 +152,18 @@ const CustomerCategories = () => {
             <button
               className="btn btn-dark btn-lg w-100 d-flex align-items-center justify-content-center"
               onClick={handleAddCategory}
+              style={{ backgroundColor: "#1a237e", color: "#fff" }}
             >
               <i className="fas fa-plus me-2"></i> إضافة نوع عميل جديد
             </button>
           </div>
           <div className="col-12 col-md-4 mb-2">
-            <h2 className="text-center py-2 fs-2 fw-bold">أنواع العملاء</h2>
+            <h2
+              className="text-center py-2 fs-2 fw-bold"
+              style={{ color: "#1a237e" }}
+            >
+              أنواع العملاء
+            </h2>
           </div>
         </div>
       </div>
@@ -159,15 +176,26 @@ const CustomerCategories = () => {
                 key={category.id}
                 className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
               >
-                <div className="card shadow-sm border h-100">
+                <div
+                  className="card shadow-sm border h-100"
+                  style={{ borderColor: "#ced4da" }}
+                >
                   <div className="card-body d-flex justify-content-between align-items-center">
                     <button
                       className="btn btn-outline-danger btn-sm rounded-circle"
                       onClick={() => handleDelete(category.id)}
+                      style={{
+                        backgroundColor: "#f8d7da",
+                        borderColor: "#dc3545",
+                        color: "#dc3545",
+                      }}
                     >
                       <i className="fas fa-trash"></i>
                     </button>
-                    <h5 className="card-title mb-0 text-end">
+                    <h5
+                      className="card-title mb-0 text-end"
+                      style={{ color: "#343a40" }}
+                    >
                       {category.name}
                     </h5>
                   </div>

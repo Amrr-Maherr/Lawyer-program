@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -27,13 +27,17 @@ const Modal = ({
           className="modal-content"
           style={{
             borderWidth: "3px",
-            borderColor: "#343a40",
+            borderColor: "#64b5f6", // لون حواف المودال
             boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
           }}
         >
           <div
-            className="modal-header bg-dark text-white"
-            style={{ padding: "15px" }}
+            className="modal-header"
+            style={{
+              padding: "15px",
+              backgroundColor: "#1a237e", // لون خلفية الهيدر
+              color: "#fff", // لون نص الهيدر
+            }}
           >
             <h5
               className="modal-title text-end w-100"
@@ -102,6 +106,51 @@ const apiRequest = async (url, method, data = null, headers = {}, navigate) => {
     throw new Error(errorMessage);
   }
 };
+
+// Reusable input component
+const FormInput = React.memo(
+  ({ label, name, type = "text", value, onChange, options = null }) => {
+    const inputType = type === "select" ? "select" : "input";
+
+    return (
+      <div className="mb-3">
+        <label className="form-label text-end w-100">{label}</label>
+        {inputType === "input" ? (
+          <input
+            type={type}
+            className="form-control text-end"
+            name={name}
+            value={value}
+            onChange={onChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+            }}
+          />
+        ) : (
+          <select
+            className="form-select text-end"
+            name={name}
+            value={value}
+            onChange={onChange}
+            style={{
+              fontSize: "1rem",
+              padding: "10px",
+              border: "1px solid #64b5f6", // لون حواف القائمة المنسدلة
+            }}
+          >
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+    );
+  }
+);
 const Cases = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -599,8 +648,9 @@ const Cases = () => {
         {},
         navigate
       );
+      console.log("API response for expenses:", response);
       setCaseExpenses(response.expenses);
-      setTotalExpenses(response.total_expenses);
+      setTotalExpenses(parseFloat(response["مصروفات القضية الكلية"]));
       setShowExpensesModal(true);
       Swal.close();
     } catch (error) {
@@ -693,8 +743,9 @@ const Cases = () => {
             {},
             navigate
           );
+          console.log("API response for expenses after delete:", response);
           setCaseExpenses(response.expenses);
-          setTotalExpenses(response.total_expenses);
+          setTotalExpenses(parseFloat(response["مصروفات القضية الكلية"]));
         } catch (error) {
           Swal.fire(
             "حدث خطأ!",
@@ -752,8 +803,9 @@ const Cases = () => {
         {},
         navigate
       );
+      console.log("API response for expenses after edit:", response);
       setCaseExpenses(response.expenses);
-      setTotalExpenses(response.total_expenses);
+      setTotalExpenses(parseFloat(response["مصروفات القضية الكلية"]));
       Swal.fire("تم تعديل المصروف بنجاح!", "", "success");
       handleCloseEditExpenseModal();
     } catch (error) {
@@ -768,7 +820,7 @@ const Cases = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid" style={{ backgroundColor: "#f0f0f0" }}>
       <div className="container">
         <div className="row align-items-center">
           <div className="col-md-6 col-12 my-4 ">
@@ -780,7 +832,7 @@ const Cases = () => {
               onChange={handleSearch}
               style={{
                 borderWidth: "2px",
-                borderColor: "#0d6efd",
+                borderColor: "#64b5f6", // لون حواف مربع البحث
                 boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
                 fontSize: "1rem",
                 padding: "10px",
@@ -799,9 +851,15 @@ const Cases = () => {
             <div className="col" key={item.case_id}>
               <div className="card h-100 case-card" dir="rtl">
                 {/* بداية رأس الكارت (Card Header) */}
-                <div className="card-header case-card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <div
+                  className="card-header case-card-header  d-flex justify-content-between align-items-center"
+                  style={{
+                    backgroundColor: "#1a237e", // لون خلفية رأس الكارت
+                    color: "#fff", // لون نص رأس الكارت
+                  }}
+                >
                   {/* اسم العميل (نص ديناميكي) */}
-                  <h5 className="card-title m-0 text-start flex-grow-1 ps-2">
+                  <h5 className="card-title m-0 text-start flex-grow-1 ps-2 w-100 text-end">
                     {item.customer_name}
                   </h5>
                   {/* أيقونة المستخدم (فاصل بصري) */}
@@ -909,7 +967,7 @@ const Cases = () => {
                   <div className="d-flex flex-wrap justify-content-center gap-2 mt-2">
                     {/* ... (أزرار الإجراءات لم تتغير) ... */}
                     <button
-                      className="btn btn-info btn-sm case-button"
+                      className="btn btn-info btn-sm                       case-button"
                       onClick={() =>
                         handleDetails(item.customer_id, item.case_id)
                       }
@@ -923,6 +981,7 @@ const Cases = () => {
                         handleDelete(item.customer_id, item.case_id)
                       }
                     >
+                      {" "}
                       <i className="fa fa-trash-alt ms-1"></i> حذف
                     </button>
                     {/* زر الدفع (مع فاصل أيقونة ونص) */}
@@ -960,7 +1019,7 @@ const Cases = () => {
                       className="btn btn-warning btn-sm case-button"
                       onClick={() => handleOpenEditModal(item)}
                     >
-                      <i className="fa fa-edit ms-1"></i> تعديل
+                      <i className="fafa-edit ms-1"></i> تعديل
                     </button>
                     {/* زر عرض المصاريف (مع فاصل أيقونة ونص) */}
                     <button
@@ -999,554 +1058,687 @@ const Cases = () => {
       {/* Case Details Modal */}
       <Modal
         isOpen={showModal}
-        title="تفاصيل القضية"
         onClose={handleCloseModal}
         modalSize={"modal-dialog modal-dialog-scrollable"}
       >
         {selectedCase && (
-          <>
-            <table
-              className="table table-hover table-bordered"
-              style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+          <div
+            className="case-details-container"
+            style={{
+              fontFamily: "Arial",
+              direction: "rtl",
+              textAlign: "right",
+              padding: "20px",
+            }}
+          >
+            {/* Case Information Section */}
+            <h3
+              style={{
+                marginBottom: "15px",
+                textAlign: "right",
+                fontWeight: "bold",
+                fontSize: "1.3em",
+                borderBottom: "2px solid #eee",
+                paddingBottom: "5px",
+              }}
             >
-              <tbody>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    رقم الدعوى القضائية:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.case_number}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    اسم المدعى عليه/الخصم:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.opponent_name}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    هاتف المدعى عليه/الخصم:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.opponent_phone}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    جنسية المدعى عليه/الخصم:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.opponent_nation}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    عنوان المدعى عليه/الخصم:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.opponent_address}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    اسم محامي المدعى عليه/الخصم:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.opponent_lawyer}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    هاتف محامي المدعى عليه/الخصم:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.lawyer_phone}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    المحكمة المنظورة أمامها الدعوى:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.court_name}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    اسم القاضي/الدائرة المنظورة أمامها الدعوى:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.judge_name}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    موضوع الدعوى:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.case_title}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    أتعاب المحاماة (المتفق عليها):
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.contract_price}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    ملاحظات/ملخص القضية:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case.notes}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    المبالغ المسددة من الأتعاب:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.paid_amount}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    المبلغ المتبقي من الأتعاب:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.remaining_amount}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <h4
-              className="text-end mt-3"
-              style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+              معلومات القضية
+            </h3>
+            <div
+              className="case-info"
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                marginBottom: "20px",
+                justifyContent: "space-between",
+              }}
             >
-              تفاصيل الموكل:
-            </h4>
-            <table
-              className="table table-hover table-bordered"
-              style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+              <div
+                className="form-group"
+                style={{ width: "30%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  اسم المحكمة:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.court_name}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "30%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  رقم القضية:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.case_number}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "30%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  عنوان القضية:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.case_title}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "30%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  اسم القاضي:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.judge_name}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "30%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  فئة القضية:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case_category.name}
+                </div>
+              </div>
+            </div>
+            {/* Customer Information Section */}
+            <h3
+              style={{
+                marginBottom: "15px",
+                textAlign: "right",
+                fontWeight: "bold",
+                fontSize: "1.3em",
+                borderBottom: "2px solid #eee",
+                paddingBottom: "5px",
+              }}
             >
-              <tbody>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    اسم الموكل:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.customer.name}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    البريد الإلكتروني الخاص بالموكل:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.customer.email}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    رقم الهوية/الإقامة الخاص بالموكل:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.customer.ID_number}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    رقم الهاتف الخاص بالموكل:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.customer.phone}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    عنوان إقامة الموكل:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.customer.address}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    جنسية الموكل/المقيم:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.customer.nationality}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    اسم الشركة (إن وجد):
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.customer.company_name}
-                  </td>
-                </tr>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
-                    style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
-                    }}
-                  >
-                    ملاحظات/بيانات إضافية عن الموكل:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      wordWrap: "break-word",
-                      whiteSpace: "normal",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.customer.notes}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <h4
-              className="text-end mt-3"
-              style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+              معلومات العميل
+            </h3>
+            <div
+              className="customer-info"
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                marginBottom: "20px",
+                justifyContent: "space-between",
+              }}
             >
-              تصنيف الدعوى:
-            </h4>
-            <table
-              className="table table-hover table-bordered"
-              style={{ fontSize: "1.1rem", borderCollapse: "collapse" }}
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  إسم العميل:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.customer.name}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  عنوان العميل:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.customer.address}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  البريد الالكتروني للعميل:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.customer.email}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  رقم الهوية للعميل:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.customer.ID_number}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  جنسية العميل:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.customer.nationality}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  اسم شركة العميل:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.customer.company_name}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "100%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  ملاحظات العميل:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.customer.notes}
+                </div>
+              </div>
+            </div>
+
+            {/* Opponent Information Section */}
+            <h3
+              style={{
+                marginBottom: "15px",
+                textAlign: "right",
+                fontWeight: "bold",
+                fontSize: "1.3em",
+                borderBottom: "2px solid #eee",
+                paddingBottom: "5px",
+              }}
             >
-              <tbody>
-                <tr style={{ lineHeight: "2.2rem" }}>
-                  <th
-                    className="text-end"
+              معلومات الخصم
+            </h3>
+            <div
+              className="opponent-info"
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                marginBottom: "20px",
+                justifyContent: "space-between",
+              }}
+            >
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  إسم الخصم:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.opponent_name}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  عنوان الخصم:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.opponent_address}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  نوع الخصم:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.opponent_type}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  هاتف الخصم:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.opponent_phone}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  جنسية الخصم:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.opponent_nation}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  اسم محامي الخصم:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.opponent_lawyer}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  هاتف محامي الخصم:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.lawyer_phone}
+                </div>
+              </div>
+            </div>
+            {/* Payment Information Section */}
+            <h3
+              style={{
+                marginBottom: "15px",
+                textAlign: "right",
+                fontWeight: "bold",
+                fontSize: "1.3em",
+                borderBottom: "2px solid #eee",
+                paddingBottom: "5px",
+              }}
+            >
+              معلومات الدفع
+            </h3>
+            <div
+              className="payment-info"
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                marginBottom: "20px",
+                justifyContent: "space-between",
+              }}
+            >
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  اتعاب المحاماه:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.contract_price}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  المسدد من الاتعاب:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.paid_amount}
+                </div>
+              </div>
+              <div
+                className="form-group"
+                style={{ width: "48%", marginBottom: "10px" }}
+              >
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  المتبقي من الاتعاب:
+                </label>
+                <div
+                  style={{
+                    padding: "12px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.remaining_amount}
+                </div>
+              </div>
+            </div>
+            {/* Expenses Table */}
+            <h3
+              style={{
+                marginBottom: "15px",
+                textAlign: "right",
+                fontWeight: "bold",
+                fontSize: "1.3em",
+                borderBottom: "2px solid #eee",
+                paddingBottom: "5px",
+              }}
+            >
+              مصاريف القضية
+            </h3>
+            {selectedCase.case_expenses &&
+              selectedCase.case_expenses.length > 0 && (
+                <div
+                  className="expenses-table"
+                  style={{ marginBottom: "20px" }}
+                >
+                  <table
+                    className="table table-bordered"
                     style={{
-                      backgroundColor: "#f8f9fa",
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                      width: "25%",
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      marginTop: "20px",
                     }}
                   >
-                    فئة الدعوى:
-                  </th>
-                  <td
-                    className="text-end"
-                    style={{
-                      padding: "10px",
-                      border: "2px solid #6c757d",
-                    }}
-                  >
-                    {selectedCase.case_category.name}
-                  </td>
-                </tr>
-              </tbody>
-            </table>{" "}
-          </>
+                    <thead>
+                      <tr>
+                        <th
+                          style={{
+                            backgroundColor: "#f0f0f0",
+                            border: "2px solid #ccc",
+                            padding: "12px",
+                            textAlign: "center",
+                            fontSize: "1.2em",
+                          }}
+                        >
+                          رقم المصروف
+                        </th>
+                        <th
+                          style={{
+                            backgroundColor: "#f0f0f0",
+                            border: "2px solid #ccc",
+                            padding: "12px",
+                            textAlign: "center",
+                            fontSize: "1.2em",
+                          }}
+                        >
+                          تاريخ المصروف
+                        </th>
+                        <th
+                          style={{
+                            backgroundColor: "#f0f0f0",
+                            border: "2px solid #ccc",
+                            padding: "12px",
+                            textAlign: "center",
+                            fontSize: "1.2em",
+                          }}
+                        >
+                          المبلغ
+                        </th>
+                        <th
+                          style={{
+                            backgroundColor: "#f0f0f0",
+                            border: "2px solid #ccc",
+                            padding: "12px",
+                            textAlign: "center",
+                            fontSize: "1.2em",
+                          }}
+                        >
+                          ملاحظات
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedCase.case_expenses.map((expense, index) => (
+                        <tr key={expense.id}>
+                          <td
+                            style={{
+                              border: "2px solid #ccc",
+                              padding: "12px",
+                              textAlign: "center",
+                              fontSize: "1.2em",
+                            }}
+                          >
+                            {index + 1}
+                          </td>
+                          <td
+                            style={{
+                              border: "2px solid #ccc",
+                              padding: "12px",
+                              textAlign: "center",
+                              fontSize: "1.2em",
+                            }}
+                          >
+                            {expense.date}
+                          </td>
+                          <td
+                            style={{
+                              border: "2px solid #ccc",
+                              padding: "12px",
+                              textAlign: "center",
+                              fontSize: "1.2em",
+                            }}
+                          >
+                            {expense.amount}
+                          </td>
+                          <td
+                            style={{
+                              border: "2px solid #ccc",
+                              padding: "12px",
+                              textAlign: "center",
+                              fontSize: "1.2em",
+                            }}
+                          >
+                            {expense.title}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            {/* Footer Information */}
+            <div
+              className="footer"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                borderTop: "2px solid #ccc",
+                paddingTop: "15px",
+                marginTop: "25px",
+              }}
+            >
+              <div style={{ textAlign: "center" }}>
+                <label style={{ fontWeight: "bold", fontSize: "1.2em" }}>
+                  آخر ما تم في القضية:
+                </label>
+                <div
+                  style={{
+                    padding: "10px",
+                    border: "2px solid #ccc",
+                    borderRadius: "5px",
+                    textAlign: "center",
+                    fontSize: "1.2em",
+                  }}
+                >
+                  {selectedCase.case.notes}
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </Modal>
       {/* Payment Modal */}
@@ -1566,7 +1758,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -1581,7 +1773,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -1596,7 +1788,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -1610,7 +1802,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           >
             <option value="cash">كاش</option>
@@ -1654,7 +1846,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -1669,7 +1861,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -1683,7 +1875,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -1727,7 +1919,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1744,7 +1936,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1761,7 +1953,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1778,7 +1970,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1795,7 +1987,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1812,7 +2004,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1829,7 +2021,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1846,7 +2038,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1863,7 +2055,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1878,7 +2070,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1895,7 +2087,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1912,7 +2104,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1927,7 +2119,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1944,7 +2136,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1961,7 +2153,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1978,7 +2170,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -1995,7 +2187,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -2012,7 +2204,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -2029,7 +2221,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -2046,7 +2238,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -2061,7 +2253,7 @@ const Cases = () => {
               style={{
                 fontSize: "1rem",
                 padding: "10px",
-                border: "1px solid #6c757d",
+                border: "1px solid #64b5f6", // لون حواف حقول الإدخال
               }}
             />
           </div>
@@ -2085,7 +2277,6 @@ const Cases = () => {
           </button>
         </div>
       </Modal>
-      {/* Attachment Modal */}
       <Modal
         isOpen={showAttachmentModal}
         title="إضافة مرفق"
@@ -2102,7 +2293,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -2116,7 +2307,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -2159,7 +2350,7 @@ const Cases = () => {
                     style={{
                       backgroundColor: "#f8f9fa",
                       padding: "10px",
-                      border: "2px solid #6c757d",
+                      border: "2px solid #64b5f6", // لون حواف الجدول
                       width: "8%",
                     }}
                   >
@@ -2170,7 +2361,7 @@ const Cases = () => {
                     style={{
                       backgroundColor: "#f8f9fa",
                       padding: "10px",
-                      border: "2px solid #6c757d",
+                      border: "2px solid #64b5f6", // لون حواف الجدول
                       width: "35%",
                     }}
                   >
@@ -2181,7 +2372,7 @@ const Cases = () => {
                     style={{
                       backgroundColor: "#f8f9fa",
                       padding: "10px",
-                      border: "2px solid #6c757d",
+                      border: "2px solid #64b5f6", // لون حواف الجدول
                       width: "25%",
                     }}
                   >
@@ -2192,7 +2383,7 @@ const Cases = () => {
                     style={{
                       backgroundColor: "#f8f9fa",
                       padding: "10px",
-                      border: "2px solid #6c757d",
+                      border: "2px solid #64b5f6", // لون حواف الجدول
                       width: "20%",
                     }}
                   >
@@ -2203,7 +2394,7 @@ const Cases = () => {
                     style={{
                       backgroundColor: "#f8f9fa",
                       padding: "10px",
-                      border: "2px solid #6c757d",
+                      border: "2px solid #64b5f6", // لون حواف الجدول
                       width: "12%",
                     }}
                   >
@@ -2220,31 +2411,31 @@ const Cases = () => {
                   >
                     <td
                       className="text-end"
-                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                      style={{ padding: "10px", border: "2px solid #64b5f6" }} // لون حواف الجدول
                     >
                       {index + 1}
                     </td>
                     <td
                       className="text-end"
-                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                      style={{ padding: "10px", border: "2px solid #64b5f6" }} // لون حواف الجدول
                     >
                       {expense.title}
                     </td>
                     <td
                       className="text-end"
-                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                      style={{ padding: "10px", border: "2px solid #64b5f6" }} // لون حواف الجدول
                     >
                       {parseFloat(expense.amount).toFixed(2)} ج.م
                     </td>
                     <td
                       className="text-end"
-                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                      style={{ padding: "10px", border: "2px solid #64b5f6" }} // لون حواف الجدول
                     >
                       {new Date(expense.date).toLocaleDateString("ar-EG")}
                     </td>
                     <td
                       className="text-end"
-                      style={{ padding: "10px", border: "2px solid #6c757d" }}
+                      style={{ padding: "10px", border: "2px solid #64b5f6" }} // لون حواف الجدول
                     >
                       <button
                         className="btn btn-sm btn-outline-danger ms-1"
@@ -2301,7 +2492,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -2316,7 +2507,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -2331,7 +2522,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -2371,7 +2562,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -2386,7 +2577,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -2401,7 +2592,7 @@ const Cases = () => {
             style={{
               fontSize: "1rem",
               padding: "10px",
-              border: "1px solid #6c757d",
+              border: "1px solid #64b5f6", // لون حواف حقول الإدخال
             }}
           />
         </div>
@@ -2427,12 +2618,20 @@ const Cases = () => {
       <div className="container ">
         <div className="row text-center">
           <div className="col-md-6 col-12 my-4">
-            <Link to="/add-case" className="btn btn-dark px-5 py-2">
+            <Link
+              to="/add-case"
+              className="btn btn-dark px-5 py-2"
+              style={{ backgroundColor: "#1a237e", color: "#fff" }}
+            >
               <i className="fas fa-plus-circle me-2"></i> اضافه قضيه جديده
             </Link>
           </div>
           <div className="col-md-6 col-12 my-4">
-            <Link to="/CaseTypes" className="btn btn-dark px-5 py-2">
+            <Link
+              to="/CaseTypes"
+              className="btn btn-dark px-5 py-2"
+              style={{ backgroundColor: "#1a237e", color: "#fff" }}
+            >
               <i className="fas fa-folder-plus me-2"></i> اضافه نوع قضيه جديده
             </Link>
           </div>

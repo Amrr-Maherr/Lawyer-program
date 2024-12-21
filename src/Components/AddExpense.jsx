@@ -3,6 +3,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 function AddExpense() {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ function AddExpense() {
   const fetchCategories = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning");
+      Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning", { rtl: true });
       setLoading(false);
       return;
     }
@@ -47,7 +48,9 @@ function AddExpense() {
           setServerCategories([]);
         }
       } else {
-        Swal.fire("حدث خطأ", "فشلت جلب أنواع المصروفات", "error");
+        Swal.fire("حدث خطأ", "فشلت جلب أنواع المصروفات", "error", {
+          rtl: true,
+        });
       }
     } catch (error) {
       console.error("Error fetching expense categories:", error);
@@ -56,9 +59,13 @@ function AddExpense() {
         error.response.data &&
         error.response.data.message
       ) {
-        Swal.fire("حدث خطأ", error.response.data.message, "error");
+        Swal.fire("حدث خطأ", error.response.data.message, "error", {
+          rtl: true,
+        });
       } else {
-        Swal.fire("حدث خطأ", "فشلت جلب أنواع المصروفات", "error");
+        Swal.fire("حدث خطأ", "فشلت جلب أنواع المصروفات", "error", {
+          rtl: true,
+        });
       }
     } finally {
       setLoading(false);
@@ -83,7 +90,7 @@ function AddExpense() {
     setIsSubmitting(true);
     setLoading(true);
     if (!token) {
-      Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning");
+      Swal.fire("تحذير", "يرجى تسجيل الدخول أولاً.", "warning", { rtl: true });
       setIsSubmitting(false);
       setLoading(false);
       return;
@@ -93,7 +100,9 @@ function AddExpense() {
       (value) => value !== ""
     );
     if (!allFieldsFilled) {
-      Swal.fire("تحذير", "يرجى تعبئة جميع الحقول أولاً.", "warning");
+      Swal.fire("تحذير", "يرجى تعبئة جميع الحقول أولاً.", "warning", {
+        rtl: true,
+      });
       setIsSubmitting(false);
       setLoading(false);
       return;
@@ -121,7 +130,8 @@ function AddExpense() {
         await Swal.fire(
           "تم الإضافة بنجاح!",
           "تمت إضافة المصروف بنجاح.",
-          "success"
+          "success",
+          { rtl: true }
         ).then(() => {
           navigate("/expenses");
           resetForm();
@@ -130,7 +140,8 @@ function AddExpense() {
         Swal.fire(
           "حدث خطأ",
           "فشلت إضافة المصروف، يرجى المحاولة مرة أخرى.",
-          "error"
+          "error",
+          { rtl: true }
         );
       }
     } catch (error) {
@@ -140,12 +151,15 @@ function AddExpense() {
         error.response.data &&
         error.response.data.message
       ) {
-        Swal.fire("حدث خطأ", error.response.data.message, "error");
+        Swal.fire("حدث خطأ", error.response.data.message, "error", {
+          rtl: true,
+        });
       } else {
         Swal.fire(
           "حدث خطأ",
           "فشلت إضافة المصروف، يرجى المحاولة مرة أخرى.",
-          "error"
+          "error",
+          { rtl: true }
         );
       }
     } finally {
@@ -173,6 +187,7 @@ function AddExpense() {
       didOpen: () => {
         Swal.showLoading();
       },
+      rtl: true,
     });
   } else {
     Swal.close();
@@ -183,10 +198,19 @@ function AddExpense() {
   }
 
   return (
-    <div className="container mt-5">
+    <div
+      className="container mt-5"
+      style={{ backgroundColor: "#f0f0f0" }}
+      dir="rtl"
+    >
       <div className="row align-items-start justify-content-center mb-4">
         <div className="col-12 col-md-4 mb-2">
-          <h2 className="text-center py-2 fs-2 fw-bold"> إضافة مصروف</h2>
+          <h2
+            className="text-center py-2 fs-2 fw-bold"
+            style={{ color: "#1a237e" }}
+          >
+            إضافة مصروف
+          </h2>
         </div>
       </div>
       <form onSubmit={handleSubmit} className="text-end">
@@ -197,10 +221,18 @@ function AddExpense() {
             </label>
             <input
               type="text"
-              className="form-control custom-input"
+              className="form-control custom-input text-end"
               id="expenseName"
               value={formData.expenseName}
               onChange={handleInputChange}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#64b5f6",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
           <div className="col-md-6 mb-3">
@@ -209,10 +241,18 @@ function AddExpense() {
             </label>
             <input
               type="number"
-              className="form-control custom-input"
+              className="form-control custom-input text-end"
               id="expenseAmount"
               value={formData.expenseAmount}
               onChange={handleInputChange}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#64b5f6",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
         </div>
@@ -223,10 +263,18 @@ function AddExpense() {
             </label>
             <input
               type="text"
-              className="form-control custom-input"
+              className="form-control custom-input text-end"
               id="expenseMethod"
               value={formData.expenseMethod}
               onChange={handleInputChange}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#64b5f6",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
           <div className="col-md-6 mb-3">
@@ -240,10 +288,18 @@ function AddExpense() {
               <p>جاري تحميل أنواع المصروفات...</p>
             ) : (
               <select
-                className="form-control custom-input"
+                className="form-control custom-input text-end"
                 id="expenseCategoryId"
                 value={formData.expenseCategoryId}
                 onChange={handleInputChange}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               >
                 <option value="">-- اختر نوع المصروف --</option>
                 {serverCategories.map((category) => (
@@ -260,10 +316,18 @@ function AddExpense() {
             ملاحظات
           </label>
           <textarea
-            className="form-control custom-input"
+            className="form-control custom-input text-end"
             id="expenseNotes"
             value={formData.expenseNotes}
             onChange={handleInputChange}
+            style={{
+              borderWidth: "2px",
+              borderColor: "#64b5f6",
+              boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+              fontSize: "1rem",
+              padding: "10px",
+              transition: "border-color 0.3s ease",
+            }}
           />
         </div>
         <div className="row">
@@ -273,10 +337,18 @@ function AddExpense() {
             </label>
             <input
               type="date"
-              className="form-control custom-input"
+              className="form-control custom-input text-end"
               id="expenseDate"
               value={formData.expenseDate}
               onChange={handleInputChange}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#64b5f6",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
           <div className="col-md-6 mb-3">
@@ -287,10 +359,18 @@ function AddExpense() {
               الوصف
             </label>
             <textarea
-              className="form-control custom-input"
+              className="form-control custom-input text-end"
               id="expenseDescription"
               value={formData.expenseDescription}
               onChange={handleInputChange}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#64b5f6",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
         </div>
@@ -299,6 +379,7 @@ function AddExpense() {
             type="submit"
             className="btn custom-button"
             disabled={isSubmitting}
+            style={{ backgroundColor: "#1a237e", color: "#fff" }}
           >
             إضافة مصروف
           </button>
@@ -326,32 +407,31 @@ function AddExpense() {
           display: block;
         }
         .custom-input {
-          border: 1px solid #ced4da; /* مطابقة لحواف الحقول في إضافة القضية */
-          border-radius: 0.375rem;
-          padding: 0.8rem 1rem; /* مطابقة لحجم الحشو في إضافة القضية */
-          transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-          background-color: white;
-          color: #444;
-          margin-bottom: 1rem;
-           font-size: 1.1rem;
-           box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+             border: 2px solid #64b5f6;
+             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+              padding: 10px;
+                transition: border-color 0.3s ease;
+                 font-size: 1rem;
+            background-color: white;
+             color: #444;
+            margin-bottom: 1rem;
+             border-radius: 0.375rem;
         }
         .custom-input:focus {
-            border-color: #86b7fe;
+           border-color: #86b7fe;
             outline: 0;
-            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
-
+          box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
         }
          .custom-button {
-            background-color: #333;
+              background-color: #1a237e;
             color: white;
             border: none;
             border-radius: 0.375rem;
-            padding: 0.8rem 1.5rem;
+             padding: 10px 20px;
             font-weight: bold;
             transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
              box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-             font-size: 1.1rem;
+               font-size: 1.1rem;
         }
         .custom-button:hover {
           background-color: #555;

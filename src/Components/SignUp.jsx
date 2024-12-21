@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function SignUp() {
   const [formData, setFormData] = useState({
@@ -108,9 +109,9 @@ function SignUp() {
       console.log("Registration successful:", response.data);
       Swal.fire({
         title: "تم إنشاء الحساب بنجاح!",
-        text: "تم إنشاء حسابك بنجاح، يمكنك الآن تسجيل الدخول.",
+        text: "تم تسجيل طلبك بنجاح. نرجو منكم انتظار موافقة إدارة النظام لتفعيل الحساب. سيتم التواصل معكم عبر البريد الإلكتروني المسجل.",
         icon: "success",
-        confirmButtonText: "تسجيل الدخول",
+        confirmButtonText: "حسنًا",
       }).then(() => {
         navigate("/login");
       });
@@ -145,16 +146,21 @@ function SignUp() {
             className="card  p-4 shadow"
             style={{ maxWidth: "600px", width: "100%" }}
           >
-            <h2 className="text-center mb-2">إنشاء حساب</h2>
+            <h2
+              className="text-center mb-4 fw-bold"
+              style={{ fontSize: "2rem" }}
+            >
+              إنشاء حساب
+            </h2>
             <form onSubmit={handleSubmit}>
-              <div className="row mb-1">
+              <div className="row mb-3">
                 <div className="col-md-6">
-                  <label htmlFor="name" className="form-label">
+                  <label htmlFor="name" className="form-label fw-bold fs-5">
                     الاسم الكامل
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
+                    className={`form-control border-2 ${
                       errors.name ? "is-invalid" : ""
                     }`}
                     id="name"
@@ -167,12 +173,12 @@ function SignUp() {
                   )}
                 </div>
                 <div className="col-md-6">
-                  <label htmlFor="email" className="form-label">
+                  <label htmlFor="email" className="form-label fw-bold fs-5">
                     البريد الإلكتروني
                   </label>
                   <input
                     type="email"
-                    className={`form-control ${
+                    className={`form-control border-2 ${
                       errors.email ? "is-invalid" : ""
                     }`}
                     id="email"
@@ -185,14 +191,17 @@ function SignUp() {
                   )}
                 </div>
               </div>
-              <div className="row mb-1">
+              <div className="row mb-3">
                 <div className="col-md-6">
-                  <label htmlFor="phoneNumber" className="form-label">
+                  <label
+                    htmlFor="phoneNumber"
+                    className="form-label fw-bold fs-5"
+                  >
                     رقم الهاتف
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
+                    className={`form-control border-2 ${
                       errors.phoneNumber ? "is-invalid" : ""
                     }`}
                     id="phoneNumber"
@@ -205,12 +214,12 @@ function SignUp() {
                   )}
                 </div>
                 <div className="col-md-6">
-                  <label htmlFor="idNumber" className="form-label">
+                  <label htmlFor="idNumber" className="form-label fw-bold fs-5">
                     رقم الكارنيه
                   </label>
                   <input
                     type="text"
-                    className={`form-control ${
+                    className={`form-control border-2 ${
                       errors.idNumber ? "is-invalid" : ""
                     }`}
                     id="idNumber"
@@ -223,26 +232,29 @@ function SignUp() {
                   )}
                 </div>
               </div>
-              <div className="mb-1">
-                <label htmlFor="profileImage" className="form-label">
+              <div className="mb-3">
+                <label
+                  htmlFor="profileImage"
+                  className="form-label fw-bold fs-5"
+                >
                   الصورة الشخصية
                 </label>
                 <input
                   type="file"
-                  className="form-control"
+                  className="form-control border-2"
                   id="profileImage"
                   accept="image/*"
                   onChange={handleImageChange}
                 />
               </div>
-              <div className="row mb-1">
+              <div className="row mb-3">
                 <div className="col-md-6">
-                  <label htmlFor="password" className="form-label">
+                  <label htmlFor="password" className="form-label fw-bold fs-5">
                     كلمة المرور
                   </label>
                   <input
                     type="password"
-                    className={`form-control ${
+                    className={`form-control border-2 ${
                       errors.password ? "is-invalid" : ""
                     }`}
                     id="password"
@@ -255,12 +267,15 @@ function SignUp() {
                   )}
                 </div>
                 <div className="col-md-6">
-                  <label htmlFor="confirmPassword" className="form-label">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="form-label fw-bold fs-5"
+                  >
                     تأكيد كلمة المرور
                   </label>
                   <input
                     type="password"
-                    className={`form-control ${
+                    className={`form-control border-2 ${
                       errors.confirmPassword ? "is-invalid" : ""
                     }`}
                     id="confirmPassword"
@@ -277,15 +292,20 @@ function SignUp() {
               </div>
               <button
                 type="submit"
-                className="btn btn-dark w-100 mt-2"
+                className="btn btn-dark w-100 mt-2 fw-bold"
                 disabled={loading}
+                style={{ fontSize: "1.1rem" }}
               >
                 {loading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
               </button>
             </form>
-            <p className="text-center mt-1">
+            <p className="text-center mt-2" style={{ fontSize: "1rem" }}>
               لديك حساب؟{" "}
-              <Link to="/login" className="text-primary">
+              <Link
+                to="/login"
+                className="text-primary"
+                style={{ fontSize: "1rem" }}
+              >
                 سجل الدخول
               </Link>
             </p>

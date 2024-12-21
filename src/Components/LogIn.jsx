@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -124,15 +125,22 @@ function Login() {
       <div className="row justify-content-center align-items-center vh-100">
         <div className="col-12 col-md-6">
           <div className="card p-4 shadow-sm">
-            <h2 className="text-center mb-4">تسجيل الدخول</h2>
+            <h2
+              className="text-center mb-4 fw-bold"
+              style={{ fontSize: "2rem" }}
+            >
+              تسجيل الدخول
+            </h2>
             <form onSubmit={handleLoginSubmit}>
               <div className="mb-3">
-                <label htmlFor="email" className="form-label">
+                <label htmlFor="email" className="form-label fw-bold fs-5">
                   البريد الإلكتروني
                 </label>
                 <input
                   type="email"
-                  className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                  className={`form-control border-2 ${
+                    errors.email ? "is-invalid" : ""
+                  }`}
                   id="email"
                   placeholder="أدخل بريدك الإلكتروني"
                   value={formData.email}
@@ -143,12 +151,12 @@ function Login() {
                 )}
               </div>
               <div className="mb-3">
-                <label htmlFor="password" className="form-label">
+                <label htmlFor="password" className="form-label fw-bold fs-5">
                   كلمة المرور
                 </label>
                 <input
                   type="password"
-                  className={`form-control ${
+                  className={`form-control border-2 ${
                     errors.password ? "is-invalid" : ""
                   }`}
                   id="password"
@@ -162,26 +170,39 @@ function Login() {
               </div>
               <button
                 type="submit"
-                className="btn btn-dark w-100"
+                className="btn btn-dark w-100 fw-bold"
                 disabled={loading}
+                style={{ fontSize: "1.1rem" }}
               >
                 {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
               </button>
             </form>
-            <div className="mt-3 text-center">
+            <div className="mt-3 text-center" style={{ fontSize: "1rem" }}>
               <p>
                 ليس لديك حساب؟{" "}
-                <Link to="/signup" className="text-primary">
+                <Link
+                  to="/signup"
+                  className="text-primary"
+                  style={{ fontSize: "1rem" }}
+                >
                   انشئ حسابًا الآن
                 </Link>
               </p>
               <p>
-                <Link to="/ForgotPassword" className="text-primary">
+                <Link
+                  to="/ForgotPassword"
+                  className="text-primary"
+                  style={{ fontSize: "1rem" }}
+                >
                   هل نسيت كلمة المرور؟
                 </Link>
               </p>
               <p>
-                <Link to="/ResetPassword" className="text-primary">
+                <Link
+                  to="/ResetPassword"
+                  className="text-primary"
+                  style={{ fontSize: "1rem" }}
+                >
                   إعادة تعيين كلمة المرور
                 </Link>
               </p>

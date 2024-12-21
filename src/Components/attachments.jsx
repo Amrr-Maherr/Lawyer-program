@@ -98,6 +98,7 @@ const Attachments = () => {
         didOpen: () => {
           Swal.showLoading();
         },
+        rtl: true,
       });
       try {
         const token = localStorage.getItem("token");
@@ -119,12 +120,14 @@ const Attachments = () => {
             icon: "error",
             title: "خطأ",
             text: "غير مصرح. يرجى تسجيل الدخول مرة أخرى.",
+            rtl: true,
           });
         } else {
           Swal.fire({
             icon: "error",
             title: "خطأ",
             text: "فشل في جلب المرفقات. يرجى المحاولة مرة أخرى لاحقًا.",
+            rtl: true,
           });
           setError("فشل في جلب المرفقات. يرجى المحاولة مرة أخرى لاحقًا.");
         }
@@ -176,6 +179,7 @@ const Attachments = () => {
       didOpen: () => {
         Swal.showLoading();
       },
+      rtl: true,
     });
     try {
       const token = localStorage.getItem("token");
@@ -184,6 +188,7 @@ const Attachments = () => {
           icon: "error",
           title: "خطأ",
           text: "لم يتم العثور على التوكن. يرجى تسجيل الدخول.",
+          rtl: true,
         });
         return;
       }
@@ -206,6 +211,7 @@ const Attachments = () => {
         icon: "error",
         title: "خطأ",
         text: "فشل في جلب تفاصيل المرفق. يرجى المحاولة مرة أخرى لاحقًا.",
+        rtl: true,
       });
     } finally {
       setDetailsLoading(false);
@@ -223,6 +229,7 @@ const Attachments = () => {
           icon: "error",
           title: "خطأ",
           text: "المرفق غير موجود.",
+          rtl: true,
         });
         return;
       }
@@ -235,6 +242,7 @@ const Attachments = () => {
         cancelButtonColor: "#3085d6",
         confirmButtonText: "نعم، احذفه!",
         cancelButtonText: "إلغاء",
+        rtl: true,
       }).then(async (result) => {
         if (result.isConfirmed) {
           try {
@@ -244,6 +252,7 @@ const Attachments = () => {
                 icon: "error",
                 title: "خطأ",
                 text: "لم يتم العثور على التوكن. يرجى تسجيل الدخول.",
+                rtl: true,
               });
               return;
             }
@@ -257,6 +266,7 @@ const Attachments = () => {
               icon: "success",
               title: "تم",
               text: "تم حذف المرفق بنجاح.",
+              rtl: true,
             });
             setAttachments((prevAttachments) =>
               prevAttachments.filter(
@@ -269,6 +279,7 @@ const Attachments = () => {
               icon: "error",
               title: "خطأ",
               text: "حدث خطأ أثناء حذف المرفق.",
+              rtl: true,
             });
           }
         }
@@ -293,6 +304,7 @@ const Attachments = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "نعم، قم بالتعديل!",
       cancelButtonText: "إلغاء",
+      rtl: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -302,6 +314,7 @@ const Attachments = () => {
               icon: "error",
               title: "خطأ",
               text: "لم يتم العثور على التوكن. يرجى تسجيل الدخول.",
+              rtl: true,
             });
             return;
           }
@@ -318,6 +331,7 @@ const Attachments = () => {
             icon: "success",
             title: "تم",
             text: "تم تعديل المرفق بنجاح.",
+            rtl: true,
           });
           setAttachments(
             attachments.map((attachment) =>
@@ -333,6 +347,7 @@ const Attachments = () => {
             icon: "error",
             title: "خطأ",
             text: "حدث خطأ أثناء تعديل المرفق.",
+            rtl: true,
           });
         }
       }
@@ -353,37 +368,51 @@ const Attachments = () => {
       didOpen: () => {
         Swal.showLoading();
       },
+      rtl: true,
     });
   } else {
     Swal.close();
   }
 
   if (error) {
-    return <div className="alert alert-danger">{error}</div>;
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-danger text-center" role="alert">
+          {error}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container-fluid px-0 my-4" dir="rtl">
+    <div
+      className="container-fluid px-0 my-4"
+      dir="rtl"
+      style={{ backgroundColor: "#f0f0f0" }}
+    >
       <div className="container">
         <div className="row align-items-center justify-content-center mb-4">
           <div className="col-12 col-md-4 mb-2">
-            <h2 className="text-center py-2 fs-2 fw-bold">قائمة المرفقات</h2>
+            <h2
+              className="text-center py-2 fs-2 fw-bold"
+              style={{ color: "#1a237e" }}
+            >
+              قائمة المرفقات
+            </h2>
           </div>
           <div className="col-12 col-md-4 mb-2">
             <input
               type="text"
-              className="form-control form-control-lg rounded-3 shadow-sm"
+              className="form-control form-control-lg rounded-3 shadow-sm text-end"
               placeholder="البحث بواسطة اسم الملف..."
               value={searchTerm}
               onChange={handleSearch}
               style={{
                 borderWidth: "2px",
-                borderColor: "#0d6efd",
+                borderColor: "#64b5f6",
                 boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
                 fontSize: "1rem",
                 padding: "10px",
-                textAlign: "right",
-                direction: "rtl",
                 transition: "border-color 0.3s ease",
               }}
             />
@@ -409,7 +438,7 @@ const Attachments = () => {
                   <div
                     className="card-header text-white d-flex justify-content-between align-items-center"
                     style={{
-                      backgroundColor: "#343a40",
+                      backgroundColor: "#1a237e",
                       borderTopLeftRadius: "0.50rem",
                       borderTopRightRadius: "0.50rem",
                       padding: "10px",
@@ -428,20 +457,20 @@ const Attachments = () => {
                         className={`${getFileIconClass(
                           attachment["file type"]
                         )} me-2`}
-                        style={{ fontSize: "2em" }}
+                        style={{ fontSize: "2em", color: "#000" }}
                       ></i>
                     </div>
                     <div className="d-flex flex-column gap-2">
                       <div className="d-flex justify-content-between align-items-center flex-row">
                         <span
                           className="text-start"
-                          style={{ fontSize: "1rem" }}
+                          style={{ fontSize: "1rem", color: "#343a40" }}
                         >
                           {attachment.case_number}
                         </span>
                         <span
                           className="text-bold ms-2 text-end"
-                          style={{ fontSize: "1.1rem" }}
+                          style={{ fontSize: "1.1rem", color: "#343a40" }}
                         >
                           <i className="fas fa-list-ol me-1"></i>
                           رقم القضية:
@@ -451,13 +480,13 @@ const Attachments = () => {
                       <div className="d-flex justify-content-between align-items-center flex-row">
                         <span
                           className="text-start"
-                          style={{ fontSize: "1rem" }}
+                          style={{ fontSize: "1rem", color: "#343a40" }}
                         >
                           {attachment.customer_name}
                         </span>
                         <span
                           className="text-bold ms-2 text-end"
-                          style={{ fontSize: "1.1rem" }}
+                          style={{ fontSize: "1.1rem", color: "#343a40" }}
                         >
                           <i className="fas fa-user me-1"></i>
                           العميل:
@@ -467,13 +496,13 @@ const Attachments = () => {
                       <div className="d-flex justify-content-between align-items-center flex-row">
                         <span
                           className="text-start"
-                          style={{ fontSize: "1rem" }}
+                          style={{ fontSize: "1rem", color: "#343a40" }}
                         >
                           {attachment["file type"]}
                         </span>
                         <span
                           className="text-bold ms-2 text-end"
-                          style={{ fontSize: "1.1rem" }}
+                          style={{ fontSize: "1.1rem", color: "#343a40" }}
                         >
                           <i className="fas fa-file-alt me-1"></i>
                           نوع الملف:
@@ -490,6 +519,7 @@ const Attachments = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn btn-outline-primary btn-sm d-flex align-items-center case-button"
+                        style={{ backgroundColor: "#0d6efd", color: "#fff" }}
                       >
                         <i className="fas fa-download me-1"></i>
                         عرض الملف
@@ -497,18 +527,21 @@ const Attachments = () => {
                       <button
                         className="btn btn-outline-secondary btn-sm me-1 case-button"
                         onClick={() => handleEdit(attachment)}
+                        style={{ backgroundColor: "#6c757d", color: "#fff" }}
                       >
                         <i className="fas fa-edit"></i> تعديل
                       </button>
                       <button
                         className="btn btn-outline-danger btn-sm me-1 case-button"
                         onClick={() => handleDelete(attachment.attachment_id)}
+                        style={{ backgroundColor: "#dc3545", color: "#fff" }}
                       >
                         <i className="fas fa-trash"></i> مسح
                       </button>
                       <button
                         className="btn btn-outline-info btn-sm case-button"
                         onClick={() => handleDetails(attachment)}
+                        style={{ backgroundColor: "#0dcaf0", color: "#fff" }}
                       >
                         <i className="fas fa-info-circle"></i> تفاصيل
                       </button>
@@ -540,13 +573,13 @@ const Attachments = () => {
               className="modal-content"
               style={{
                 borderWidth: "3px",
-                borderColor: "#343a40",
+                borderColor: "#1a237e",
                 boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
               }}
             >
               <div
-                className="modal-header bg-dark text-white"
-                style={{ padding: "15px" }}
+                className="modal-header text-white"
+                style={{ padding: "15px", backgroundColor: "#1a237e" }}
               >
                 <h5
                   className="modal-title w-100 text-end"
@@ -645,13 +678,13 @@ const Attachments = () => {
               className="modal-content"
               style={{
                 borderWidth: "3px",
-                borderColor: "#343a40",
+                borderColor: "#1a237e",
                 boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
               }}
             >
               <div
-                className="modal-header bg-dark text-white"
-                style={{ padding: "15px" }}
+                className="modal-header text-white"
+                style={{ padding: "15px", backgroundColor: "#1a237e" }}
               >
                 <h5
                   className="modal-title w-100 text-end"
@@ -734,6 +767,7 @@ const Attachments = () => {
                             href={attachmentDetails.file_path}
                             target="_blank"
                             rel="noopener noreferrer"
+                            style={{ color: "#0d6efd", textDecoration: "none" }}
                           >
                             عرض الملف
                           </a>

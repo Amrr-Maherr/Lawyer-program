@@ -5,19 +5,28 @@ function HotLink(props) {
     <>
       <Link to={props.link} style={{ textDecoration: "none" }}>
         <div
-          className="card hover text-secondary-emphasis mb-3"
+          className="card hover mb-3"
           style={{
             maxWidth: "18rem",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)", // إضافة ظل عند التمرير على العنصر
-            transition: "transform 0.3s, box-shadow 0.3s", // تأثير التحول
+            backgroundColor: "#fff",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            transition: "transform 0.3s, box-shadow 0.3s",
           }}
-          onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")} // تكبير العنصر عند التمرير عليه
+          onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
           onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
-          <div className="card-header bg-dark text-white">{props.title}</div>
-          <div className="card-body d-flex align-items-center justify-content-end">
+          <div
+            className="card-header text-white"
+            style={{ backgroundColor: "#1a237e", textAlign: "right" }} // إضافة textAlign: "right" هنا
+          >
+            {props.title}
+          </div>
+          <div
+            className="card-body d-flex align-items-center justify-content-end"
+            style={{ backgroundColor: "#fff" }}
+          >
             <p className="card-text">
-              <i className={props.icon}></i>
+              <i className={props.icon} style={{ color: "#1a237e" }}></i>
             </p>
           </div>
         </div>

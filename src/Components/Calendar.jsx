@@ -153,15 +153,18 @@ const Calendar = () => {
                 data-bs-toggle="tooltip"
                 title={tooltipText}
                 style={{
-                  backgroundColor: "red",
-                  boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
+                  backgroundColor: "#2196f3", // لون أزرق داكن لأيام الجلسات
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
                 }}
               >
                 {day.getDate()}
               </button>
             </Link>
           ) : (
-            <button className="btn btn-outline-secondary btn-sm w-100 calendar-day-button">
+            <button
+              className="btn btn-outline-secondary btn-sm w-100 calendar-day-button"
+              style={{ color: "#1a237e", borderColor: "#ced4da" }}
+            >
               {day.getDate()}
             </button>
           )}
@@ -248,10 +251,17 @@ const Calendar = () => {
   }, [sessions, currentDate, viewMode]);
 
   return (
-    <div className="calendar-container p-3">
+    <div
+      className="calendar-container p-3"
+      style={{ backgroundColor: "#f0f0f0" }}
+    >
       <ToastContainer />
       <div className="d-flex justify-content-center mb-2">
-        <button className="btn btn-primary btn-sm" onClick={toggleViewMode}>
+        <button
+          className="btn btn-primary btn-sm text-white"
+          onClick={toggleViewMode}
+          style={{ backgroundColor: "#1a237e" }}
+        >
           عرض {viewMode === "week" ? "الشهر" : "الأسبوع"}
         </button>
       </div>
@@ -263,8 +273,12 @@ const Calendar = () => {
               className={navButtonClass}
               onClick={() => changeYear(-1)}
               title="السنة السابقة"
+              style={{ color: "#1a237e", borderColor: "#ced4da" }}
             >
-              <i className="fas fa-angle-double-right"></i>
+              <i
+                className="fas fa-angle-double-right"
+                style={{ color: "#1a237e" }}
+              ></i>
             </button>
             {/* Previous Month or Week Button */}
             <button
@@ -273,12 +287,18 @@ const Calendar = () => {
                 viewMode === "week" ? changeWeek(-1) : changeMonth(-1)
               }
               title="السابق"
+              style={{ color: "#1a237e", borderColor: "#ced4da" }}
             >
-              <i className="fas fa-angle-right"></i>
+              <i
+                className="fas fa-angle-right"
+                style={{ color: "#1a237e" }}
+              ></i>
             </button>
           </div>
           <div className="text-center">
-            <h6 className="mx-2 mb-0 date-display">{displayDate}</h6>
+            <h6 className="mx-2 mb-0 date-display" style={{ color: "#1a237e" }}>
+              {displayDate}
+            </h6>
           </div>
           <div className="d-flex align-items-center">
             {/* Next Month or Week Button */}
@@ -288,16 +308,21 @@ const Calendar = () => {
                 viewMode === "week" ? changeWeek(1) : changeMonth(1)
               }
               title="التالي"
+              style={{ color: "#1a237e", borderColor: "#ced4da" }}
             >
-              <i className="fas fa-angle-left"></i>
+              <i className="fas fa-angle-left" style={{ color: "#1a237e" }}></i>
             </button>
             {/* Next Year Button */}
             <button
               className={navButtonClass}
               onClick={() => changeYear(1)}
               title="السنة التالية"
+              style={{ color: "#1a237e", borderColor: "#ced4da" }}
             >
-              <i className="fas fa-angle-double-left"></i>
+              <i
+                className="fas fa-angle-double-left"
+                style={{ color: "#1a237e" }}
+              ></i>
             </button>
           </div>
         </div>

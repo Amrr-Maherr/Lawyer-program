@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 const Payments = () => {
   const [cases, setCases] = useState([]);
@@ -35,6 +37,7 @@ const Payments = () => {
           title: "خطأ!",
           text: "يرجى تسجيل الدخول أولاً.",
           confirmButtonText: "حسنًا",
+          rtl: true,
         });
         return;
       }
@@ -44,6 +47,7 @@ const Payments = () => {
         didOpen: () => {
           Swal.showLoading();
         },
+        rtl: true,
       });
       try {
         const response = await axios.get(
@@ -55,7 +59,7 @@ const Payments = () => {
           }
         );
         setCases(response.data.cases);
-        setFilteredCases(response.data.cases); // Initialize filtered cases
+        setFilteredCases(response.data.cases);
         Swal.close();
       } catch (error) {
         console.error("هناك خطأ أثناء جلب القضايا:", error);
@@ -64,6 +68,7 @@ const Payments = () => {
           title: "خطأ!",
           text: "حدث خطأ أثناء تحميل القضايا. يرجى المحاولة مرة أخرى.",
           confirmButtonText: "حسنًا",
+          rtl: true,
         });
       }
     };
@@ -81,6 +86,7 @@ const Payments = () => {
           title: "خطأ!",
           text: "يرجى تسجيل الدخول أولاً.",
           confirmButtonText: "حسنًا",
+          rtl: true,
         });
         return;
       }
@@ -90,6 +96,7 @@ const Payments = () => {
         didOpen: () => {
           Swal.showLoading();
         },
+        rtl: true,
       });
       try {
         const { customer_id, case_id } = selectedCase;
@@ -112,6 +119,7 @@ const Payments = () => {
           title: "خطأ!",
           text: "حدث خطأ أثناء تحميل المدفوعات. يرجى المحاولة مرة أخرى.",
           confirmButtonText: "حسنًا",
+          rtl: true,
         });
       }
     };
@@ -131,6 +139,7 @@ const Payments = () => {
           title: "خطأ!",
           text: "يرجى تسجيل الدخول أولاً.",
           confirmButtonText: "حسنًا",
+          rtl: true,
         });
         return;
       }
@@ -141,6 +150,7 @@ const Payments = () => {
         didOpen: () => {
           Swal.showLoading();
         },
+        rtl: true,
       });
 
       try {
@@ -162,6 +172,7 @@ const Payments = () => {
             title: "لا توجد مدفوعات",
             text: "هذه القضية لا تحتوي على أي مدفوعات مسجلة.",
             confirmButtonText: "حسنًا",
+            rtl: true,
           });
         }
       } catch (error) {
@@ -171,6 +182,7 @@ const Payments = () => {
           title: "خطأ!",
           text: "حدث خطأ أثناء تحميل المدفوعات. يرجى المحاولة مرة أخرى.",
           confirmButtonText: "حسنًا",
+          rtl: true,
         });
       }
     }
@@ -194,6 +206,7 @@ const Payments = () => {
         title: "خطأ!",
         text: "يرجى تسجيل الدخول أولاً.",
         confirmButtonText: "حسنًا",
+        rtl: true,
       });
       return;
     }
@@ -207,6 +220,7 @@ const Payments = () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "نعم، احذف!",
       cancelButtonText: "إلغاء",
+      rtl: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -226,6 +240,7 @@ const Payments = () => {
             title: "تم الحذف!",
             text: `تم حذف الدفعة رقم ${id} بنجاح.`,
             confirmButtonText: "حسنًا",
+            rtl: true,
           });
         } catch (error) {
           console.error("خطأ أثناء حذف الدفعة:", error);
@@ -234,6 +249,7 @@ const Payments = () => {
             title: "خطأ!",
             text: "حدث خطأ أثناء حذف الدفعة. يرجى المحاولة مرة أخرى.",
             confirmButtonText: "حسنًا",
+            rtl: true,
           });
         }
       }
@@ -248,6 +264,7 @@ const Payments = () => {
         title: "خطأ!",
         text: "يرجى تسجيل الدخول أولاً.",
         confirmButtonText: "حسنًا",
+        rtl: true,
       });
       return;
     }
@@ -257,6 +274,7 @@ const Payments = () => {
       didOpen: () => {
         Swal.showLoading();
       },
+      rtl: true,
     });
     try {
       const { customer_id, case_id } = selectedCase;
@@ -278,6 +296,7 @@ const Payments = () => {
         title: "خطأ!",
         text: "حدث خطأ أثناء جلب تفاصيل الدفعة. يرجى المحاولة مرة أخرى.",
         confirmButtonText: "حسنًا",
+        rtl: true,
       });
     }
   };
@@ -293,6 +312,7 @@ const Payments = () => {
         title: "خطأ!",
         text: "يرجى تسجيل الدخول أولاً.",
         confirmButtonText: "حسنًا",
+        rtl: true,
       });
       return;
     }
@@ -306,6 +326,7 @@ const Payments = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "نعم، عدّل!",
       cancelButtonText: "إلغاء",
+      rtl: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -343,6 +364,7 @@ const Payments = () => {
             title: "تم التعديل!",
             text: `تم تعديل الدفعة رقم ${paymentId} بنجاح.`,
             confirmButtonText: "حسنًا",
+            rtl: true,
           });
         } catch (error) {
           console.error("خطأ أثناء تعديل الدفعة:", error);
@@ -352,6 +374,7 @@ const Payments = () => {
               title: "خطأ!",
               text: error.response.data,
               confirmButtonText: "حسنًا",
+              rtl: true,
             });
           } else {
             Swal.fire({
@@ -359,6 +382,7 @@ const Payments = () => {
               title: "خطأ!",
               text: "حدث خطأ أثناء تعديل الدفعة. يرجى المحاولة مرة أخرى.",
               confirmButtonText: "حسنًا",
+              rtl: true,
             });
           }
         }
@@ -374,41 +398,48 @@ const Payments = () => {
       didOpen: () => {
         Swal.showLoading();
       },
+      rtl: true,
     });
   } else {
     Swal.close();
   }
   return (
-    <div className="container-fluid px-0 my-4">
+    <div
+      className="container-fluid px-0 my-4"
+      style={{ backgroundColor: "#f0f0f0" }}
+    >
       <div className="container">
         <div className="row align-items-center justify-content-center mb-4">
           <div className="col-12 col-md-4 mb-2">
             <input
               type="text"
-              className="form-control form-control-lg rounded-3 shadow-sm"
+              className="form-control form-control-lg rounded-3 shadow-sm text-end"
               placeholder="ابحث باسم العميل"
               value={searchTerm}
               onChange={handleSearchChange}
               style={{
                 borderWidth: "2px",
-                borderColor: "#0d6efd",
+                borderColor: "#64b5f6",
                 boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
                 fontSize: "1rem",
                 padding: "10px",
-                textAlign: "right",
-                direction: "rtl",
                 transition: "border-color 0.3s ease",
               }}
             />
           </div>
           <div className="col-12 col-md-4 mb-2">
-            <h2 className="text-center py-2 fs-2 fw-bold">تفاصيل المدفوعات</h2>
+            <h2
+              className="text-center py-2 fs-2 fw-bold"
+              style={{ color: "#1a237e" }}
+            >
+              تفاصيل المدفوعات
+            </h2>
           </div>
         </div>
       </div>
 
       <div className="container">
-        <div className="row row-cols-1 row-cols-md-3 g-4 mb-4">
+        <div className="row row-cols-1 row-cols-md-3 g-4 mb-4 flex-row-reverse">
           {filteredCases.map((caseItem) => (
             <div key={caseItem.case_id} className="col">
               <div
@@ -417,14 +448,20 @@ const Payments = () => {
                     ? "border-dark border-2"
                     : ""
                 }`}
-                style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer", backgroundColor: "#fff" }}
                 onClick={() => handleCaseSelect(caseItem)}
               >
-                <div className="card-header bg-dark text-white">
+                <div
+                  className="card-header text-white"
+                  style={{ backgroundColor: "#1a237e" }}
+                >
                   {caseItem.case_number}
                 </div>
                 <div className="card-body">
-                  <p className="card-text font-weight-bold">
+                  <p
+                    className="card-text font-weight-bold"
+                    style={{ color: "#000" }}
+                  >
                     {caseItem.customer_name}
                   </p>
                 </div>
@@ -445,15 +482,18 @@ const Payments = () => {
           </div>
         ) : payments.length > 0 ? (
           <div className="table-responsive">
-            <table className="table table-bordered table-hover text-center">
+            <table
+              className="table table-bordered table-hover text-center"
+              dir="rtl"
+            >
               <thead className="table-dark">
                 <tr>
-                  <th className="align-middle">الإجراءات</th>
-                  <th className="align-middle">طريقة الدفع</th>
-                  <th className="align-middle">تاريخ الدفع</th>
-                  <th className="align-middle">المبلغ المدفوع</th>
-                  <th className="align-middle">عنوان الدفعة</th>
                   <th className="align-middle">#</th>
+                  <th className="align-middle">عنوان الدفعة</th>
+                  <th className="align-middle">المبلغ المدفوع</th>
+                  <th className="align-middle">تاريخ الدفع</th>
+                  <th className="align-middle">طريقة الدفع</th>
+                  <th className="align-middle">الإجراءات</th>
                 </tr>
               </thead>
               <tbody>
@@ -462,83 +502,22 @@ const Payments = () => {
                     key={payment.id}
                     className={index % 2 === 0 ? "table-light" : ""}
                   >
-                    <td className="align-middle">
-                      <button
-                        className="btn btn-danger btn-sm me-2 action-btn"
-                        onClick={() => handleDelete(payment.id)}
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                      {editPaymentId === payment.id ? (
-                        <>
-                          <button
-                            className="btn btn-secondary btn-sm me-2 action-btn"
-                            onClick={() => handleCancelEdit()}
-                          >
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          className="btn btn-primary btn-sm me-2 action-btn"
-                          onClick={() => handleEdit(payment)}
-                        >
-                          <i className="fas fa-edit"></i>
-                        </button>
-                      )}
-
-                      <button
-                        className="btn btn-info btn-sm action-btn"
-                        onClick={() => handleOpenModal(payment)}
-                      >
-                        <i className="fas fa-info-circle"></i>
-                      </button>
-                    </td>
+                    <td className="align-middle">{index + 1}</td>
                     <td className="align-middle">
                       {editPaymentId === payment.id ? (
                         <input
                           type="text"
-                          className="form-control"
-                          id={`method-${payment.id}`}
-                          defaultValue={payment.method}
-                        />
-                      ) : (
-                        payment.method
-                      )}
-                    </td>
-                    <td className="align-middle">
-                      {editPaymentId === payment.id ? (
-                        <input
-                          type="date"
-                          className="form-control"
-                          id={`date-${payment.id}`}
-                          defaultValue={
-                            new Date(payment.date).toISOString().split("T")[0]
-                          }
-                        />
-                      ) : (
-                        new Date(payment.date).toLocaleDateString("ar-EG")
-                      )}
-                    </td>
-                    <td className="align-middle">
-                      {editPaymentId === payment.id ? (
-                        <input
-                          type="number"
-                          className="form-control"
-                          id={`amount-${payment.id}`}
-                          defaultValue={payment.amount}
-                        />
-                      ) : (
-                        payment.amount
-                      )}
-                    </td>
-                    <td className="align-middle">
-                      {editPaymentId === payment.id ? (
-                        <input
-                          type="text"
-                          className="form-control"
+                          className="form-control text-end"
                           id={`title-${payment.id}`}
                           defaultValue={payment.title}
+                          style={{
+                            borderWidth: "2px",
+                            borderColor: "#64b5f6",
+                            boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                            fontSize: "1rem",
+                            padding: "10px",
+                            transition: "border-color 0.3s ease",
+                          }}
                         />
                       ) : (
                         payment.title
@@ -548,12 +527,145 @@ const Payments = () => {
                           type="button"
                           className="btn btn-success btn-sm mt-1"
                           onClick={() => handleUpdatePayment(payment.id)}
+                          style={{
+                            backgroundColor: "#28a745",
+                            color: "#fff",
+                            margin: "5px 0",
+                            padding: "5px 10px",
+                            borderRadius: "5px",
+                            border: "none",
+                            cursor: "pointer",
+                            transition: "background-color 0.3s ease",
+                          }}
                         >
                           تحديث
                         </button>
                       )}
                     </td>
-                    <td className="align-middle">{index + 1}</td>
+                    <td className="align-middle">
+                      {editPaymentId === payment.id ? (
+                        <input
+                          type="number"
+                          className="form-control text-end"
+                          id={`amount-${payment.id}`}
+                          defaultValue={payment.amount}
+                          style={{
+                            borderWidth: "2px",
+                            borderColor: "#64b5f6",
+                            boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                            fontSize: "1rem",
+                            padding: "10px",
+                            transition: "border-color 0.3s ease",
+                          }}
+                        />
+                      ) : (
+                        payment.amount
+                      )}
+                    </td>
+                    <td className="align-middle">
+                      {editPaymentId === payment.id ? (
+                        <input
+                          type="date"
+                          className="form-control text-end"
+                          id={`date-${payment.id}`}
+                          defaultValue={
+                            new Date(payment.date).toISOString().split("T")[0]
+                          }
+                          style={{
+                            borderWidth: "2px",
+                            borderColor: "#64b5f6",
+                            boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                            fontSize: "1rem",
+                            padding: "10px",
+                            transition: "border-color 0.3s ease",
+                          }}
+                        />
+                      ) : (
+                        new Date(payment.date).toLocaleDateString("ar-EG")
+                      )}
+                    </td>
+                    <td className="align-middle">
+                      {editPaymentId === payment.id ? (
+                        <input
+                          type="text"
+                          className="form-control text-end"
+                          id={`method-${payment.id}`}
+                          defaultValue={payment.method}
+                          style={{
+                            borderWidth: "2px",
+                            borderColor: "#64b5f6",
+                            boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                            fontSize: "1rem",
+                            padding: "10px",
+                            transition: "border-color 0.3s ease",
+                          }}
+                        />
+                      ) : (
+                        payment.method
+                      )}
+                    </td>
+                    <td className="align-middle">
+                      <div className="d-flex justify-content-center gap-2">
+                        <button
+                          className="btn btn-danger btn-sm action-btn"
+                          onClick={() => handleDelete(payment.id)}
+                          style={{
+                            backgroundColor: "#dc3545",
+                            color: "#fff",
+                            border: "none",
+                            cursor: "pointer",
+                            transition: "background-color 0.3s ease",
+                          }}
+                        >
+                          <i className="fas fa-trash"></i>
+                        </button>
+                        {editPaymentId === payment.id ? (
+                          <>
+                            <button
+                              className="btn btn-secondary btn-sm action-btn"
+                              onClick={() => handleCancelEdit()}
+                              style={{
+                                backgroundColor: "#6c757d",
+                                color: "#fff",
+                                border: "none",
+                                cursor: "pointer",
+                                transition: "background-color 0.3s ease",
+                              }}
+                            >
+                              <i className="fas fa-times"></i>
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            className="btn btn-primary btn-sm action-btn"
+                            onClick={() => handleEdit(payment)}
+                            style={{
+                              backgroundColor: "#0d6efd",
+                              color: "#fff",
+                              border: "none",
+                              cursor: "pointer",
+                              transition: "background-color 0.3s ease",
+                            }}
+                          >
+                            <i className="fas fa-edit"></i>
+                          </button>
+                        )}
+
+                        <button
+                          className="btn btn-info btn-sm action-btn"
+                          onClick={() => handleOpenModal(payment)}
+                          style={{
+                            backgroundColor: "#0dcaf0",
+                            color: "#fff",
+                            border: "none",
+                            cursor: "pointer",
+                            transition: "background-color 0.3s ease",
+                          }}
+                        >
+                          <i className="fas fa-info-circle"></i>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -570,14 +682,20 @@ const Payments = () => {
         className={`modal fade ${openModal ? "show d-block" : ""}`}
         tabIndex="-1"
         role="dialog"
-        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        style={{ backgroundColor: "rgba(0,0,0,0.5)", direction: "rtl" }}
       >
-        <div className="modal-dialog modal-dialog-centered" role="document">
+        <div
+          className="modal-dialog modal-dialog-centered modal-lg"
+          role="document"
+        >
           <div className="modal-content">
-            <div className="modal-header bg-dark text-white">
+            <div
+              className="modal-header text-white"
+              style={{ backgroundColor: "#1a237e" }}
+            >
               <h5
-                className="modal-title"
-                style={{ textAlign: "right", width: "100%" }}
+                className="modal-title w-100 text-end"
+                style={{ textAlign: "right" }}
               >
                 تفاصيل الدفعة
               </h5>
@@ -589,24 +707,24 @@ const Payments = () => {
                   <table className="table table-bordered">
                     <tbody>
                       <tr>
-                        <th className="text-right">العنوان</th>
-                        <td className="text-right">{selectedPayment.title}</td>
+                        <th className="text-end">العنوان</th>
+                        <td className="text-end">{selectedPayment.title}</td>
                       </tr>
                       <tr>
-                        <th className="text-right">المبلغ</th>
-                        <td className="text-right">{selectedPayment.amount}</td>
+                        <th className="text-end">المبلغ</th>
+                        <td className="text-end">{selectedPayment.amount}</td>
                       </tr>
                       <tr>
-                        <th className="text-right">التاريخ</th>
-                        <td className="text-right">
+                        <th className="text-end">التاريخ</th>
+                        <td className="text-end">
                           {new Date(selectedPayment.date).toLocaleDateString(
                             "ar-EG"
                           )}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">طريقة الدفع</th>
-                        <td className="text-right">{selectedPayment.method}</td>
+                        <th className="text-end">طريقة الدفع</th>
+                        <td className="text-end">{selectedPayment.method}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -614,68 +732,68 @@ const Payments = () => {
                   <table className="table table-bordered">
                     <tbody>
                       <tr>
-                        <th className="text-right">رقم القضية</th>
-                        <td className="text-right">
+                        <th className="text-end">رقم القضية</th>
+                        <td className="text-end">
                           {selectedPayment.case.case_number}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">عنوان القضية</th>
-                        <td className="text-right">
+                        <th className="text-end">عنوان القضية</th>
+                        <td className="text-end">
                           {selectedPayment.case.case_title}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">اسم الخصم</th>
-                        <td className="text-right">
+                        <th className="text-end">اسم الخصم</th>
+                        <td className="text-end">
                           {selectedPayment.case.opponent_name}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">هاتف الخصم</th>
-                        <td className="text-right">
+                        <th className="text-end">هاتف الخصم</th>
+                        <td className="text-end">
                           {selectedPayment.case.opponent_phone}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">جنسية الخصم</th>
-                        <td className="text-right">
+                        <th className="text-end">جنسية الخصم</th>
+                        <td className="text-end">
                           {selectedPayment.case.opponent_nation}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">عنوان الخصم</th>
-                        <td className="text-right">
+                        <th className="text-end">عنوان الخصم</th>
+                        <td className="text-end">
                           {selectedPayment.case.opponent_address}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">اسم محامي الخصم</th>
-                        <td className="text-right">
+                        <th className="text-end">اسم محامي الخصم</th>
+                        <td className="text-end">
                           {selectedPayment.case.opponent_lawyer}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">هاتف محامي الخصم</th>
-                        <td className="text-right">
+                        <th className="text-end">هاتف محامي الخصم</th>
+                        <td className="text-end">
                           {selectedPayment.case.lawyer_phone}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">اسم المحكمة</th>
-                        <td className="text-right">
+                        <th className="text-end">اسم المحكمة</th>
+                        <td className="text-end">
                           {selectedPayment.case.court_name}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">اسم القاضي</th>
-                        <td className="text-right">
+                        <th className="text-end">اسم القاضي</th>
+                        <td className="text-end">
                           {selectedPayment.case.judge_name}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">ملاحظات القضية</th>
-                        <td className="text-right">
+                        <th className="text-end">ملاحظات القضية</th>
+                        <td className="text-end">
                           {selectedPayment.case.notes}
                         </td>
                       </tr>
@@ -685,50 +803,50 @@ const Payments = () => {
                   <table className="table table-bordered">
                     <tbody>
                       <tr>
-                        <th className="text-right">اسم العميل</th>
-                        <td className="text-right">
+                        <th className="text-end">اسم العميل</th>
+                        <td className="text-end">
                           {selectedPayment.case.customer.name}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">ايميل العميل</th>
-                        <td className="text-right">
+                        <th className="text-end">ايميل العميل</th>
+                        <td className="text-end">
                           {selectedPayment.case.customer.email}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">رقم هوية العميل</th>
-                        <td className="text-right">
+                        <th className="text-end">رقم هوية العميل</th>
+                        <td className="text-end">
                           {selectedPayment.case.customer.ID_number}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">هاتف العميل</th>
-                        <td className="text-right">
+                        <th className="text-end">هاتف العميل</th>
+                        <td className="text-end">
                           {selectedPayment.case.customer.phone}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">عنوان العميل</th>
-                        <td className="text-right">
+                        <th className="text-end">عنوان العميل</th>
+                        <td className="text-end">
                           {selectedPayment.case.customer.address}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">جنسية العميل</th>
-                        <td className="text-right">
+                        <th className="text-end">جنسية العميل</th>
+                        <td className="text-end">
                           {selectedPayment.case.customer.nationality}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">اسم شركة العميل</th>
-                        <td className="text-right">
+                        <th className="text-end">اسم شركة العميل</th>
+                        <td className="text-end">
                           {selectedPayment.case.customer.company_name}
                         </td>
                       </tr>
                       <tr>
-                        <th className="text-right">ملاحظات العميل</th>
-                        <td className="text-right">
+                        <th className="text-end">ملاحظات العميل</th>
+                        <td className="text-end">
                           {selectedPayment.case.customer.notes}
                         </td>
                       </tr>

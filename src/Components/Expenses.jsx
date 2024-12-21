@@ -11,6 +11,7 @@ import {
   faSave,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
@@ -57,6 +58,7 @@ function Expenses() {
       didOpen: () => {
         Swal.showLoading();
       },
+      rtl: true,
     });
     setError(null);
     try {
@@ -142,6 +144,7 @@ function Expenses() {
       cancelButtonColor: "#d33",
       confirmButtonText: "نعم، احذف!",
       cancelButtonText: "إلغاء",
+      rtl: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -154,6 +157,7 @@ function Expenses() {
             text: "تم حذف المصروف بنجاح.",
             icon: "success",
             confirmButtonText: "حسناً",
+            rtl: true,
           });
           fetchExpensesData();
         } catch (err) {
@@ -192,6 +196,7 @@ function Expenses() {
       didOpen: () => {
         Swal.showLoading();
       },
+      rtl: true,
     });
     try {
       const token = localStorage.getItem("token");
@@ -208,6 +213,7 @@ function Expenses() {
         text: "تم تعديل المصروف بنجاح.",
         icon: "success",
         confirmButtonText: "حسناً",
+        rtl: true,
       });
       setEditingExpenseId(null);
       fetchExpensesData();
@@ -233,6 +239,7 @@ function Expenses() {
       icon: "error",
       title: "خطأ",
       text: errorMessage,
+      rtl: true,
     });
   };
 
@@ -309,14 +316,20 @@ function Expenses() {
   };
 
   return (
-    <div className="container mt-4">
-      <div className="row">
+    <div className="container mt-4" style={{ backgroundColor: "#f0f0f0" }}>
+      <h2
+        className="text-center mb-4 py-2 py-md-4 fs-2 fw-bold"
+        style={{ color: "#1a237e" }}
+      >
+        تقارير المصروفات
+      </h2>
+      <div className="row" dir="rtl">
         <div className="col-md-8 mb-4">
           <div className="d-flex flex-column align-items-center">
             <div style={{ height: "400px", width: "100%" }}>
               {chartData && <Pie data={chartData} options={chartOptions} />}
             </div>
-            <p className="lead mt-3 text-center">
+            <p className="lead mt-3 text-center" style={{ color: "#000" }}>
               {hoveredExpenseAmount !== null ? (
                 <>
                   قيمة المصروف:{" "}
@@ -339,10 +352,18 @@ function Expenses() {
           <div className="mb-3">
             <input
               type="text"
-              className="form-control custom-input"
+              className="form-control custom-input text-end"
               placeholder="ابحث عن المصروفات..."
               value={searchKeyword}
               onChange={handleSearchChange}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#64b5f6",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
           <div
@@ -350,14 +371,19 @@ function Expenses() {
             style={{ maxHeight: "400px", overflowY: "auto" }}
           >
             {filteredExpenses && filteredExpenses.length > 0 ? (
-              <div className="d-flex flex-wrap">
+              <div className="d-flex flex-wrap flex-column-reverse">
                 {filteredExpenses.map((expense) => (
                   <div
                     key={expense.id}
                     className="card m-2"
-                    style={{ width: "18rem" }}
+                    style={{
+                      width: "100%",
+                      backgroundColor: "white",
+                      boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                    }}
+                    dir="rtl"
                   >
-                    <div className="card-body">
+                    <div className="card-body text-end">
                       {editingExpenseId === expense.id ? (
                         <ExpenseEditForm
                           expense={expense}
@@ -388,20 +414,20 @@ function Expenses() {
       <style>
         {`
           .custom-input {
-            border: 1px solid #ced4da;
-            border-radius: 0.375rem;
-            padding: 0.375rem 0.75rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            background-color: white;
-            color: #444;
-            font-size: 1rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 2px solid #64b5f6;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+             padding: 10px;
+                transition: border-color 0.3s ease;
+                 font-size: 1rem;
+                  background-color: white;
+                    color: #444;
+                     border-radius: 0.375rem;
           }
-           .custom-input:focus {
-             border-color: #86b7fe;
-              outline: 0;
+          .custom-input:focus {
+            border-color: #86b7fe;
+            outline: 0;
             box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
-           }
+          }
            .custom-edit-button {
             border-radius: 0.375rem;
             padding: 0.25rem 0.5rem; /* تقليل الحجم  */
@@ -419,18 +445,24 @@ function Expenses() {
 
 const ExpenseItem = ({ expense, handleEditExpense, handleDeleteExpense }) => (
   <>
-    <h5 className="card-title">{expense.name}</h5>
-    <p className="card-text">المبلغ: {expense.amount} ج.م</p>
+    <h5 className="card-title" style={{ color: "#000" }}>
+      {expense.name}
+    </h5>
+    <p className="card-text" style={{ color: "#000" }}>
+      المبلغ: {expense.amount} ج.م
+    </p>
     <div className="d-flex justify-content-end">
       <button
         className="btn btn-primary btn-sm me-1 custom-edit-button"
         onClick={() => handleEditExpense(expense)}
+        style={{ backgroundColor: "#0d6efd", color: "#fff" }}
       >
         <FontAwesomeIcon icon={faEdit} />
       </button>
       <button
         className="btn btn-danger btn-sm custom-edit-button"
         onClick={() => handleDeleteExpense(expense.id)}
+        style={{ backgroundColor: "#dc3545", color: "#fff" }}
       >
         <FontAwesomeIcon icon={faTrash} />
       </button>
@@ -450,7 +482,7 @@ const ExpenseEditForm = ({
       type="text"
       name="name"
       value={editFormData.name}
-      className="form-control custom-input mb-2"
+      className="form-control custom-input text-end mb-2"
       onChange={handleEditFormChange}
       placeholder="اسم المصروف"
     />
@@ -458,7 +490,7 @@ const ExpenseEditForm = ({
       type="number"
       name="amount"
       value={editFormData.amount}
-      className="form-control custom-input mb-2"
+      className="form-control custom-input text-end mb-2"
       onChange={handleEditFormChange}
       placeholder="المبلغ"
     />
@@ -467,6 +499,7 @@ const ExpenseEditForm = ({
         type="submit"
         onClick={handleUpdateExpense}
         className="btn btn-success btn-sm me-1 custom-edit-button"
+        style={{ backgroundColor: "#28a745", color: "#fff" }}
       >
         <FontAwesomeIcon icon={faSave} />
       </button>
@@ -474,6 +507,7 @@ const ExpenseEditForm = ({
         type="button"
         onClick={handleCancelEdit}
         className="btn btn-secondary btn-sm custom-edit-button"
+        style={{ backgroundColor: "#6c757d", color: "#fff" }}
       >
         <FontAwesomeIcon icon={faTimes} />
       </button>

@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import Swal from "sweetalert2";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
@@ -39,6 +40,7 @@ const PaymentReports = () => {
       didOpen: () => {
         Swal.showLoading();
       },
+      rtl: true,
     });
     setError(null);
     setLoading(true);
@@ -141,6 +143,7 @@ const PaymentReports = () => {
       icon: "error",
       title: "خطأ",
       text: errorMessage,
+      rtl: true,
     });
   };
 
@@ -227,14 +230,20 @@ const PaymentReports = () => {
   }
 
   return (
-    <div className="container mt-4">
-      <div className="row">
+    <div className="container mt-4" style={{ backgroundColor: "#f0f0f0" }}>
+      <h2
+        className="text-center mb-4 py-2 py-md-4 fs-2 fw-bold"
+        style={{ color: "#1a237e" }}
+      >
+        تقارير المدفوعات
+      </h2>
+      <div className="row" dir="rtl">
         <div className="col-md-8 mb-4">
           <div className="d-flex flex-column align-items-center">
             <div style={{ height: "400px", width: "100%" }}>
               {chartData && <Pie data={chartData} options={chartOptions} />}
             </div>
-            <p className="lead mt-3 text-center">
+            <p className="lead mt-3 text-center" style={{ color: "#000" }}>
               {hoveredPaymentAmount !== null ? (
                 <>
                   قيمة الدفعة:{" "}
@@ -257,10 +266,18 @@ const PaymentReports = () => {
           <div className="mb-3">
             <input
               type="text"
-              className="form-control custom-input"
+              className="form-control custom-input text-end"
               placeholder="ابحث عن المدفوعات..."
               value={searchKeyword}
               onChange={handleSearchChange}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#64b5f6",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             />
           </div>
           <div
@@ -268,16 +285,25 @@ const PaymentReports = () => {
             style={{ maxHeight: "400px", overflowY: "auto" }}
           >
             {filteredPayments && filteredPayments.length > 0 ? (
-              <div className="d-flex flex-wrap">
+              <div className="d-flex flex-wrap flex-column-reverse">
                 {filteredPayments.map((payment) => (
                   <div
                     key={payment.id}
                     className="card m-2"
-                    style={{ width: "18rem" }}
+                    style={{
+                      width: "100%",
+                      backgroundColor: "white",
+                      boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                    }}
+                    dir="rtl"
                   >
-                    <div className="card-body">
-                      <h5 className="card-title">{payment.title}</h5>
-                      <p className="card-text">المبلغ: {payment.amount} ج.م</p>
+                    <div className="card-body text-end">
+                      <h5 className="card-title" style={{ color: "#000" }}>
+                        {payment.title}
+                      </h5>
+                      <p className="card-text" style={{ color: "#000" }}>
+                        المبلغ: {payment.amount} ج.م
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -293,19 +319,20 @@ const PaymentReports = () => {
       <style>
         {`
                     .custom-input {
-                        border: 1px solid #ced4da;
-                        border-radius: 0.375rem;
-                        padding: 0.375rem 0.75rem;
-                        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+                       border: 2px solid #64b5f6;
+                         box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+                        padding: 10px;
+                        transition: border-color 0.3s ease;
+                         font-size: 1rem;
                         background-color: white;
                         color: #444;
-                        font-size: 1rem;
-                        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+                         border-radius: 0.375rem;
+
                     }
                      .custom-input:focus {
-                         border-color: #86b7fe;
-                          outline: 0;
-                        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+                          border-color: #86b7fe;
+                        outline: 0;
+                         box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
                      }
                 `}
       </style>

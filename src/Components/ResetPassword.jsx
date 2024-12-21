@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const ResetPassword = () => {
   const [email, setEmail] = useState("");
@@ -98,19 +99,24 @@ const ResetPassword = () => {
 
   return (
     <div className="container vh-100" style={{ direction: "rtl" }}>
-      <div className="row justify-content-center">
-        <div className="col-xl-6 col-12">
-          <div className="card hover shadow-lg p-3 mt-5">
-            <h2 className="text-center">إعادة تعيين كلمة السر</h2>
+      <div className="row justify-content-center align-items-center">
+        <div className="col-md-8 col-lg-6">
+          <div className="card p-4 shadow-lg mt-5">
+            <h2
+              className="text-center mb-4 fw-bold"
+              style={{ fontSize: "2rem" }}
+            >
+              إعادة تعيين كلمة السر
+            </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label htmlFor="email" className="form-label">
+                <label htmlFor="email" className="form-label fw-bold fs-5">
                   البريد الإلكتروني
                 </label>
                 <input
                   type="email"
                   id="email"
-                  className="form-control"
+                  className="form-control border-2"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="أدخل بريدك الإلكتروني"
@@ -118,13 +124,13 @@ const ResetPassword = () => {
               </div>
 
               <div className="mb-3">
-                <label htmlFor="code" className="form-label">
+                <label htmlFor="code" className="form-label fw-bold fs-5">
                   كود التأكيد
                 </label>
                 <input
                   type="text"
                   id="code"
-                  className="form-control"
+                  className="form-control border-2"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="أدخل كود التأكيد"
@@ -132,13 +138,16 @@ const ResetPassword = () => {
               </div>
 
               <div className="mb-3">
-                <label htmlFor="newPassword" className="form-label">
+                <label
+                  htmlFor="newPassword"
+                  className="form-label fw-bold fs-5"
+                >
                   كلمة المرور الجديدة
                 </label>
                 <input
                   type="password"
                   id="newPassword"
-                  className="form-control"
+                  className="form-control border-2"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="أدخل كلمة المرور الجديدة"
@@ -146,13 +155,16 @@ const ResetPassword = () => {
               </div>
 
               <div className="mb-3">
-                <label htmlFor="confirmPassword" className="form-label">
+                <label
+                  htmlFor="confirmPassword"
+                  className="form-label fw-bold fs-5"
+                >
                   تأكيد كلمة المرور الجديدة
                 </label>
                 <input
                   type="password"
                   id="confirmPassword"
-                  className="form-control"
+                  className="form-control border-2"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="أعد إدخال كلمة المرور الجديدة"
@@ -161,8 +173,9 @@ const ResetPassword = () => {
 
               <button
                 type="submit"
-                className="btn btn-dark w-100"
+                className="btn btn-dark w-100 fw-bold"
                 disabled={loading}
+                style={{ fontSize: "1.1rem" }}
               >
                 {loading
                   ? "جاري إعادة تعيين كلمة المرور..."

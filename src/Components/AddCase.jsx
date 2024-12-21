@@ -2,25 +2,30 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 const AddCase = () => {
   const navigate = useNavigate();
   const [caseData, setCaseData] = useState({
-    client_name: "",
     opponent_name: "",
+    opponent_type: "",
     opponent_phone: "",
     opponent_address: "",
     case_category_id: "",
-    client_ID: "",
-    opponent_nationality: "",
-    opponent_lawyer_name: "",
-    opponent_lawyer_phone: "",
+    ID_number: "",
+    opponent_nation: "",
+    opponent_lawyer: "",
+    lawyer_phone: "",
     court_name: "",
     judge_name: "",
     case_number: "",
     case_title: "",
     contract_price: "",
-    case_notes: "",
+    notes: "",
+    circle: "",
+    attorney_number: "",
+    register_date: "",
   });
   const [loading, setLoading] = useState(false);
   const [caseCategories, setCaseCategories] = useState([]);
@@ -31,7 +36,7 @@ const AddCase = () => {
     const token = localStorage.getItem("token");
     if (!token) {
       showErrorAlert("خطأ", "لم يتم العثور على التوكن. يرجى تسجيل الدخول.");
-      navigate("/SignUp"); // توجيه المستخدم إلى صفحة تسجيل الدخول
+      navigate("/SignUp");
       return null;
     }
     return token;
@@ -157,21 +162,24 @@ const AddCase = () => {
         rtl: true,
       });
       setCaseData({
-        client_name: "",
         opponent_name: "",
+        opponent_type: "",
         opponent_phone: "",
         opponent_address: "",
         case_category_id: "",
-        client_ID: "",
-        opponent_nationality: "",
-        opponent_lawyer_name: "",
-        opponent_lawyer_phone: "",
+        ID_number: "",
+        opponent_nation: "",
+        opponent_lawyer: "",
+        lawyer_phone: "",
         court_name: "",
         judge_name: "",
         case_number: "",
         case_title: "",
         contract_price: "",
-        case_notes: "",
+        notes: "",
+        circle: "",
+        attorney_number: "",
+        register_date: "",
       });
       setSelectedCustomerId(null);
     } catch (error) {
@@ -191,6 +199,8 @@ const AddCase = () => {
           switch (msg) {
             case "The opponent name field is required.":
               return "حقل اسم الخصم مطلوب.";
+            case "The opponent type field is required.":
+              return "حقل نوع الخصم مطلوب.";
             case "The opponent phone field is required.":
               return "حقل هاتف الخصم مطلوب.";
             case "The opponent nation field is required.":
@@ -209,6 +219,12 @@ const AddCase = () => {
               return "حقل مبلغ العقد مطلوب.";
             case "The ID number field is required.":
               return "حقل رقم الهوية مطلوب";
+            case "The circle field is required.":
+              return "حقل الدائرة مطلوب";
+            case "The attorney number field is required.":
+              return "حقل رقم التوكيل مطلوب.";
+            case "The register date field is required.":
+              return "حقل تاريخ التسجيل مطلوب.";
             default:
               return msg;
           }
@@ -232,18 +248,35 @@ const AddCase = () => {
   };
 
   return (
-    <div className="container-fluid mt-5" dir="rtl">
-      <h1 className="text-center mb-4">إضافة قضية جديدة</h1>
+    <div
+      className="container-fluid mt-5"
+      dir="rtl"
+      style={{ backgroundColor: "#f0f0f0" }}
+    >
+      <h1
+        className="text-center mb-4 py-2 py-md-4 fs-2 fw-bold"
+        style={{ color: "#1a237e" }}
+      >
+        إضافة قضية جديدة
+      </h1>
       <div className="row">
         <div className="col-12 text-end">
           <div className="row mb-3">
             <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">العميل</label>
               <select
-                className="form-select form-control-lg rounded-3 border-dark shadow-sm"
+                className="form-select form-control-lg rounded-3 border-dark shadow-sm text-end"
                 value={selectedCustomerId}
                 onChange={(e) => setSelectedCustomerId(e.target.value)}
                 disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               >
                 <option value="">اختر العميل</option>
                 {customers.map((customer) => (
@@ -257,51 +290,103 @@ const AddCase = () => {
               <label className="form-label fs-5 fw-bold">اسم الخصم</label>
               <input
                 type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
                 value={caseData.opponent_name}
                 onChange={(e) =>
                   setCaseData({ ...caseData, opponent_name: e.target.value })
                 }
                 disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
           </div>
           <div className="row mb-3">
             <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">نوع الخصم</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.opponent_type}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, opponent_type: e.target.value })
+                }
+                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">هاتف الخصم</label>
               <input
                 type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
                 value={caseData.opponent_phone}
                 onChange={(e) =>
                   setCaseData({ ...caseData, opponent_phone: e.target.value })
                 }
                 disabled={loading}
-              />
-            </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label fs-5 fw-bold">عنوان الخصم</label>
-              <input
-                type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
-                value={caseData.opponent_address}
-                onChange={(e) =>
-                  setCaseData({ ...caseData, opponent_address: e.target.value })
-                }
-                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
           </div>
           <div className="row mb-3">
             <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">عنوان الخصم</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.opponent_address}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, opponent_address: e.target.value })
+                }
+                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">فئة القضية</label>
               <select
-                className="form-select form-control-lg rounded-3 border-dark shadow-sm"
+                className="form-select form-control-lg rounded-3 border-dark shadow-sm text-end"
                 value={caseData.case_category_id}
                 onChange={(e) =>
                   setCaseData({ ...caseData, case_category_id: e.target.value })
                 }
                 disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               >
                 <option value="">اختر فئة القضية</option>
                 {caseCategories.map((category) => (
@@ -311,152 +396,304 @@ const AddCase = () => {
                 ))}
               </select>
             </div>
+          </div>
+          <div className="row mb-3">
             <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">رقم هوية الموكل</label>
               <input
                 type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
-                value={caseData.client_ID}
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.ID_number}
                 onChange={(e) =>
-                  setCaseData({ ...caseData, client_ID: e.target.value })
+                  setCaseData({ ...caseData, ID_number: e.target.value })
                 }
                 disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
-          </div>
-          <div className="row mb-3">
             <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">جنسية الخصم</label>
               <input
                 type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
-                value={caseData.opponent_nationality}
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.opponent_nation}
                 onChange={(e) =>
                   setCaseData({
                     ...caseData,
-                    opponent_nationality: e.target.value,
+                    opponent_nation: e.target.value,
                   })
                 }
                 disabled={loading}
-              />
-            </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label fs-5 fw-bold">اسم محامي الخصم</label>
-              <input
-                type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
-                value={caseData.opponent_lawyer_name}
-                onChange={(e) =>
-                  setCaseData({
-                    ...caseData,
-                    opponent_lawyer_name: e.target.value,
-                  })
-                }
-                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
           </div>
           <div className="row mb-3">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">اسم محامي الخصم</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.opponent_lawyer}
+                onChange={(e) =>
+                  setCaseData({
+                    ...caseData,
+                    opponent_lawyer: e.target.value,
+                  })
+                }
+                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
+              />
+            </div>
             <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">
                 هاتف محامي الخصم
               </label>
               <input
                 type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
-                value={caseData.opponent_lawyer_phone}
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.lawyer_phone}
                 onChange={(e) =>
                   setCaseData({
                     ...caseData,
-                    opponent_lawyer_phone: e.target.value,
+                    lawyer_phone: e.target.value,
                   })
                 }
                 disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
+          </div>
+          <div className="row mb-3">
             <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">اسم المحكمة</label>
               <input
                 type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
                 value={caseData.court_name}
                 onChange={(e) =>
                   setCaseData({ ...caseData, court_name: e.target.value })
                 }
                 disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
-          </div>
-          <div className="row mb-3">
             <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">اسم القاضي</label>
               <input
                 type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
                 value={caseData.judge_name}
                 onChange={(e) =>
                   setCaseData({ ...caseData, judge_name: e.target.value })
                 }
                 disabled={loading}
-              />
-            </div>
-            <div className="col-md-6 mb-3">
-              <label className="form-label fs-5 fw-bold">رقم القضية</label>
-              <input
-                type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
-                value={caseData.case_number}
-                onChange={(e) =>
-                  setCaseData({ ...caseData, case_number: e.target.value })
-                }
-                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
           </div>
           <div className="row mb-3">
             <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">رقم القضية</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.case_number}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, case_number: e.target.value })
+                }
+                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">عنوان القضية</label>
               <input
                 type="text"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
                 value={caseData.case_title}
                 onChange={(e) =>
                   setCaseData({ ...caseData, case_title: e.target.value })
                 }
                 disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
+          </div>
+          <div className="row mb-3">
             <div className="col-md-6 mb-3">
               <label className="form-label fs-5 fw-bold">مبلغ العقد</label>
               <input
                 type="number"
-                className="form-control form-control-lg rounded-3 border-dark shadow-sm"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
                 value={caseData.contract_price}
                 onChange={(e) =>
                   setCaseData({ ...caseData, contract_price: e.target.value })
                 }
                 disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">الدائرة</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.circle}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, circle: e.target.value })
+                }
+                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
+              />
+            </div>
+          </div>
+          <div className="row mb-3">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">رقم التوكيل</label>
+              <input
+                type="text"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.attorney_number}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, attorney_number: e.target.value })
+                }
+                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
+              />
+            </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fs-5 fw-bold">تاريخ التسجيل</label>
+              <input
+                type="date"
+                className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+                value={caseData.register_date}
+                onChange={(e) =>
+                  setCaseData({ ...caseData, register_date: e.target.value })
+                }
+                disabled={loading}
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "#64b5f6",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  fontSize: "1rem",
+                  padding: "10px",
+                  transition: "border-color 0.3s ease",
+                }}
               />
             </div>
           </div>
           <div className="mb-3">
             <label className="form-label fs-5 fw-bold">ملاحظات القضية</label>
             <textarea
-              className="form-control form-control-lg rounded-3 border-dark shadow-sm"
-              value={caseData.case_notes}
+              className="form-control form-control-lg rounded-3 border-dark shadow-sm text-end"
+              value={caseData.notes}
               onChange={(e) =>
-                setCaseData({ ...caseData, case_notes: e.target.value })
+                setCaseData({ ...caseData, notes: e.target.value })
               }
               disabled={loading}
+              style={{
+                borderWidth: "2px",
+                borderColor: "#64b5f6",
+                boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                fontSize: "1rem",
+                padding: "10px",
+                transition: "border-color 0.3s ease",
+              }}
             ></textarea>
           </div>
           <div className="text-end">
             <button
-              className="btn btn-dark btn-lg"
+              className="btn btn-dark btn-lg px-5 py-2"
               onClick={handleAddCase}
               disabled={loading}
+              style={{ backgroundColor: "#1a237e", color: "#fff" }}
             >
-              {loading ? "جاري الإضافة..." : "إضافة القضية"}
+              {loading ? (
+                "جاري الإضافة..."
+              ) : (
+                <>
+                  <i className="fa fa-plus me-2"></i>
+                  إضافة القضية
+                </>
+              )}
             </button>
           </div>
         </div>

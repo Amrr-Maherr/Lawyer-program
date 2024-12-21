@@ -276,7 +276,7 @@ const Customers = () => {
   );
 
   return (
-    <div className="text-center">
+    <div className="text-center" style={{ backgroundColor: "#f0f0f0" }}>
       <>
         <div className="container">
           <div className="row p-0 align-items-center">
@@ -289,7 +289,7 @@ const Customers = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   borderWidth: "2px",
-                  borderColor: "#0d6efd",
+                  borderColor: "#64b5f6",
                   boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
                   fontSize: "1rem",
                   padding: "10px",
@@ -298,7 +298,12 @@ const Customers = () => {
               />
             </div>
             <div className="col-12 col-md-6 my-3 text-center text-md-end">
-              <h1 className="py-2 py-md-4 fs-2 fw-bold">قائمة الموكلين</h1>
+              <h1
+                className="py-2 py-md-4 fs-2 fw-bold"
+                style={{ color: "#1a237e" }}
+              >
+                قائمة الموكلين
+              </h1>
             </div>
           </div>
         </div>
@@ -308,9 +313,16 @@ const Customers = () => {
             {filteredClients.length > 0 ? (
               filteredClients.map((client) => (
                 <div className="col my-3" key={client.id}>
-                  <div className="card h-100 case-card" dir="rtl">
-                    <div className="card-header case-card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                      <h5 className="card-title m-0 text-start flex-grow-1 ps-2">
+                  <div
+                    className="card h-100 case-card"
+                    dir="rtl"
+                    style={{ backgroundColor: "#fff" }}
+                  >
+                    <div
+                      className="card-header case-card-header text-white d-flex justify-content-between align-items-center"
+                      style={{ backgroundColor: "#1a237e" }}
+                    >
+                      <h5 className="card-title m-0 text-start flex-grow-1 ps-2 w-100 text-end">
                         {client.name}
                       </h5>
                       <i className="fas fa-user fs-4 me-2"></i>
@@ -320,14 +332,14 @@ const Customers = () => {
                         <div className="d-flex justify-content-between align-items-center">
                           <span
                             className="text-bold me-2"
-                            style={{ fontSize: "1.1rem" }}
+                            style={{ fontSize: "1.1rem", color: "#343a40" }}
                           >
                             <i className="fas fa-phone ms-2"></i>
                             رقم الهاتف:
                           </span>
                           <span
                             className="text-start"
-                            style={{ fontSize: "1rem" }}
+                            style={{ fontSize: "1rem", color: "#343a40" }}
                           >
                             {client.phone}
                           </span>
@@ -336,14 +348,14 @@ const Customers = () => {
                         <div className="d-flex justify-content-between align-items-center">
                           <span
                             className="text-bold me-2"
-                            style={{ fontSize: "1.1rem" }}
+                            style={{ fontSize: "1.1rem", color: "#343a40" }}
                           >
                             <i className="fas fa-globe ms-2"></i>
                             الجنسية:
                           </span>
                           <span
                             className="text-start"
-                            style={{ fontSize: "1rem" }}
+                            style={{ fontSize: "1rem", color: "#343a40" }}
                           >
                             {client.nationality}
                           </span>
@@ -352,14 +364,14 @@ const Customers = () => {
                         <div className="d-flex justify-content-between align-items-center">
                           <span
                             className="text-bold me-2"
-                            style={{ fontSize: "1.1rem" }}
+                            style={{ fontSize: "1.1rem", color: "#343a40" }}
                           >
                             <i className="fas fa-map-marker-alt ms-2"></i>
                             العنوان:
                           </span>
                           <span
                             className="text-start"
-                            style={{ fontSize: "1rem" }}
+                            style={{ fontSize: "1rem", color: "#343a40" }}
                           >
                             {client.address}
                           </span>
@@ -370,18 +382,21 @@ const Customers = () => {
                         <button
                           className="btn btn-info btn-sm case-button"
                           onClick={() => handleViewDetails(client)}
+                          style={{ backgroundColor: "#0dcaf0", color: "#fff" }}
                         >
                           <i className="fa fa-info-circle ms-1"></i> تفاصيل
                         </button>
                         <button
                           className="btn btn-primary btn-sm case-button"
                           onClick={() => handleOpenEditModal(client)}
+                          style={{ backgroundColor: "#0d6efd", color: "#fff" }}
                         >
                           <i className="fa fa-edit ms-1"></i> تعديل
                         </button>
                         <button
                           className="btn btn-danger btn-sm case-button"
                           onClick={() => handleDelete(client.id)}
+                          style={{ backgroundColor: "#dc3545", color: "#fff" }}
                         >
                           <i className="fa fa-trash-alt ms-1"></i> حذف
                         </button>
@@ -404,7 +419,11 @@ const Customers = () => {
           <div className="container">
             <div className="row text-center">
               <div className="col-12 col-md-6 my-3">
-                <Link to="/AddCustomer" className="btn btn-dark px-5 py-2">
+                <Link
+                  to="/AddCustomer"
+                  className="btn btn-dark px-5 py-2"
+                  style={{ backgroundColor: "#1a237e", color: "#fff" }}
+                >
                   <i className="fa fa-plus me-2"></i> إضافة موكل جديد
                 </Link>
               </div>
@@ -412,6 +431,7 @@ const Customers = () => {
                 <Link
                   to="/customer-categories"
                   className="btn btn-dark px-5 py-2"
+                  style={{ backgroundColor: "#1a237e", color: "#fff" }}
                 >
                   <i className="fa fa-list me-2"></i> إضافة نوع موكل جديد
                 </Link>
@@ -432,13 +452,13 @@ const Customers = () => {
               className="modal-content"
               style={{
                 borderWidth: "3px",
-                borderColor: "#343a40",
+                borderColor: "#1a237e",
                 boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
               }}
             >
               <div
-                className="modal-header bg-dark text-white"
-                style={{ padding: "15px" }}
+                className="modal-header text-white"
+                style={{ padding: "15px", backgroundColor: "#1a237e" }}
               >
                 <h5
                   className="modal-title w-100 text-end"
@@ -653,13 +673,13 @@ const Customers = () => {
               className="modal-content"
               style={{
                 borderWidth: "3px",
-                borderColor: "#343a40",
+                borderColor: "#1a237e",
                 boxShadow: "0 0 15px rgba(0, 0, 0, 0.2)",
               }}
             >
               <div
-                className="modal-header bg-dark text-white"
-                style={{ padding: "15px" }}
+                className="modal-header text-white"
+                style={{ padding: "15px", backgroundColor: "#1a237e" }}
               >
                 <h5
                   className="modal-title w-100 text-end"

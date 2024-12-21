@@ -28,7 +28,6 @@ function Home() {
   const [displayContractsCount, setDisplayContractsCount] = useState(0);
   const [displayCases, setDisplayCases] = useState(0);
   const [displayExpensesAmount, setDisplayExpensesAmount] = useState(0);
-  const [displayRevenueAmount, setDisplayRevenueAmount] = useState(0);
   const animationFrameRef = useRef(null);
 
   const sessionsChartRef = useRef(null);
@@ -38,7 +37,6 @@ function Home() {
   const paidAmountChartRef = useRef(null);
   const contractsChartRef = useRef(null);
   const expensesChartRef = useRef(null);
-  const revenueChartRef = useRef(null);
 
   const sessionsChartInstance = useRef(null);
   const casesChartInstance = useRef(null);
@@ -47,7 +45,6 @@ function Home() {
   const paidAmountChartInstance = useRef(null);
   const contractsChartInstance = useRef(null);
   const expensesChartInstance = useRef(null);
-  const revenueChartInstance = useRef(null);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -85,8 +82,7 @@ function Home() {
             data.payments || 0,
             data.contracts || 0,
             data.cases || 0,
-            data.expenses || 0,
-            data.revenue || 0
+            data.expenses || 0
           );
         })
         .catch((error) => {
@@ -111,8 +107,7 @@ function Home() {
     targetPaidAmount,
     targetContractsCount,
     targetCases,
-    targetExpensesAmount,
-    targetRevenueAmount
+    targetExpensesAmount
   ) => {
     let startTime = null;
     const duration = 800; // Increased duration for smoother animation
@@ -131,7 +126,6 @@ function Home() {
       setDisplayContractsCount(Math.round(targetContractsCount * progress));
       setDisplayCases(Math.round(targetCases * progress));
       setDisplayExpensesAmount(Math.round(targetExpensesAmount * progress));
-      setDisplayRevenueAmount(Math.round(targetRevenueAmount * progress));
       if (progress < 1) {
         animationFrameRef.current = requestAnimationFrame(animate);
       }
@@ -148,17 +142,17 @@ function Home() {
       y: {
         beginAtZero: true,
         ticks: {
-          color: "#6c757d",
+          color: "#546e7a", // رمادي داكن للأرقام
           font: {
-            size: 14, // تم تعديل حجم الخط
+            size: 14,
           },
         },
       },
       x: {
         ticks: {
-          color: "#6c757d",
+          color: "#546e7a", // رمادي داكن للأرقام
           font: {
-            size: 14, // تم تعديل حجم الخط
+            size: 14,
           },
         },
       },
@@ -179,10 +173,10 @@ function Home() {
         position: "nearest",
         padding: 10,
         titleFont: {
-          size: 16, // تم تعديل حجم خط العنوان في التلميح
+          size: 16,
         },
         bodyFont: {
-          size: 16, // تم تعديل حجم خط محتوى التلميح
+          size: 16,
         },
         callbacks: {
           title: (tooltipItems) => {
@@ -195,16 +189,16 @@ function Home() {
       },
       title: {
         display: true,
-        color: "#343a40",
+        color: "#1a237e", // أزرق كحلي داكن للعناوين
         font: {
-          size: 18, // تم تعديل حجم خط العنوان
+          size: 18,
           weight: "bold",
         },
       },
     },
     animation: {
-      duration: 1000, // Increased duration for smoother animation
-      easing: "easeInOutQuad", // Changed easing function for smoother transitions
+      duration: 1000,
+      easing: "easeInOutQuad",
     },
   };
 
@@ -288,7 +282,7 @@ function Home() {
       sessionsChartInstance,
       displaySessionsCount,
       "الجلسات",
-      "#34495e"
+      "#2196f3" // أزرق داكن للجلسات
     );
   }, [displaySessionsCount]);
 
@@ -298,7 +292,7 @@ function Home() {
       casesChartInstance,
       displayCases,
       "القضايا",
-      "#546e7a"
+      "#4caf50" // أخضر للقضايا
     );
   }, [displayCases]);
 
@@ -308,52 +302,39 @@ function Home() {
       clientsChartInstance,
       displayClientsCount,
       "العملاء",
-      "#607d8b"
+      "#78909c" // رمادي للعملاء
     );
   }, [displayClientsCount]);
-
   useEffect(() => {
     return createChart(
       paidAmountChartRef,
       paidAmountChartInstance,
       displayPaidAmount,
       "المدفوع",
-      "#90a4ae"
+      "#2196f3" // أزرق داكن للمدفوع
     );
   }, [displayPaidAmount]);
-
   useEffect(() => {
     return createChart(
       contractsChartRef,
       contractsChartInstance,
       displayContractsCount,
       "العقود",
-      "#b0bec5"
+      "#4caf50" // أخضر للعقود
     );
   }, [displayContractsCount]);
-
   useEffect(() => {
     return createChart(
       expensesChartRef,
       expensesChartInstance,
       displayExpensesAmount,
       "المصروفات",
-      "#cfd8dc"
+      "#78909c" // رمادي للمصروفات
     );
   }, [displayExpensesAmount]);
 
-  useEffect(() => {
-    return createChart(
-      revenueChartRef,
-      revenueChartInstance,
-      displayRevenueAmount,
-      "المبالغ المتبقية",
-      "#eceff1"
-    );
-  }, [displayRevenueAmount]);
-
   return (
-    <div className="container-fluid home p-4">
+    <div className="container-fluid p-4" style={{ backgroundColor: "#f0f0f0" }}>
       {/* Row for welcome message */}
       <div className="row mb-4">
         <div className="col-12">
@@ -364,15 +345,10 @@ function Home() {
       {/* Row for calendar and charts */}
       <div className="row">
         {/* Calendar Card */}
-        <div className="col-lg-4 col-md-5 col-12 mb-3 d-flex align-items-stretch">
-          <div
-            className="card shadow-lg d-flex align-items-center justify-content-center p-3 w-100 h-100"
-            style={{ border: "1px solid #dee2e6" }}
-          >
-            <Suspense fallback={<div>جاري تحميل التقويم...</div>}>
-              <Calendar />
-            </Suspense>
-          </div>
+        <div className="col-lg-4 col-md-5 col-12 mb-3 d-flex align-items-center justify-content-center">
+          <Suspense fallback={<div>جاري تحميل التقويم...</div>}>
+            <Calendar />
+          </Suspense>
         </div>
 
         {/* Charts Section */}
@@ -432,14 +408,6 @@ function Home() {
                 <canvas ref={expensesChartRef}></canvas>
               </div>
             </div>
-            <div className="col-12">
-              <div
-                className="chart-container"
-                style={{ backgroundColor: "white", borderRadius: "8px" }}
-              >
-                <canvas ref={revenueChartRef}></canvas>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -448,7 +416,7 @@ function Home() {
       <div className="row mt-4">
         {/* Header for Hot Links */}
         <div className="col-12 text-end">
-          <HotLinksTitle title="روابط سريعة" style={{ color: "#343a40" }} />
+          <HotLinksTitle title="روابط سريعة" style={{ color: "#1a237e" }} />
         </div>
 
         {/* Hot Links */}
@@ -459,8 +427,8 @@ function Home() {
               icon="fa-solid fa-calendar-day"
               link="/sessions"
               style={{
-                backgroundColor: "#f0f0f0",
-                color: "#343a40",
+                backgroundColor: "#64b5f6",
+                color: "#fff",
                 boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                 borderRadius: "8px",
               }}
@@ -472,8 +440,8 @@ function Home() {
               icon="fa-solid fa-folder-open"
               link="/cases"
               style={{
-                backgroundColor: "#f0f0f0",
-                color: "#343a40",
+                backgroundColor: "#64b5f6",
+                color: "#fff",
                 boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                 borderRadius: "8px",
               }}
@@ -485,8 +453,8 @@ function Home() {
               icon="fa-solid fa-users"
               link="/customers"
               style={{
-                backgroundColor: "#f0f0f0",
-                color: "#343a40",
+                backgroundColor: "#64b5f6",
+                color: "#fff",
                 boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                 borderRadius: "8px",
               }}
@@ -498,21 +466,8 @@ function Home() {
               icon="fa-solid fa-credit-card"
               link="/expenses"
               style={{
-                backgroundColor: "#f0f0f0",
-                color: "#343a40",
-                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                borderRadius: "8px",
-              }}
-            />
-          </div>
-          <div className="col">
-            <HotLink
-              title="الإعدادات"
-              icon="fa-solid fa-cogs"
-              link="/system-settings"
-              style={{
-                backgroundColor: "#f0f0f0",
-                color: "#343a40",
+                backgroundColor: "#64b5f6",
+                color: "#fff",
                 boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                 borderRadius: "8px",
               }}
