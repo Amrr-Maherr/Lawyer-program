@@ -14,6 +14,7 @@ const Payments = () => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [editPaymentId, setEditPaymentId] = useState(null);
   const [editPayment, setEditPayment] = useState(null);
+  const [initialCasesLoading, setInitialCasesLoading] = useState(true); // 1. إضافة حالة initialCasesLoading
 
   const handleSearchChange = (e) => {
     const term = e.target.value;
@@ -60,7 +61,6 @@ const Payments = () => {
         );
         setCases(response.data.cases);
         setFilteredCases(response.data.cases);
-        Swal.close();
       } catch (error) {
         console.error("هناك خطأ أثناء جلب القضايا:", error);
         Swal.fire({
@@ -70,6 +70,9 @@ const Payments = () => {
           confirmButtonText: "حسنًا",
           rtl: true,
         });
+      } finally {
+        Swal.close();
+        setInitialCasesLoading(false); // 2. تحديث initialCasesLoading بعد التحميل
       }
     };
     fetchCases();
@@ -111,7 +114,6 @@ const Payments = () => {
         );
 
         setPayments(response.data.payments);
-        Swal.close();
       } catch (error) {
         console.error("هناك خطأ أثناء جلب المدفوعات:", error);
         Swal.fire({
@@ -121,6 +123,8 @@ const Payments = () => {
           confirmButtonText: "حسنًا",
           rtl: true,
         });
+      } finally {
+        Swal.close();
       }
     };
 
@@ -165,7 +169,7 @@ const Payments = () => {
         );
         const fetchedPayments = response.data.payments;
         setPayments(fetchedPayments);
-        Swal.close();
+
         if (fetchedPayments.length === 0) {
           Swal.fire({
             icon: "info",
@@ -184,6 +188,8 @@ const Payments = () => {
           confirmButtonText: "حسنًا",
           rtl: true,
         });
+      } finally {
+        Swal.close();
       }
     }
   };
@@ -287,7 +293,7 @@ const Payments = () => {
         }
       );
       setSelectedPayment(response.data.payment);
-      Swal.close();
+
       setOpenModal(true);
     } catch (error) {
       console.error("خطأ أثناء جلب تفاصيل الدفعة:", error);
@@ -298,6 +304,8 @@ const Payments = () => {
         confirmButtonText: "حسنًا",
         rtl: true,
       });
+    } finally {
+      Swal.close();
     }
   };
   const handleCloseModal = () => {
@@ -390,7 +398,8 @@ const Payments = () => {
     });
   };
 
-  if (cases.length === 0 && !selectedCase) {
+  if (initialCasesLoading) {
+    // 3. استخدام initialCasesLoading في الشرط
     Swal.fire({
       title: "جاري تحميل القضايا...",
       allowOutsideClick: false,
@@ -400,9 +409,8 @@ const Payments = () => {
       },
       rtl: true,
     });
-  } else {
-    Swal.close();
   }
+
   return (
     <div
       className="container-fluid px-0 my-4"

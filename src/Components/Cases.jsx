@@ -967,7 +967,7 @@ const Cases = () => {
                   <div className="d-flex flex-wrap justify-content-center gap-2 mt-2">
                     {/* ... (أزرار الإجراءات لم تتغير) ... */}
                     <button
-                      className="btn btn-info btn-sm                       case-button"
+                      className="btn btn-info btn-smcase-button"
                       onClick={() =>
                         handleDetails(item.customer_id, item.case_id)
                       }
@@ -1759,6 +1759,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -1774,6 +1775,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -1789,6 +1791,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -1803,6 +1806,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           >
             <option value="cash">كاش</option>
@@ -1847,6 +1851,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -1862,6 +1867,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -1876,6 +1882,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -1920,6 +1927,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -1937,6 +1945,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -1954,6 +1963,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -1971,6 +1981,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -1988,6 +1999,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2005,6 +2017,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2022,6 +2035,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2039,6 +2053,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2056,6 +2071,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2071,6 +2087,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2088,6 +2105,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2105,6 +2123,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2120,6 +2139,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2137,6 +2157,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2154,6 +2175,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2171,6 +2193,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2188,6 +2211,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2205,6 +2229,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2222,6 +2247,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2239,6 +2265,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2254,6 +2281,7 @@ const Cases = () => {
                 fontSize: "1rem",
                 padding: "10px",
                 border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+                textAlign: "right",
               }}
             />
           </div>
@@ -2294,6 +2322,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -2308,6 +2337,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -2493,6 +2523,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -2508,6 +2539,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -2523,6 +2555,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -2563,6 +2596,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -2578,6 +2612,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
@@ -2593,6 +2628,7 @@ const Cases = () => {
               fontSize: "1rem",
               padding: "10px",
               border: "1px solid #64b5f6", // لون حواف حقول الإدخال
+              textAlign: "right",
             }}
           />
         </div>
