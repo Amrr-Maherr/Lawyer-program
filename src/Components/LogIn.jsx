@@ -83,7 +83,7 @@ function Login() {
           if (error.response.status === 403) {
             showErrorAlert(
               "خطأ",
-              `${error.response.data}<br>يرجى التواصل مع إدارة النظام لتفعيل حسابك.`
+              `${error.response.data}يرجى التواصل مع إدارة النظام لتفعيل حسابك.`
             );
           } else if (error.response.data && error.response.data.message) {
             showErrorAlert("خطأ", error.response.data.message);

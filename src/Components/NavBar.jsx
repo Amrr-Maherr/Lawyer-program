@@ -40,7 +40,7 @@ function NavBar() {
           icon: "success",
           confirmButtonText: "موافق",
         }).then(() => {
-          navigate("/SignUp");
+          navigate("/login");
         });
       } else {
         Swal.fire({
