@@ -1,44 +1,47 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
+// Importing necessary libraries and CSS files
+import React from "react"; // React core library for building the UI.
+import { BrowserRouter, Routes, Route } from "react-router-dom"; // React Router components for handling routing in the app.
+import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS for styling and layout utilities.
+import "@fortawesome/fontawesome-free/css/all.min.css"; // Font Awesome icons CSS for using icons in the app.
 
-import "./App.css";
+import "./App.css"; // Custom CSS file for app-specific styles.
 
-// Components
-import NavBar from "./Components/NavBar";
-import Home from "./Components/Home";
-import Cases from "./Components/Cases";
-import SingleCase from "./Components/SingleCase";
-import AddCase from "./Components/AddCase";
-import Sessions from "./Components/Sessions";
-import Payments from "./Components/Payments";
-import Attachments from "./Components/attachments";
-import LogIn from "./Components/LogIn";
-import SignUp from "./Components/SignUp";
-import Customers from "./Components/Customers";
-import Expenses from "./Components/Expenses";
-import SystemSettings from "./Components/SystemSettings";
-import CaseTypes from "./Components/CasesTypes";
-import AddCustomer from "./Components/AddCustomer";
-import ResetPassword from "./Components/ResetPassword";
-import CustomerCategories from "./Components/CustomerCategories";
-import PaymentReports from "./Components/PaymentReports";
-import ForgotPassword from "./Components/ForgotPassword";
-import AddExpense from "./Components/AddExpense.jsx";
-import AddExpenseCategory from "./Components/AddExpenseCategory.jsx";
+// Importing all the components used in the application
+import NavBar from "./Components/NavBar"; // Navigation bar component displayed on most pages.
+import Home from "./Components/Home"; // Home page component.
+import Cases from "./Components/Cases"; // Cases list component.
+import SingleCase from "./Components/SingleCase"; // Component to display details of a single case.
+import AddCase from "./Components/AddCase"; // Component for adding a new case.
+import Sessions from "./Components/Sessions"; // Sessions management component.
+import Payments from "./Components/Payments"; // Payments management component.
+import Attachments from "./Components/attachments"; // Component for handling attachments.
+import LogIn from "./Components/LogIn"; // Log In page component.
+import SignUp from "./Components/SignUp"; // Sign Up page component.
+import Customers from "./Components/Customers"; // Customers list component.
+import Expenses from "./Components/Expenses"; // Expenses management component.
+import SystemSettings from "./Components/SystemSettings"; // System settings page component.
+import CaseTypes from "./Components/CasesTypes"; // Component for managing case types.
+import AddCustomer from "./Components/AddCustomer"; // Component for adding a new customer.
+import ResetPassword from "./Components/ResetPassword"; // Password reset component.
+import CustomerCategories from "./Components/CustomerCategories"; // Component for managing customer categories.
+import PaymentReports from "./Components/PaymentReports"; // Reports for payments.
+import ForgotPassword from "./Components/ForgotPassword"; // Forgot Password component.
+import AddExpense from "./Components/AddExpense.jsx"; // Component for adding a new expense.
+import AddExpenseCategory from "./Components/AddExpenseCategory.jsx"; // Component for adding expense categories.
 
 function App() {
   return (
+    // Wrapping the application in a Router to enable routing
     <BrowserRouter>
       <div className="App">
         <Routes>
+          {/* Define each route with its corresponding path and component(s) */}
           <Route
             path="/"
             element={
               <>
-                <NavBar />
-                <Home />
+                <NavBar /> {/* Navigation bar */}
+                <Home /> {/* Home page */}
               </>
             }
           />
@@ -47,7 +50,7 @@ function App() {
             element={
               <>
                 <NavBar />
-                <Cases />
+                <Cases /> {/* Cases page */}
               </>
             }
           />
@@ -56,7 +59,7 @@ function App() {
             element={
               <>
                 <NavBar />
-                <SingleCase />
+                <SingleCase /> {/* Case details page */}
               </>
             }
           />
@@ -65,10 +68,11 @@ function App() {
             element={
               <>
                 <NavBar />
-                <AddCase />
+                <AddCase /> {/* Add case page */}
               </>
             }
           />
+          {/* Additional routes for other pages */}
           <Route
             path="sessions"
             element={
@@ -150,41 +154,40 @@ function App() {
               </>
             }
           />
-          <Route path="/login" element={<LogIn />} />
+          <Route path="/login" element={<LogIn />} /> {/* Login page */}
           <Route
             path="/CaseTypes"
             element={
               <>
                 <NavBar />
-                <CaseTypes />
+                <CaseTypes /> {/* Manage case types */}
               </>
             }
           />
           <Route
             path="/ResetPassword"
-            element={
-              <>
-                <ResetPassword />
-              </>
-            }
+            element={<ResetPassword />} {/* Password reset */}
           />
           <Route
             path="/AddCustomer"
             element={
               <>
                 <NavBar />
-                <AddCustomer />
+                <AddCustomer /> {/* Add customer */}
               </>
             }
           />
-          <Route path="/SignUp" element={<SignUp />} />
-          <Route path="/ForgotPassword" element={<ForgotPassword />} />
+          <Route path="/SignUp" element={<SignUp />} /> {/* Sign Up page */}
+          <Route
+            path="/ForgotPassword"
+            element={<ForgotPassword />} {/* Forgot Password */}
+          />
           <Route
             path="/customer-categories"
             element={
               <>
                 <NavBar />
-                <CustomerCategories />
+                <CustomerCategories /> {/* Manage customer categories */}
               </>
             }
           />
@@ -194,4 +197,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; // Exporting the App component for use in the React app.
